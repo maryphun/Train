@@ -288,6 +288,7 @@ MonoBehaviour:
   requiredTechNode:
   - {fileID: 1366131706}
   iconRadius: 50
+  techID: 1
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -387,6 +388,7 @@ MonoBehaviour:
   requiredTechNode:
   - {fileID: 309344086}
   iconRadius: 50
+  techID: 5
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -487,6 +489,7 @@ MonoBehaviour:
   - {fileID: 119699769}
   - {fileID: 380275855}
   iconRadius: 50
+  techID: 6
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -586,6 +589,7 @@ MonoBehaviour:
   requiredTechNode:
   - {fileID: 1366131706}
   iconRadius: 50
+  techID: 2
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -686,6 +690,7 @@ MonoBehaviour:
   - {fileID: 1317386027}
   - {fileID: 1970614673}
   iconRadius: 50
+  techID: 8
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -786,6 +791,7 @@ MonoBehaviour:
   - {fileID: 110039036}
   - {fileID: 309344086}
   iconRadius: 50
+  techID: 3
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -1698,6 +1704,7 @@ MonoBehaviour:
   requiredTechNode:
   - {fileID: 1970614673}
   iconRadius: 50
+  techID: 7
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -1852,7 +1859,7 @@ GameObject:
   - component: {fileID: 1366131704}
   - component: {fileID: 1366131706}
   m_Layer: 5
-  m_Name: Tech Button
+  m_Name: Tech Button (0)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1933,6 +1940,7 @@ MonoBehaviour:
   techRequiredPoints: 150
   requiredTechNode: []
   iconRadius: 50
+  techID: 0
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -2261,6 +2269,7 @@ MonoBehaviour:
   - {fileID: 119699769}
   - {fileID: 220278783}
   iconRadius: 50
+  techID: 9
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
@@ -2707,6 +2716,7 @@ MonoBehaviour:
   requiredTechNode:
   - {fileID: 110039036}
   iconRadius: 50
+  techID: 4
   isUnlocked: 0
   isUpgradable: 0
   rect: {fileID: 0}
