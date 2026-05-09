@@ -13,7 +13,7 @@ public class TechUpgradeButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     [SerializeField] int techRequiredPoints;
     [SerializeField] List<TechUpgradeButton> requiredTechNode;
     [SerializeField] float iconRadius = 50.0f;
-    [SerializeField] int techID;
+    [SerializeField] TechType techID;
 
     [Header("Debug")]
     [SerializeField] bool isUnlocked;
