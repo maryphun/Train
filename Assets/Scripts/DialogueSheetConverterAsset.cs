@@ -273,6 +273,8 @@ public class DialogueSheetConverterAsset : ScriptableObject
         {
             yarn.AppendLine($"    <<jump {nextNode}>>");
         }
+
+        yarn.AppendLine();
     }
 
     private void AppendCommands(StringBuilder yarn, string commandCell, int indentLevel)

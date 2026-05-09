@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dialogue Sheet Converter
   m_EditorClassIdentifier: 
   spreadsheetId: 1nyJ6dGCOI1a9f9Nujc7XhxoHXj7qh1cmeDPvAFdLLx4
-  googleApiKey: 
+  googleApiKey: AIzaSyCKVGUttubi0Tf-L7mCxPU1YeZU0qAvT10
   ignoredSheetNames:
   - Master
   outputYarnPath: Assets/Dialogues/GeneratedDialogue.yarn

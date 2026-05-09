@@ -1,0 +1,25 @@
+// Sheet: Dialogue
+
+title: Tutorial_Start
+---
+はじめまして
+白崎桃香: こんにちは
+-> Aにする
+    <<jump Tutorial_A>>
+-> Bにする
+    <<jump Tutorial_B>>
+===
+
+title: Tutorial_A
+---
+白崎桃香: Aを選んだね
+白崎桃香: さすがです
+===
+
+title: Tutorial_B
+---
+奥殿テトラ: Bを選んだね
+奥殿テトラ: まぁ...いいけど
+===
+
+
