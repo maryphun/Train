@@ -6,8 +6,10 @@ title: Tutorial_Start
 白崎桃香: こんにちは
 -> Aにする
     <<jump Tutorial_A>>
+
 -> Bにする
     <<jump Tutorial_B>>
+
 ===
 
 title: Tutorial_A
