@@ -186,7 +186,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Ch_Kaede_TF_default_0: 4386017734290394046
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

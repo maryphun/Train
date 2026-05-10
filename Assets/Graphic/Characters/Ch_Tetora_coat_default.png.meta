@@ -186,7 +186,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Ch_Tetora_coat_default_0: -7022812982106372870
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
