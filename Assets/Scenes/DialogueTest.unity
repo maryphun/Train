@@ -493,8 +493,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u30C6\u30B9\u30C8\u958B\u59CB\n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b8a8ba1a94fd2da4ba080c217f7e8684, type: 2}
-  m_sharedMaterial: {fileID: 7368605922949663447, guid: b8a8ba1a94fd2da4ba080c217f7e8684, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 16eb7ed6b8f1d4c4ea2eb1520173f9d3, type: 2}
+  m_sharedMaterial: {fileID: 4779943674751263729, guid: 16eb7ed6b8f1d4c4ea2eb1520173f9d3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -582,6 +582,10 @@ PrefabInstance:
     - target: {fileID: 2958262985454349539, guid: 52571f68872914e24837210513edea1d, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2958262985454349548, guid: 52571f68872914e24837210513edea1d, type: 3}
+      propertyPath: lettersPerSecond
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2958262986520364887, guid: 52571f68872914e24837210513edea1d, type: 3}
       propertyPath: m_AnchorMax.y
