@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70d41d92c3120b64d9125f8a1f0e7ec4, type: 3}
   m_Name: DebugLanguage
   m_EditorClassIdentifier: Assembly-CSharp-Editor::DebugLanguage
-  language: 0
+  language: 1

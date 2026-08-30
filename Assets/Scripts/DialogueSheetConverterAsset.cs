@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -276,16 +277,11 @@ public class DialogueSheetConverterAsset : ScriptableObject
 
     private void AppendCommands(StringBuilder yarn, string commandCell, int indentLevel)
     {
-        string[] commands = commandCell.Split(
-            new[] { '\n', '\r' },
-            StringSplitOptions.RemoveEmptyEntries
-        );
-
         string indent = new string(' ', indentLevel * 4);
 
-        foreach (string rawCommand in commands)
+        foreach (string rawCommand in GetCommandEntries(commandCell))
         {
-            string command = rawCommand.Trim();
+            string command = StripCommandDelimiters(rawCommand);
 
             if (string.IsNullOrWhiteSpace(command))
                 continue;
@@ -301,24 +297,107 @@ public class DialogueSheetConverterAsset : ScriptableObject
         }
     }
 
-    private string FormatCommand(string command)
+    private List<string> GetCommandEntries(string commandCell)
     {
-        string[] parts = command.Split(
-            new[] { ' ' },
+        List<string> bracketCommands = ExtractBracketCommands(commandCell);
+
+        if (bracketCommands.Count > 0)
+            return bracketCommands;
+
+        return SplitCommandLines(commandCell);
+    }
+
+    private List<string> ExtractBracketCommands(string commandCell)
+    {
+        List<string> commands = new();
+        StringBuilder currentCommand = new();
+        bool insideCommand = false;
+
+        foreach (char c in commandCell)
+        {
+            if (c == '[' && !insideCommand)
+            {
+                insideCommand = true;
+                currentCommand.Clear();
+                continue;
+            }
+
+            if (c == ']' && insideCommand)
+            {
+                AddCommandEntry(commands, currentCommand.ToString());
+                currentCommand.Clear();
+                insideCommand = false;
+                continue;
+            }
+
+            if (insideCommand)
+            {
+                currentCommand.Append(c);
+            }
+        }
+
+        if (insideCommand)
+        {
+            Debug.LogWarning($"Unclosed command bracket in Command cell: {commandCell}");
+            AddCommandEntry(commands, currentCommand.ToString());
+        }
+
+        return commands;
+    }
+
+    private List<string> SplitCommandLines(string commandCell)
+    {
+        List<string> commands = new();
+        string[] lines = commandCell.Split(
+            new[] { '\n', '\r' },
             StringSplitOptions.RemoveEmptyEntries
         );
 
-        if (parts.Length == 0)
+        foreach (string line in lines)
+        {
+            AddCommandEntry(commands, line);
+        }
+
+        return commands;
+    }
+
+    private void AddCommandEntry(List<string> commands, string command)
+    {
+        command = command.Trim();
+
+        if (!string.IsNullOrWhiteSpace(command))
+        {
+            commands.Add(command);
+        }
+    }
+
+    private string StripCommandDelimiters(string command)
+    {
+        command = command.Trim();
+
+        if (command.StartsWith("[") && command.EndsWith("]"))
+        {
+            command = command[1..^1].Trim();
+        }
+
+        return command;
+    }
+
+    private string FormatCommand(string command)
+    {
+        List<string> parts = SplitCommandParts(command);
+
+        if (parts.Count == 0)
             return "";
 
         string commandName = parts[0];
 
-        if (parts.Length == 1)
+        if (parts.Count == 1)
             return $"<<{commandName}>>";
 
         List<string> args = new();
 
-        for (int i = 1; i < parts.Length; i++)
+        for (int i = 1; i < parts.Count; i++)
         {
             string arg = parts[i];
 
@@ -335,9 +414,38 @@ public class DialogueSheetConverterAsset : ScriptableObject
         return $"<<{commandName} {string.Join(" ", args)}>>";
     }
 
+    private List<string> SplitCommandParts(string command)
+    {
+        List<string> parts = new();
+        StringBuilder currentPart = new();
+
+        foreach (char c in command)
+        {
+            if (c == ':' || char.IsWhiteSpace(c))
+            {
+                AddCommandPart(parts, currentPart);
+                continue;
+            }
+
+            currentPart.Append(c);
+        }
+
+        AddCommandPart(parts, currentPart);
+        return parts;
+    }
+
+    private void AddCommandPart(List<string> parts, StringBuilder currentPart)
+    {
+        if (currentPart.Length == 0)
+            return;
+
+        parts.Add(currentPart.ToString());
+        currentPart.Clear();
+    }
+
     private bool IsNumber(string value)
     {
-        return float.TryParse(value, out _);
+        return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out _);
     }
 
     private bool IsBool(string value)

@@ -2,7 +2,8 @@
 
 title: Tutorial_Start
 ---
-はじめまして
+<<background "BG_City_Day" "instant">>
+はじめまして！
 白崎桃香: こんにちは
 -> Aにする
     <<jump Tutorial_A>>
@@ -11,18 +12,26 @@ title: Tutorial_Start
 ===
 
 title: Tutorial_A
-position: -223,193
 ---
 白崎桃香: Aを選んだね
 白崎桃香: さすがです
 ===
 
 title: Tutorial_B
-position: 195,187
 ---
 奥殿テトラ: Bを選んだね
 奥殿テトラ: まぁ...いいけど
 奥殿テトラ: こんにちはおげんきですか？こんにちはおげんきですか？こんにちはおげんきですか？
 ===
+
+
+// Sheet: 朝会話
+
+title: 1日目
+---
+===
+
+
+// Sheet: Dialogue のコピー
 
 
