@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ed0a46863f4a649428ac72a34999d76f
+guid: 326878211081d26488e36a2fe02ba301
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3325066868574230104
-    second: Ch_Mikasa_TF_angry_0
+      213: 7313410846990702196
+    second: Ch_Runa_TF_angry_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ch_Mikasa_TF_angry_0
+      name: Ch_Runa_TF_angry_0
       rect:
         serializedVersion: 2
         x: 335
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 85699c333b2052e20800000000000000
-      internalID: 3325066868574230104
+      spriteID: 4769e5fca647e7560800000000000000
+      internalID: 7313410846990702196
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ch_Mikasa_TF_angry_0: 3325066868574230104
+      Ch_Runa_TF_angry_0: 7313410846990702196
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

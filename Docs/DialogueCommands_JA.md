@@ -52,6 +52,8 @@ black, white, red, green, blue, yellow, cyan, magenta, gray, grey, clear, #RRGGB
 
 キャラクターは `character id` で管理されます。同じキャラクターを後から表情変更・移動・非表示にするため、最初に決めた ID を使い続けます。
 
+`character id` は `Master` シートの話者名と同じ文字列にしてください。名前付きの台詞が表示されると、その ID のキャラクターだけが通常の色になり、それ以外の表示中キャラクターは少しグレーになります。話者名のないナレーションでは、全員が通常の色に戻ります。
+
 例:
 
 ```text

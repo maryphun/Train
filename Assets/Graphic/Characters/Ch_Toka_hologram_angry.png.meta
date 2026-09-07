@@ -1,14 +1,10 @@
 fileFormatVersion: 2
-<<<<<<< Updated upstream
-guid: 628f9e884f20caf47ab818dd80d1fd35
-=======
-guid: 41e1432fc5114f54f8dab425a9fa33b0
->>>>>>> Stashed changes
+guid: 691a34ebf5907124288d8f4bb62ff182
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8433376912812597321
-    second: Ch_Mikasa_TF_default_0
+      213: -712796453983937974
+    second: Ch_Toka_hologram_angry_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -104,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ch_Mikasa_TF_default_0
+      name: Ch_Toka_hologram_angry_0
       rect:
         serializedVersion: 2
-        x: 335
-        y: 272
-        width: 1508
-        height: 2170
+        x: 533
+        y: 100
+        width: 1207
+        height: 2333
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -119,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 940ec29ce9f590570800000000000000
-      internalID: 8433376912812597321
+      spriteID: a4a1123d663ab16f0800000000000000
+      internalID: -712796453983937974
       vertices: []
       indices: 
       edges: []
@@ -139,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ch_Mikasa_TF_default_0: 8433376912812597321
+      Ch_Toka_hologram_angry_0: -712796453983937974
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

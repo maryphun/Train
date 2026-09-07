@@ -10,7 +10,7 @@ using UnityEditor;
 #endif
 
 [DisallowMultipleComponent]
-public class DialogueCharacterController : MonoBehaviour
+public class DialogueCharacterController : DialoguePresenterBase
 {
     private const string CharacterFolder = "Assets/Graphic/Characters";
 
@@ -20,9 +20,16 @@ public class DialogueCharacterController : MonoBehaviour
     [SerializeField] private float bottomOffset;
     [SerializeField] private Vector2 characterPivot = new(0.5f, 0f);
 
+    [Header("Speaker Focus")]
+    [SerializeField] private bool focusSpeakerOnDialogueLine = true;
+    [SerializeField] private Color nonSpeakerColor = new(0.68f, 0.68f, 0.68f, 1f);
+    [SerializeField] private DialogueRunner dialogueRunner;
+
     private static DialogueCharacterController activeController;
     private readonly Dictionary<string, CharacterView> activeCharacters = new(System.StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Sprite> spriteLookup = new(System.StringComparer.OrdinalIgnoreCase);
+    private DialogueRunner registeredDialogueRunner;
+    private string speakingCharacterId;
 
     private void Awake()
     {
@@ -34,10 +41,14 @@ public class DialogueCharacterController : MonoBehaviour
     private void OnEnable()
     {
         activeController = this;
+        RegisterAsDialoguePresenter();
     }
 
     private void OnDisable()
     {
+        SetSpeakingCharacter(null);
+        UnregisterAsDialoguePresenter();
+
         if (activeController == this)
         {
             activeController = null;
@@ -53,6 +64,24 @@ public class DialogueCharacterController : MonoBehaviour
     {
         characterHeightRatio = Mathf.Max(0.1f, characterHeightRatio);
         CacheCharacterSprites();
+    }
+
+    public override YarnTask RunLineAsync(LocalizedLine line, LineCancellationToken token)
+    {
+        SetSpeakingCharacter(focusSpeakerOnDialogueLine ? line?.CharacterName : null);
+        return YarnTask.CompletedTask;
+    }
+
+    public override YarnTask OnDialogueStartedAsync()
+    {
+        SetSpeakingCharacter(null);
+        return YarnTask.CompletedTask;
+    }
+
+    public override YarnTask OnDialogueCompleteAsync()
+    {
+        SetSpeakingCharacter(null);
+        return YarnTask.CompletedTask;
     }
 
     [YarnCommand("char")]
@@ -405,9 +434,84 @@ public class DialogueCharacterController : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-        view = new CharacterView(characterObject, rectTransform, image, canvasGroup);
+        view = new CharacterView(characterId, characterObject, rectTransform, image, canvasGroup);
         activeCharacters.Add(characterId, view);
         return view;
+    }
+
+    private void RegisterAsDialoguePresenter()
+    {
+        if (registeredDialogueRunner != null)
+        {
+            return;
+        }
+
+        DialogueRunner runner = dialogueRunner != null
+            ? dialogueRunner
+            : Object.FindFirstObjectByType<DialogueRunner>();
+
+        if (runner == null)
+        {
+            Debug.LogWarning("DialogueCharacterController could not find a DialogueRunner, so automatic speaker focus is unavailable.", this);
+            return;
+        }
+
+        List<DialoguePresenterBase> presenters = new();
+        bool isAlreadyRegistered = false;
+
+        foreach (DialoguePresenterBase presenter in runner.DialoguePresenters)
+        {
+            if (presenter == null)
+            {
+                continue;
+            }
+
+            presenters.Add(presenter);
+            if (presenter == this)
+            {
+                isAlreadyRegistered = true;
+            }
+        }
+
+        if (!isAlreadyRegistered)
+        {
+            presenters.Add(this);
+            runner.DialoguePresenters = presenters;
+        }
+
+        registeredDialogueRunner = runner;
+    }
+
+    private void UnregisterAsDialoguePresenter()
+    {
+        if (registeredDialogueRunner == null)
+        {
+            return;
+        }
+
+        List<DialoguePresenterBase> presenters = new();
+        foreach (DialoguePresenterBase presenter in registeredDialogueRunner.DialoguePresenters)
+        {
+            if (presenter != null && presenter != this)
+            {
+                presenters.Add(presenter);
+            }
+        }
+
+        registeredDialogueRunner.DialoguePresenters = presenters;
+        registeredDialogueRunner = null;
+    }
+
+    private void SetSpeakingCharacter(string characterId)
+    {
+        speakingCharacterId = string.IsNullOrWhiteSpace(characterId)
+            ? null
+            : characterId.Trim();
+
+        foreach (CharacterView view in activeCharacters.Values)
+        {
+            ApplyCharacterTint(view);
+        }
     }
 
     private bool EnsureReferences()
@@ -459,7 +563,7 @@ public class DialogueCharacterController : MonoBehaviour
     {
         view.Image.sprite = sprite;
         view.Image.enabled = true;
-        view.Image.color = view.TintColor;
+        ApplyCharacterTint(view);
         ResizeCharacterToSprite(view, sprite);
         SetCharacterPosition(view, view.XPosition);
     }
@@ -560,12 +664,28 @@ public class DialogueCharacterController : MonoBehaviour
     private void SetCharacterTint(CharacterView view, Color tintColor)
     {
         view.TintColor = tintColor;
-        view.Image.color = tintColor;
+        ApplyCharacterTint(view);
+    }
+
+    private void ApplyCharacterTint(CharacterView view)
+    {
+        bool hasNamedSpeaker = !string.IsNullOrWhiteSpace(speakingCharacterId);
+        bool isSpeaking = hasNamedSpeaker
+            && string.Equals(view.CharacterId, speakingCharacterId, System.StringComparison.OrdinalIgnoreCase);
+        Color focusColor = !hasNamedSpeaker || isSpeaking ? Color.white : nonSpeakerColor;
+        Color baseColor = view.TintColor;
+
+        view.Image.color = new Color(
+            baseColor.r * focusColor.r,
+            baseColor.g * focusColor.g,
+            baseColor.b * focusColor.b,
+            baseColor.a * focusColor.a
+        );
     }
 
     private IEnumerator TintCharacterTo(CharacterView view, Color targetColor, float duration)
     {
-        Color startColor = view.Image.color;
+        Color startColor = view.TintColor;
         float elapsed = 0f;
 
         while (elapsed < duration)
@@ -946,14 +1066,16 @@ public class DialogueCharacterController : MonoBehaviour
 
     private class CharacterView
     {
-        public CharacterView(GameObject gameObject, RectTransform rectTransform, Image image, CanvasGroup canvasGroup)
+        public CharacterView(string characterId, GameObject gameObject, RectTransform rectTransform, Image image, CanvasGroup canvasGroup)
         {
+            CharacterId = characterId;
             GameObject = gameObject;
             RectTransform = rectTransform;
             Image = image;
             CanvasGroup = canvasGroup;
         }
 
+        public string CharacterId { get; }
         public GameObject GameObject { get; }
         public RectTransform RectTransform { get; }
         public Image Image { get; }

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b387840cf7a3a6f48966f7ad7b030682
+guid: 879cf16785b6f8d4d8259ca7e084f722
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8740123332484042178
-    second: Ch_Mikasa_TF_shocked_0
+      213: -7995429951815663596
+    second: Icon_GameIcon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ch_Mikasa_TF_shocked_0
+      name: Icon_GameIcon_0
       rect:
         serializedVersion: 2
-        x: 335
-        y: 272
-        width: 1509
-        height: 2170
+        x: 0
+        y: 0
+        width: 398
+        height: 433
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e327f22e228d4b680800000000000000
-      internalID: -8740123332484042178
+      spriteID: 410428702d68a0190800000000000000
+      internalID: -7995429951815663596
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ch_Mikasa_TF_shocked_0: -8740123332484042178
+      Icon_GameIcon_0: -7995429951815663596
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
