@@ -185,6 +185,9 @@ public class DialogueSheetConverterAsset : ScriptableObject
 
         foreach (Dictionary<string, string> row in rows)
         {
+            if (IsInstructionRow(row))
+                continue;
+
             string node = GetCell(row, nodeColumn);
 
             if (string.IsNullOrWhiteSpace(node))
@@ -242,6 +245,25 @@ public class DialogueSheetConverterAsset : ScriptableObject
         }
 
         return yarn.ToString();
+    }
+
+    private bool IsInstructionRow(Dictionary<string, string> row)
+    {
+        string value = GetCell(row, nodeColumn);
+
+        if (!value.StartsWith("[") || !value.EndsWith("]"))
+            return false;
+
+        foreach (KeyValuePair<string, string> cell in row)
+        {
+            if (string.Equals(cell.Key, nodeColumn, StringComparison.Ordinal))
+                continue;
+
+            if (!string.IsNullOrWhiteSpace(cell.Value))
+                return false;
+        }
+
+        return true;
     }
 
     private void AppendDialogueLine(StringBuilder yarn, string speaker, string text, string lineId)
