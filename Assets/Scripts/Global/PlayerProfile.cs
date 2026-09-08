@@ -13,17 +13,41 @@ static class PlayerProfile
 
     static TokaBodyList tokabodylist;
 
+    static public Sprite TokaCurrentBody
+    {
+        get
+        {
+            EnsureTokaBodyList();
+
+            if (tokaCurrentBody == null && tokabodylist != null)
+            {
+                tokaCurrentBody = tokabodylist.defaultSprite;
+            }
+
+            return tokaCurrentBody;
+        }
+        set => tokaCurrentBody = value;
+    }
+
     // Data that don't need to be saved
 
     static public void Initialization()
     {
-        tokabodylist = Resources.Load<TokaBodyList>("TokaBodyList");
+        EnsureTokaBodyList();
 
         currentDate = 0;
         currentClock = Clock.Morning;
         System.Array.Fill(techUnlockStatus, false); // set all tech unlock status into false
         money = 0;
         researchPoint = 0;
-        tokaCurrentBody = tokabodylist.defaultSprite;
+        tokaCurrentBody = tokabodylist != null ? tokabodylist.defaultSprite : null;
+    }
+
+    static void EnsureTokaBodyList()
+    {
+        if (tokabodylist == null)
+        {
+            tokabodylist = Resources.Load<TokaBodyList>("TokaBodyList");
+        }
     }
 }

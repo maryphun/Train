@@ -54,6 +54,15 @@ black, white, red, green, blue, yellow, cyan, magenta, gray, grey, clear, #RRGGB
 
 `character id` は `Master` シートの話者名と同じ文字列にしてください。名前付きの台詞が表示されると、その ID のキャラクターだけが通常の色になり、それ以外の表示中キャラクターは少しグレーになります。話者名のないナレーションでは、全員が通常の色に戻ります。
 
+桃香は特別扱いです。ID が `toka`、`momoka`、`白崎桃香` のいずれかで、`Ch_Toka_Face_*` の画像を指定すると、ゲーム側は `PlayerProfile.TokaCurrentBody` の衣装を下に置き、その上へ顔画像を元画像と同じ座標で重ねます。シートと Yarn には顔画像のコマンドだけを書きます。
+
+```text
+[char:show:toka:Ch_Toka_Face_default:0.5:0.5:false]
+[char:face:toka:Ch_Toka_Face_angry:0.2]
+```
+
+`Ch_Toka_Face_*` 以外の桃香画像を指定した場合は、その画像を単体で表示します。衣装プリセットを使わない特別な場面では、完成済みの立ち絵 Sprite を指定してください。
+
 例:
 
 ```text
@@ -80,7 +89,7 @@ black, white, red, green, blue, yellow, cyan, magenta, gray, grey, clear, #RRGGB
 
 `画像名` は Sprite 名です。例: `Ch_Momoka_TF_default`
 
-`X位置` は 0 から 1 の数値です。`0` が左、`0.5` が中央、`1` が右です。
+`X位置` は 0 から 1 の数値です。`0` では立ち絵の左端が画面左端より 250px 外、`0.5` では中央、`1` では立ち絵の右端が画面右端より 250px 外になります。
 
 `フェード時間` は秒数、または `instant` です。
 

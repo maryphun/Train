@@ -12,7 +12,11 @@ using UnityEditor;
 [DisallowMultipleComponent]
 public class DialogueCharacterController : DialoguePresenterBase
 {
+    private const float CharacterHorizontalOverscan = 250f;
     private const string CharacterFolder = "Assets/Graphic/Characters";
+    private const string TokaBodyResource = "TokaBodyList";
+    private const string TokaBodyPrefix = "Ch_Toka_Body_";
+    private const string TokaFacePrefix = "Ch_Toka_Face_";
 
     [SerializeField] private RectTransform characterRoot;
     [SerializeField] private List<Sprite> characterSprites = new();
@@ -30,6 +34,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     private readonly Dictionary<string, Sprite> spriteLookup = new(System.StringComparer.OrdinalIgnoreCase);
     private DialogueRunner registeredDialogueRunner;
     private string speakingCharacterId;
+    private TokaBodyList tokaBodyList;
 
     private void Awake()
     {
@@ -187,13 +192,13 @@ public class DialogueCharacterController : DialoguePresenterBase
         view.RectTransform.SetAsLastSibling();
 
         float fadeInTime = fadeTime;
-        if (fadeTime > 0f && view.CanvasGroup.alpha > 0f && view.Image.sprite != sprite)
+        if (fadeTime > 0f && view.CanvasGroup.alpha > 0f && !CharacterVisualMatches(view, characterId, sprite))
         {
             yield return FadeCharacter(view, 0f, fadeTime * 0.5f);
             fadeInTime = fadeTime * 0.5f;
         }
 
-        SetCharacterSprite(view, sprite);
+        SetCharacterVisual(view, characterId, sprite);
         SetCharacterPosition(view, xPosition);
         SetCharacterFlip(view, flipped);
 
@@ -235,12 +240,12 @@ public class DialogueCharacterController : DialoguePresenterBase
         float fadeTime = ParseFadeTime(GetArg(args, 3, "instant"));
         if (fadeTime <= 0f)
         {
-            SetCharacterSprite(view, sprite);
+            SetCharacterVisual(view, characterId, sprite);
             yield break;
         }
 
         yield return FadeCharacter(view, 0f, fadeTime * 0.5f);
-        SetCharacterSprite(view, sprite);
+        SetCharacterVisual(view, characterId, sprite);
         yield return FadeCharacter(view, 1f, fadeTime * 0.5f);
     }
 
@@ -429,14 +434,44 @@ public class DialogueCharacterController : DialoguePresenterBase
         image.raycastTarget = false;
         image.color = Color.white;
 
+        RawImage tokaBodyImage = CreateTokaLayer(characterObject.transform, "Toka Preset Body");
+        RawImage tokaFaceImage = CreateTokaLayer(characterObject.transform, "Toka Face");
+
         CanvasGroup canvasGroup = characterObject.GetComponent<CanvasGroup>();
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-        view = new CharacterView(characterId, characterObject, rectTransform, image, canvasGroup);
+        view = new CharacterView(
+            characterId,
+            characterObject,
+            rectTransform,
+            image,
+            tokaBodyImage,
+            tokaFaceImage,
+            canvasGroup
+        );
         activeCharacters.Add(characterId, view);
         return view;
+    }
+
+    private static RawImage CreateTokaLayer(Transform parent, string name)
+    {
+        GameObject layerObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+        layerObject.transform.SetParent(parent, false);
+
+        RectTransform rect = layerObject.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.localScale = Vector3.one;
+
+        RawImage image = layerObject.GetComponent<RawImage>();
+        image.raycastTarget = false;
+        image.color = Color.white;
+        image.enabled = false;
+        return image;
     }
 
     private void RegisterAsDialoguePresenter()
@@ -559,13 +594,66 @@ public class DialogueCharacterController : DialoguePresenterBase
         return root;
     }
 
+    private void SetCharacterVisual(CharacterView view, string characterId, Sprite sprite)
+    {
+        if (ShouldUseTokaLayers(characterId, sprite))
+        {
+            SetTokaCharacterLayers(view, GetCurrentTokaBody(), sprite);
+            return;
+        }
+
+        SetCharacterSprite(view, sprite);
+    }
+
+    private bool CharacterVisualMatches(CharacterView view, string characterId, Sprite sprite)
+    {
+        if (!ShouldUseTokaLayers(characterId, sprite))
+        {
+            return !view.UsesTokaLayers && view.Image.sprite == sprite;
+        }
+
+        Sprite body = GetCurrentTokaBody();
+        return view.UsesTokaLayers
+            && view.TokaBodyImage.texture == GetSpriteTexture(body)
+            && view.TokaFaceImage.texture == GetSpriteTexture(sprite);
+    }
+
     private void SetCharacterSprite(CharacterView view, Sprite sprite)
     {
+        view.UsesTokaLayers = false;
+        view.TokaBodyImage.enabled = false;
+        view.TokaBodyImage.texture = null;
+        view.TokaFaceImage.enabled = false;
+        view.TokaFaceImage.texture = null;
         view.Image.sprite = sprite;
         view.Image.enabled = true;
         ApplyCharacterTint(view);
         ResizeCharacterToSprite(view, sprite);
         SetCharacterPosition(view, view.XPosition);
+    }
+
+    private void SetTokaCharacterLayers(CharacterView view, Sprite body, Sprite face)
+    {
+        Texture bodyTexture = GetSpriteTexture(body);
+        Texture faceTexture = GetSpriteTexture(face);
+
+        view.UsesTokaLayers = true;
+        view.Image.enabled = false;
+        view.Image.sprite = null;
+        view.TokaBodyImage.texture = bodyTexture;
+        view.TokaBodyImage.enabled = bodyTexture != null;
+        view.TokaFaceImage.texture = faceTexture;
+        view.TokaFaceImage.enabled = faceTexture != null;
+        ApplyCharacterTint(view);
+
+        Texture referenceTexture = bodyTexture != null ? bodyTexture : faceTexture;
+        ResizeCharacterToTexture(view, referenceTexture);
+        SetCharacterPosition(view, view.XPosition);
+    }
+
+    private static Texture GetSpriteTexture(Sprite sprite)
+    {
+        return sprite != null ? sprite.texture : null;
     }
 
     private void ResizeCharacterToSprite(CharacterView view, Sprite sprite)
@@ -587,6 +675,163 @@ public class DialogueCharacterController : DialoguePresenterBase
         view.RectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
     }
 
+    private void ResizeCharacterToTexture(CharacterView view, Texture texture)
+    {
+        if (texture == null)
+        {
+            return;
+        }
+
+        float stageHeight = GetStageHeight();
+        float targetHeight = Mathf.Max(1f, stageHeight * characterHeightRatio);
+        float targetWidth = texture.height > 0
+            ? (float)texture.width / texture.height * targetHeight
+            : targetHeight;
+
+        view.RectTransform.sizeDelta = new Vector2(targetWidth, targetHeight);
+    }
+
+    private bool ShouldUseTokaLayers(string characterId, Sprite sprite)
+    {
+        return IsTokaCharacterId(characterId) && IsTokaFaceSprite(sprite);
+    }
+
+    private bool IsTokaFaceSprite(Sprite sprite)
+    {
+        if (sprite == null)
+        {
+            return false;
+        }
+
+        string textureName = GetSpriteTexture(sprite)?.name;
+        if (!string.IsNullOrWhiteSpace(textureName)
+            && textureName.StartsWith(TokaFacePrefix, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        TokaBodyList list = GetTokaBodyList();
+        if (list == null)
+        {
+            return false;
+        }
+
+        if (UsesSameTexture(list.defaultFace, sprite))
+        {
+            return true;
+        }
+
+        foreach (Sprite face in list.faceList)
+        {
+            if (UsesSameTexture(face, sprite))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Sprite GetCurrentTokaBody()
+    {
+        Sprite currentBody = PlayerProfile.TokaCurrentBody;
+        if (IsLayerableTokaBody(currentBody))
+        {
+            return currentBody;
+        }
+
+        TokaBodyList list = GetTokaBodyList();
+        if (list == null)
+        {
+            return currentBody;
+        }
+
+        Sprite matchingBody = FindMatchingTokaBody(list, currentBody);
+        if (matchingBody != null)
+        {
+            return matchingBody;
+        }
+
+        if (IsLayerableTokaBody(list.defaultSprite))
+        {
+            return list.defaultSprite;
+        }
+
+        foreach (Sprite body in list.spriteList)
+        {
+            if (IsLayerableTokaBody(body))
+            {
+                return body;
+            }
+        }
+
+        return currentBody;
+    }
+
+    private TokaBodyList GetTokaBodyList()
+    {
+        if (tokaBodyList == null)
+        {
+            tokaBodyList = Resources.Load<TokaBodyList>(TokaBodyResource);
+        }
+
+        return tokaBodyList;
+    }
+
+    private static Sprite FindMatchingTokaBody(TokaBodyList list, Sprite currentBody)
+    {
+        string currentName = GetSpriteTexture(currentBody)?.name;
+        if (string.IsNullOrWhiteSpace(currentName))
+        {
+            return null;
+        }
+
+        const string tokaPrefix = "Ch_Toka_";
+        int suffixStart = currentName.StartsWith(tokaPrefix, System.StringComparison.OrdinalIgnoreCase)
+            ? tokaPrefix.Length
+            : -1;
+        int suffixEnd = suffixStart >= 0 ? currentName.IndexOf('_', suffixStart) : -1;
+        if (suffixStart < 0 || suffixEnd <= suffixStart)
+        {
+            return null;
+        }
+
+        string appearance = currentName[suffixStart..suffixEnd];
+        string expectedName = TokaBodyPrefix + appearance;
+        foreach (Sprite body in list.spriteList)
+        {
+            if (string.Equals(GetSpriteTexture(body)?.name, expectedName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return body;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsLayerableTokaBody(Sprite sprite)
+    {
+        return GetSpriteTexture(sprite)?.name.StartsWith(TokaBodyPrefix, System.StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    private static bool UsesSameTexture(Sprite first, Sprite second)
+    {
+        return first != null && second != null && GetSpriteTexture(first) == GetSpriteTexture(second);
+    }
+
+    private static bool IsTokaCharacterId(string characterId)
+    {
+        if (string.IsNullOrWhiteSpace(characterId))
+        {
+            return false;
+        }
+
+        string id = characterId.Trim();
+        return string.Equals(id, "toka", System.StringComparison.OrdinalIgnoreCase)
+            || string.Equals(id, "momoka", System.StringComparison.OrdinalIgnoreCase)
+            || string.Equals(id, "白崎桃香", System.StringComparison.Ordinal);
+    }
+
     private void SetCharacterPosition(CharacterView view, float normalizedPosition)
     {
         normalizedPosition = Mathf.Clamp01(normalizedPosition);
@@ -594,12 +839,12 @@ public class DialogueCharacterController : DialoguePresenterBase
 
         float stageWidth = GetStageWidth();
         float characterWidth = view.RectTransform.sizeDelta.x * Mathf.Max(0.01f, view.DisplayScale);
-        float left = characterWidth * view.RectTransform.pivot.x;
-        float right = stageWidth - characterWidth * (1f - view.RectTransform.pivot.x);
+        float left = characterWidth * view.RectTransform.pivot.x - CharacterHorizontalOverscan;
+        float right = stageWidth - characterWidth * (1f - view.RectTransform.pivot.x) + CharacterHorizontalOverscan;
 
         float x = left <= right
             ? Mathf.Lerp(left, right, normalizedPosition)
-            : Mathf.Lerp(0f, stageWidth, normalizedPosition);
+            : Mathf.Lerp(-CharacterHorizontalOverscan, stageWidth + CharacterHorizontalOverscan, normalizedPosition);
 
         view.RectTransform.anchoredPosition = new Vector2(x, bottomOffset);
     }
@@ -671,16 +916,21 @@ public class DialogueCharacterController : DialoguePresenterBase
     {
         bool hasNamedSpeaker = !string.IsNullOrWhiteSpace(speakingCharacterId);
         bool isSpeaking = hasNamedSpeaker
-            && string.Equals(view.CharacterId, speakingCharacterId, System.StringComparison.OrdinalIgnoreCase);
+            && (string.Equals(view.CharacterId, speakingCharacterId, System.StringComparison.OrdinalIgnoreCase)
+                || IsTokaCharacterId(view.CharacterId) && IsTokaCharacterId(speakingCharacterId));
         Color focusColor = !hasNamedSpeaker || isSpeaking ? Color.white : nonSpeakerColor;
         Color baseColor = view.TintColor;
 
-        view.Image.color = new Color(
+        Color displayColor = new Color(
             baseColor.r * focusColor.r,
             baseColor.g * focusColor.g,
             baseColor.b * focusColor.b,
             baseColor.a * focusColor.a
         );
+
+        view.Image.color = displayColor;
+        view.TokaBodyImage.color = displayColor;
+        view.TokaFaceImage.color = displayColor;
     }
 
     private IEnumerator TintCharacterTo(CharacterView view, Color targetColor, float duration)
@@ -1066,12 +1316,22 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     private class CharacterView
     {
-        public CharacterView(string characterId, GameObject gameObject, RectTransform rectTransform, Image image, CanvasGroup canvasGroup)
+        public CharacterView(
+            string characterId,
+            GameObject gameObject,
+            RectTransform rectTransform,
+            Image image,
+            RawImage tokaBodyImage,
+            RawImage tokaFaceImage,
+            CanvasGroup canvasGroup
+        )
         {
             CharacterId = characterId;
             GameObject = gameObject;
             RectTransform = rectTransform;
             Image = image;
+            TokaBodyImage = tokaBodyImage;
+            TokaFaceImage = tokaFaceImage;
             CanvasGroup = canvasGroup;
         }
 
@@ -1079,10 +1339,13 @@ public class DialogueCharacterController : DialoguePresenterBase
         public GameObject GameObject { get; }
         public RectTransform RectTransform { get; }
         public Image Image { get; }
+        public RawImage TokaBodyImage { get; }
+        public RawImage TokaFaceImage { get; }
         public CanvasGroup CanvasGroup { get; }
         public float XPosition { get; set; }
         public bool Flipped { get; set; }
         public float DisplayScale { get; set; } = 1f;
         public Color TintColor { get; set; } = Color.white;
+        public bool UsesTokaLayers { get; set; }
     }
 }
