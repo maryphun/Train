@@ -12,3 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 924ac746c208ba64c9501d1c9e12d80f, type: 3}
   m_Name: TokaBodyList
   m_EditorClassIdentifier: Assembly-CSharp::TokaBodyList
+  defaultSprite: {fileID: 21300000, guid: 0fffa78aba8d86e498aa79fc3c19732d, type: 3}
+  spriteList:
+  - {fileID: 21300000, guid: 0fffa78aba8d86e498aa79fc3c19732d, type: 3}
+  - {fileID: -7827781883377166387, guid: c0554fd32d9534445969f3b9c3f5159c, type: 3}
+  - {fileID: -8805172943884290348, guid: fd4720d134e906644af717bb19850d6a, type: 3}
+  - {fileID: -3488311620890370634, guid: a42ed93681f422b46a5a56dfae9c8a7b, type: 3}
+  - {fileID: -1667924241725589559, guid: 5846f6f8b9a47724f98f6649c0e4ab85, type: 3}
+  defaultFace: {fileID: -1598593411922417705, guid: df23a92b388b4284188ac6e9a04d1148, type: 3}
+  faceList:
+  - {fileID: -1598593411922417705, guid: df23a92b388b4284188ac6e9a04d1148, type: 3}
+  - {fileID: -4182798418929194725, guid: 9bb798abfff59d74aa55cc136f582566, type: 3}
+  - {fileID: -8435035529958188397, guid: e5bdb9cd40daf2c42862845fdb7abbdf, type: 3}
+  - {fileID: 6053697687036461956, guid: a6dfb062822062c48ae9f0056a9d41f4, type: 3}
