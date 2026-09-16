@@ -35,6 +35,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     private DialogueRunner registeredDialogueRunner;
     private string speakingCharacterId;
     private TokaBodyList tokaBodyList;
+    private long showSequence;
 
     private void Awake()
     {
@@ -117,7 +118,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     {
         if (args == null || args.Length == 0)
         {
-            Debug.LogWarning("Character command needs an action: show, face, move, flip, tint, scale, hide, or clear.");
+            Debug.LogWarning("Character command needs an action: show, order, face, move, flip, tint, scale, hide, or clear.");
             yield break;
         }
 
@@ -127,6 +128,9 @@ public class DialogueCharacterController : DialoguePresenterBase
             case "show":
             case "add":
                 yield return ShowCharacter(args);
+                break;
+            case "order":
+                ChangeCharacterOrder(args);
                 break;
             case "face":
             case "sprite":
@@ -189,7 +193,14 @@ public class DialogueCharacterController : DialoguePresenterBase
         }
 
         view.GameObject.SetActive(true);
-        view.RectTransform.SetAsLastSibling();
+        string orderValue = GetArg(args, 6, string.Empty);
+        if (!string.IsNullOrWhiteSpace(orderValue) && TryParseDisplayOrder(orderValue, out int displayOrder))
+        {
+            view.DisplayOrder = displayOrder;
+        }
+
+        view.DisplaySequence = ++showSequence;
+        SortCharacterViews();
 
         float fadeInTime = fadeTime;
         if (fadeTime > 0f && view.CanvasGroup.alpha > 0f && !CharacterVisualMatches(view, characterId, sprite))
@@ -214,6 +225,40 @@ public class DialogueCharacterController : DialoguePresenterBase
         }
 
         yield return FadeCharacter(view, 1f, fadeInTime);
+    }
+
+    private void ChangeCharacterOrder(string[] args)
+    {
+        if (!TryReadArg(args, 1, "order", "character id", out string characterId)
+            || !TryReadArg(args, 2, "order", "display order", out string orderValue)
+            || !TryParseDisplayOrder(orderValue, out int displayOrder))
+        {
+            return;
+        }
+
+        if (!activeCharacters.TryGetValue(characterId, out CharacterView view))
+        {
+            Debug.LogWarning($"Character '{characterId}' is not currently shown.");
+            return;
+        }
+
+        view.DisplayOrder = displayOrder;
+        SortCharacterViews();
+    }
+
+    private void SortCharacterViews()
+    {
+        List<CharacterView> ordered = new(activeCharacters.Values);
+        ordered.Sort((a, b) =>
+        {
+            int byOrder = b.DisplayOrder.CompareTo(a.DisplayOrder);
+            return byOrder != 0 ? byOrder : a.DisplaySequence.CompareTo(b.DisplaySequence);
+        });
+
+        for (int i = 0; i < ordered.Count; i++)
+        {
+            ordered[i].RectTransform.SetSiblingIndex(i);
+        }
     }
 
     private IEnumerator ChangeCharacterFace(string[] args)
@@ -1009,6 +1054,18 @@ public class DialogueCharacterController : DialoguePresenterBase
         return 0.5f;
     }
 
+    private bool TryParseDisplayOrder(string value, out int displayOrder)
+    {
+        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out displayOrder)
+            && displayOrder >= 0)
+        {
+            return true;
+        }
+
+        Debug.LogWarning($"Invalid character display order '{value}'. Use an integer of 0 or more.");
+        return false;
+    }
+
     private float ParseFadeTime(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -1345,6 +1402,8 @@ public class DialogueCharacterController : DialoguePresenterBase
         public float XPosition { get; set; }
         public bool Flipped { get; set; }
         public float DisplayScale { get; set; } = 1f;
+        public int DisplayOrder { get; set; }
+        public long DisplaySequence { get; set; }
         public Color TintColor { get; set; } = Color.white;
         public bool UsesTokaLayers { get; set; }
     }

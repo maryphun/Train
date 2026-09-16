@@ -15,6 +15,8 @@ Recorded 2026-09-08. This is a source index and onboarding snapshot, not an appr
 - The scenario-editor change review matches rows by their original sheet row, reports local row additions/removals separately, and excludes implicit node-name completion from the edited-cell count. Local row additions and removals shift only A:H through Sheets range operations and use sparse cell updates so shifted script rows are not rewritten.
 - Character horizontal positions remain normalized from `0` to `1`, with `0` placing the sprite's left edge 250 reference pixels beyond the screen's left edge, `0.5` centered, and `1` placing its right edge 250 reference pixels beyond the right edge. The web preview and Unity dialogue renderer use the same mapping.
 - The scenario editor has a `40%表示` preview toggle for a shorter writing layout. The scene selector shows `ノード名変更` as a button beside the `シーン` label.
+- Character display order uses non-negative integers with `0` at the front and larger numbers farther behind. `char:show` accepts an optional final order argument, and `char:order` changes an already visible character's order. Existing show commands without an order retain their prior show-sequence behavior.
+- The scenario editor's default character preview height is `1.3` times the stage height and its default bottom offset is `-600` pixels at 1080p. Both remain adjustable in the spreadsheet connection settings.
 
 ## Sources
 

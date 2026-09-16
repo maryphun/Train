@@ -81,8 +81,8 @@ black, white, red, green, blue, yellow, cyan, magenta, gray, grey, clear, #RRGGB
 キャラクターを表示します。すでに同じ ID のキャラクターがいる場合は、その表示を更新します。
 
 ```text
-[char:show:ID:画像名:X位置:フェード時間:反転]
-[char:add:ID:画像名:X位置:フェード時間:反転]
+[char:show:ID:画像名:X位置:フェード時間:反転:表示順]
+[char:add:ID:画像名:X位置:フェード時間:反転:表示順]
 ```
 
 `ID` は管理用の名前です。例: `momoka`
@@ -94,6 +94,32 @@ black, white, red, green, blue, yellow, cyan, magenta, gray, grey, clear, #RRGGB
 `フェード時間` は秒数、または `instant` です。
 
 `反転` は省略可能です。通常は `false`、左右反転したい場合は `true` または `left` を使います。
+
+`表示順` は省略可能な 0 以上の整数です。`0` が最前面で、`1` は `0` の後ろです。数字が大きいほど後ろに表示されます。省略した既存コマンドは従来どおり、後から表示した立ち絵が前になります。
+
+例:
+
+```text
+[char:show:momoka:Ch_Momoka_TF_default:0.25:0.3:false:0]
+[char:show:kaede:Ch_Kaede_TF_default:0.75:0.3:false:1]
+```
+
+### Order / Display Order
+
+表示中キャラクターの表示順を変更します。
+
+```text
+[char:order:ID:表示順]
+```
+
+例:
+
+```text
+[char:order:momoka:1]
+[char:order:kaede:0]
+```
+
+この例では楓が桃香より前に表示されます。
 
 ### Face / Sprite / Variation
 
