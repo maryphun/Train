@@ -12,7 +12,9 @@ Recorded 2026-09-08. This is a source index and onboarding snapshot, not an appr
 - Scenario-editor character ID fields start empty. They remain free-form inputs and offer the spreadsheet Master speaker names as suggestions.
 - The scenario editor shows its spreadsheet connection status prominently in the center of the top bar: `接続済み` when connected, or `スプレッドシートに接続してください` on red when disconnected.
 - Each scenario-editor page load starts disconnected with no sample or cached workbook and asks for a fresh spreadsheet sync. Non-overlapping concurrent cell edits merge automatically. Remote row additions, deletions, and reordering are preserved when locally edited rows can be matched safely, primarily by unique `LineID`. Same-cell edits, local edits to remotely deleted rows, and simultaneous local structure changes stop without overwriting either writer's version.
+- The scenario-editor change review matches rows by their original sheet row, reports local row additions/removals separately, and excludes implicit node-name completion from the edited-cell count. Local row additions and removals shift only A:H through Sheets range operations and use sparse cell updates so shifted script rows are not rewritten.
 - Character horizontal positions remain normalized from `0` to `1`, with `0` placing the sprite's left edge 250 reference pixels beyond the screen's left edge, `0.5` centered, and `1` placing its right edge 250 reference pixels beyond the right edge. The web preview and Unity dialogue renderer use the same mapping.
+- The scenario editor has a `40%表示` preview toggle for a shorter writing layout. The scene selector shows `ノード名変更` as a button beside the `シーン` label.
 
 ## Sources
 
