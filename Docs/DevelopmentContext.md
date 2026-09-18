@@ -7,6 +7,8 @@ Recorded 2026-09-08. This is a source index and onboarding snapshot, not an appr
 - Develop the main game in this Unity project: `Train`.
 - Ask about even small uncertainties before implementing dependent changes. The user wants precise control of the process.
 - Combat source precedence: when other documents conflict with `戦闘案`, follow `戦闘案`.
+- Combat implementation choice confirmed 2026-09-18: use the newer `戦闘案` slides 7–10 design (PurePri Energy with a turn limit), not the earlier finishing-move gauge design. The first implementation has exactly one magical girl and one monster; the user may extend this later. Keep combat separate from other systems in its own scene and expose an entry function that accepts setup data before entering it. The caller specifies a return scene and receives a combat result; changes to character status are the main focus.
+- Combat follow-up confirmed 2026-09-18: build inside the existing `Assets/Scenes/Battle.unity`. The user explicitly allows reasonable assumptions for unspecified battle/status mechanics so long as they are very easy to customize later. The magical-girl action loop is not specified; keep it easy to extend rather than presenting an assumed response as a confirmed rule.
 - Unity CLI refers to the Editor's built-in command-line tools.
 - In dialogue, Toka (`toka`, `momoka`, or `白崎桃香`) uses the current body stored in `PlayerProfile` with a `Ch_Toka_Face_*` texture layered over it at the source-canvas coordinates. A different Toka sprite is an explicit single-sprite override. The scenario editor previews the same face rule with `Ch_Toka_Body_Casual` as the default body.
 - Scenario-editor character ID fields start empty. They remain free-form inputs and offer the spreadsheet Master speaker names as suggestions.
@@ -79,7 +81,11 @@ The DONE list includes the UI theme, dialogue system, title screen, localization
 ## Questions to resolve when the relevant work starts
 
 - Which feature/card is first, and what visible outcome defines its completion?
-- Within `戦闘案`, slides 2–6 discuss a finishing-move gauge, while slides 7–10 discuss PurePri Energy with a turn limit. The user has confirmed the document's precedence, but has not selected between its internal alternatives.
+- `戦闘案` slides 2–6 discuss a finishing-move gauge, while slides 7–10 discuss PurePri Energy with a turn limit. The user selected slides 7–10 on 2026-09-18.
+- On 2026-09-18 the user confirmed combat should be isolated in their existing `Assets/Scenes/Battle.unity`, start through a function accepting pre-battle setup, handle one magical girl and one monster initially, return to a caller-selected scene with a result, and focus on lasting character-status changes. The user allowed reasonable provisional assumptions provided they are easy to customize.
+- Implemented provisional combat loop: one monster skill consumes one turn; Energy reaching zero is monster victory; reaching the turn limit first ends combat. There is no magical-girl counteraction because its behavior has not been defined. Portrait stages can change the sprite and add turns on accumulated damage thresholds. The example values in the Battle scene are editable placeholders, not approved balancing.
+- Implemented provisional status conversion: editable per-status rates multiply accumulated physical/pleasure/confusion battle damage, followed by an editable outcome multiplier and integer rounding. The Battle scene sample includes `淫乱度`, `闇堕度`, and `疲労度`; these are not confirmed final statuses or rates. `BattleResult` returns before/delta/after per status, and the caller owns applying/persisting them because the current `PlayerProfile` has no such fields. See `Docs/BattleIntegration.md`.
+- Unresolved combat design: the magical girl's own actions and their interaction with turns/Energy, final balance and status mapping, and whether different monsters have special actions beyond configured skills. The three combat damage accumulators remain battle-time values, not persistent character statuses.
 - Confirm current character naming, daily schedule, action costs, parameter names, values, and thresholds rather than copying conflicting mockups or discarded slides.
 - Before changes to shared Trello state, clarify how the user wants cards maintained; current authorization has been used for reading development context.
 
