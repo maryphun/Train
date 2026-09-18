@@ -13,6 +13,7 @@ namespace Train.Battle
 
         public BattleSetup Setup => setup;
         public int EnergyRemaining { get; private set; }
+        public int MonsterHealthRemaining { get; private set; }
         public int TurnsRemaining { get; private set; }
         public int TurnsUsed { get; private set; }
         public int PhysicalDamage { get; private set; }
@@ -28,34 +29,84 @@ namespace Train.Battle
             source.Validate();
             setup = source.Copy();
             EnergyRemaining = setup.startingEnergy;
+            MonsterHealthRemaining = setup.startingMonsterHealth;
             TurnsRemaining = setup.turnLimit;
             HeroinePortrait = setup.heroine.portrait;
         }
 
-        // Assumption for the initial version: one monster skill consumes one turn.
-        // No magical-girl counteraction is invented; add it here when its rules are specified.
-        public BattleTurnReport UseMonsterSkill(int skillIndex)
+        public BattleSkill NextMonsterSkill => Outcome == BattleOutcome.InProgress
+            ? setup.monsterSkills[TurnsUsed % setup.monsterSkills.Count] : null;
+
+        public bool CanUseHeroineSkill(int skillIndex)
+        {
+            return Outcome == BattleOutcome.InProgress && skillIndex >= 0 &&
+                skillIndex < setup.heroineSkills.Count &&
+                setup.heroineSkills[skillIndex].energyCost < EnergyRemaining;
+        }
+
+        // One chosen heroine action and one automatic monster response form one turn.
+        public BattleTurnReport UseHeroineSkill(int skillIndex)
         {
             if (Outcome != BattleOutcome.InProgress)
                 throw new InvalidOperationException("This battle has already ended.");
-            if (skillIndex < 0 || skillIndex >= setup.monsterSkills.Count)
+            if (skillIndex < 0 || skillIndex >= setup.heroineSkills.Count)
                 throw new ArgumentOutOfRangeException(nameof(skillIndex));
+            if (!CanUseHeroineSkill(skillIndex))
+                throw new InvalidOperationException("Not enough Energy: a skill must leave at least one Energy before recovery.");
 
-            BattleSkill skill = setup.monsterSkills[skillIndex];
+            BattleHeroineSkill skill = setup.heroineSkills[skillIndex];
+            BattleSkill response = NextMonsterSkill;
             var report = new BattleTurnReport
             {
-                skill = skill,
+                heroineSkill = skill,
                 energyBefore = EnergyRemaining,
+                monsterHealthBefore = MonsterHealthRemaining,
                 reachedStages = new List<BattlePortraitStage>()
             };
 
-            EnergyRemaining = Mathf.Max(0, EnergyRemaining - skill.energyDamage);
-            PhysicalDamage += skill.physicalDamage;
-            PleasureDamage += skill.pleasureDamage;
-            ConfusionDamage += skill.confusionDamage;
+            EnergyRemaining -= skill.energyCost;
+            report.energyRecovered = Mathf.Min(skill.energyRecovery, setup.startingEnergy - EnergyRemaining);
+            EnergyRemaining += report.energyRecovered;
+            MonsterHealthRemaining = Mathf.Max(0, MonsterHealthRemaining - skill.monsterDamage);
             TurnsUsed++;
             TurnsRemaining--;
 
+            if (MonsterHealthRemaining == 0)
+            {
+                Finish(BattleOutcome.HeroineVictory);
+            }
+            else
+            {
+                report.monsterSkill = response;
+                report.incomingEnergyDamage = Mathf.Min(EnergyRemaining,
+                    ScaleDamage(response.energyDamage, skill.incomingDamageMultiplier));
+                EnergyRemaining -= report.incomingEnergyDamage;
+                PhysicalDamage += ScaleDamage(response.physicalDamage, skill.incomingDamageMultiplier);
+                PleasureDamage += ScaleDamage(response.pleasureDamage, skill.incomingDamageMultiplier);
+                ConfusionDamage += ScaleDamage(response.confusionDamage, skill.incomingDamageMultiplier);
+                ApplyPortraitStages(report);
+
+                // Energy depletion takes priority if time also expires on this response.
+                if (EnergyRemaining == 0)
+                    Finish(BattleOutcome.MonsterVictory);
+                else if (TurnsRemaining <= 0)
+                    Finish(BattleOutcome.TurnLimitReached);
+            }
+
+            report.energyAfter = EnergyRemaining;
+            report.monsterHealthAfter = MonsterHealthRemaining;
+            report.turnsRemaining = TurnsRemaining;
+            report.outcome = Outcome;
+            return report;
+        }
+
+        private static int ScaleDamage(int damage, float multiplier)
+        {
+            return Mathf.RoundToInt(damage * multiplier);
+        }
+
+        private void ApplyPortraitStages(BattleTurnReport report)
+        {
             if (setup.portraitStages != null)
             {
                 for (int i = 0; i < setup.portraitStages.Count; i++)
@@ -71,15 +122,6 @@ namespace Train.Battle
                 }
             }
 
-            if (EnergyRemaining == 0)
-                Finish(BattleOutcome.MonsterVictory);
-            else if (TurnsRemaining <= 0)
-                Finish(BattleOutcome.TurnLimitReached);
-
-            report.energyAfter = EnergyRemaining;
-            report.turnsRemaining = TurnsRemaining;
-            report.outcome = Outcome;
-            return report;
         }
 
         public List<BattleStatusChange> PreviewStatusChanges(BattleOutcome assumedOutcome)
@@ -88,8 +130,8 @@ namespace Train.Battle
                 throw new ArgumentException("Choose a finished outcome for a status preview.", nameof(assumedOutcome));
 
             float multiplier = assumedOutcome == BattleOutcome.MonsterVictory
-                ? setup.victoryStatusMultiplier
-                : setup.defeatStatusMultiplier;
+                ? setup.heroineDefeatStatusMultiplier
+                : setup.heroineVictoryStatusMultiplier;
             var changes = new List<BattleStatusChange>();
             if (setup.statusRules == null) return changes;
 
@@ -134,6 +176,7 @@ namespace Train.Battle
                 turnsUsed = TurnsUsed,
                 turnsRemaining = TurnsRemaining,
                 energyRemaining = EnergyRemaining,
+                monsterHealthRemaining = MonsterHealthRemaining,
                 physicalDamage = PhysicalDamage,
                 pleasureDamage = PleasureDamage,
                 confusionDamage = ConfusionDamage,

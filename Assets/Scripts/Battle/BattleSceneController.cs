@@ -20,8 +20,11 @@ namespace Train.Battle
         private Image heroineImage;
         private Image monsterImage;
         private RectTransform energyFill;
+        private RectTransform monsterHealthFill;
         private Image cutInImage;
         private TMP_Text energyText;
+        private TMP_Text monsterHealthText;
+        private TMP_Text monsterIntentText;
         private TMP_Text turnsText;
         private TMP_Text damageText;
         private TMP_Text projectedStatusText;
@@ -30,7 +33,7 @@ namespace Train.Battle
         private TMP_Text resultTitle;
         private TMP_Text resultStatusText;
         private Button[] skillButtons;
-        private Coroutine cutInRoutine;
+        private bool resolvingTurn;
 
         private static readonly Color Background = new Color(0.075f, 0.055f, 0.12f);
         private static readonly Color Panel = new Color(0.15f, 0.105f, 0.22f, 0.96f);
@@ -50,7 +53,7 @@ namespace Train.Battle
             {
                 session = new BattleSession(setup);
                 BuildInterface();
-                RefreshInterface("Choose a monster skill. Each use consumes one turn.");
+                RefreshInterface($"{session.Setup.heroine.displayName}の行動を選んでください。\n行動後、怪人が自動で反撃します。");
             }
             catch (Exception exception)
             {
@@ -83,7 +86,15 @@ namespace Train.Battle
             MakeText(monsterPanel, "Name", session.Setup.monster.displayName, 29, Color.white,
                 TextAlignmentOptions.Center, new Vector2(0.04f, 0.88f), new Vector2(0.96f, 0.99f));
             monsterImage = MakePortrait(monsterPanel, "Monster Portrait",
-                new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.86f));
+                new Vector2(0.04f, 0.23f), new Vector2(0.96f, 0.86f));
+            monsterIntentText = MakeText(monsterPanel, "Monster Intent", "", 20, Muted,
+                TextAlignmentOptions.Center, new Vector2(0.04f, 0.16f), new Vector2(0.96f, 0.23f));
+            monsterHealthText = MakeText(monsterPanel, "Monster Health", "", 24, Color.white,
+                TextAlignmentOptions.Center, new Vector2(0.04f, 0.075f), new Vector2(0.96f, 0.16f));
+            RectTransform healthBar = MakePanel(monsterPanel, "Monster Health Bar",
+                new Vector2(0.08f, 0.035f), new Vector2(0.92f, 0.07f), Background);
+            monsterHealthFill = MakePanel(healthBar, "Monster Health Fill", Vector2.zero,
+                Vector2.one, new Color(0.95f, 0.58f, 0.30f));
 
             RectTransform statusPanel = MakePanel(canvas, "Battle Status", new Vector2(0.31f, 0.29f),
                 new Vector2(0.69f, 0.845f), PanelLight);
@@ -96,14 +107,14 @@ namespace Train.Battle
             energyFill = MakePanel(bar, "Energy Fill", Vector2.zero, Vector2.one, Accent);
             damageText = MakeText(statusPanel, "Damage Totals", "", 24, Color.white,
                 TextAlignmentOptions.TopLeft, new Vector2(0.08f, 0.39f), new Vector2(0.92f, 0.65f));
-            MakeText(statusPanel, "Status Heading", "Character status on victory", 22, Accent,
+            MakeText(statusPanel, "Status Heading", "勝利時のステータス変化（予測）", 22, Accent,
                 TextAlignmentOptions.Left, new Vector2(0.08f, 0.29f), new Vector2(0.92f, 0.38f));
             projectedStatusText = MakeText(statusPanel, "Projected Changes", "", 21, Muted,
                 TextAlignmentOptions.TopLeft, new Vector2(0.08f, 0.035f), new Vector2(0.92f, 0.28f));
 
-            RectTransform skillsPanel = MakePanel(canvas, "Monster Skills", new Vector2(0.035f, 0.035f),
+            RectTransform skillsPanel = MakePanel(canvas, "Heroine Skills", new Vector2(0.035f, 0.035f),
                 new Vector2(0.62f, 0.27f), Panel);
-            MakeText(skillsPanel, "Skills Heading", "MONSTER SKILLS", 25, Accent,
+            MakeText(skillsPanel, "Skills Heading", session.Setup.heroine.displayName + "の行動", 25, Accent,
                 TextAlignmentOptions.Left, new Vector2(0.03f, 0.79f), new Vector2(0.97f, 0.98f));
             BuildSkillButtons(skillsPanel);
 
@@ -127,12 +138,12 @@ namespace Train.Battle
 
         private void BuildSkillButtons(RectTransform parent)
         {
-            int count = session.Setup.monsterSkills.Count;
+            int count = session.Setup.heroineSkills.Count;
             skillButtons = new Button[count];
             for (int i = 0; i < count; i++)
             {
                 int selectedIndex = i;
-                BattleSkill skill = session.Setup.monsterSkills[i];
+                BattleHeroineSkill skill = session.Setup.heroineSkills[i];
                 float left = 0.03f + i * 0.94f / count;
                 float right = 0.03f + (i + 1) * 0.94f / count - 0.012f;
                 RectTransform rectangle = MakePanel(parent, skill.id, new Vector2(left, 0.10f),
@@ -142,33 +153,50 @@ namespace Train.Battle
                 button.onClick.AddListener(() => UseSkill(selectedIndex));
                 skillButtons[i] = button;
                 MakeText(rectangle, "Label", skill.displayName, 27, Color.white,
-                    TextAlignmentOptions.Center, new Vector2(0.05f, 0.46f), new Vector2(0.95f, 0.95f));
-                MakeText(rectangle, "Values", $"Energy -{skill.energyDamage}", 20, Muted,
-                    TextAlignmentOptions.Center, new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.49f));
+                    TextAlignmentOptions.Center, new Vector2(0.05f, 0.60f), new Vector2(0.95f, 0.98f));
+                var values = new StringBuilder();
+                if (skill.monsterDamage > 0) values.Append($"体力 -{skill.monsterDamage}\n");
+                if (skill.energyCost > 0) values.Append($"エナジー -{skill.energyCost}\n");
+                if (skill.energyRecovery > 0) values.Append($"エナジー +{skill.energyRecovery}\n");
+                if (skill.incomingDamageMultiplier < 1f)
+                    values.Append($"被ダメージ ×{skill.incomingDamageMultiplier:0.##}");
+                MakeText(rectangle, "Values", values.ToString().TrimEnd(), 19, Muted,
+                    TextAlignmentOptions.Center, new Vector2(0.04f, 0.02f), new Vector2(0.96f, 0.60f));
             }
         }
 
         private void UseSkill(int index)
         {
-            if (session.Outcome != BattleOutcome.InProgress) return;
-            BattleTurnReport report = session.UseMonsterSkill(index);
+            if (resolvingTurn || !session.CanUseHeroineSkill(index)) return;
+            BattleTurnReport report = session.UseHeroineSkill(index);
+            resolvingTurn = true;
             var message = new StringBuilder();
-            message.Append(session.Setup.monster.displayName).Append(": ")
-                .Append(report.skill.displayName).Append('\n')
-                .Append("Energy -").Append(report.energyBefore - report.energyAfter);
+            message.Append(session.Setup.heroine.displayName).Append(": ")
+                .Append(report.heroineSkill.displayName);
+            if (report.monsterHealthBefore != report.monsterHealthAfter)
+                message.Append("  体力 -").Append(report.monsterHealthBefore - report.monsterHealthAfter);
+            if (report.energyRecovered > 0) message.Append("  エナジー +").Append(report.energyRecovered);
+            if (report.monsterSkill != null)
+                message.Append('\n').Append(session.Setup.monster.displayName).Append(": ")
+                    .Append(report.monsterSkill.displayName).Append("  エナジー -")
+                    .Append(report.incomingEnergyDamage);
             foreach (BattlePortraitStage stage in report.reachedStages)
             {
                 message.Append('\n').Append(stage.label);
-                if (stage.bonusTurns > 0) message.Append("  Turns +").Append(stage.bonusTurns);
+                if (stage.bonusTurns > 0) message.Append("  残された時間 +").Append(stage.bonusTurns);
             }
 
             RefreshInterface(message.ToString());
-            if (report.skill.cutIn != null)
-            {
-                if (cutInRoutine != null) StopCoroutine(cutInRoutine);
-                cutInRoutine = StartCoroutine(ShowCutIn(report.skill.cutIn));
-            }
+            StartCoroutine(ShowTurn(report, message.ToString()));
+        }
 
+        private IEnumerator ShowTurn(BattleTurnReport report, string message)
+        {
+            if (report.heroineSkill.cutIn != null) yield return ShowCutIn(report.heroineSkill.cutIn);
+            if (report.monsterSkill != null && report.monsterSkill.cutIn != null)
+                yield return ShowCutIn(report.monsterSkill.cutIn);
+            resolvingTurn = false;
+            RefreshInterface(message);
             if (session.Result != null) ShowResult();
         }
 
@@ -178,7 +206,6 @@ namespace Train.Battle
             cutInImage.gameObject.SetActive(true);
             yield return new WaitForSecondsRealtime(0.8f);
             cutInImage.gameObject.SetActive(false);
-            cutInRoutine = null;
         }
 
         private void RefreshInterface(string message)
@@ -186,7 +213,14 @@ namespace Train.Battle
             energyText.text = $"{session.EnergyRemaining} / {session.Setup.startingEnergy}";
             energyFill.anchorMax = new Vector2(
                 (float)session.EnergyRemaining / session.Setup.startingEnergy, 1f);
-            turnsText.text = $"TURN {session.TurnsRemaining} REMAINING";
+            turnsText.text = $"残された時間  {session.TurnsRemaining} ターン";
+            monsterHealthText.text = $"体力  {session.MonsterHealthRemaining} / {session.Setup.startingMonsterHealth}";
+            monsterHealthFill.anchorMax = new Vector2(
+                (float)session.MonsterHealthRemaining / session.Setup.startingMonsterHealth, 1f);
+            monsterIntentText.text = session.NextMonsterSkill != null
+                ? "次の行動: " + session.NextMonsterSkill.displayName : "";
+            for (int i = 0; i < skillButtons.Length; i++)
+                skillButtons[i].interactable = !resolvingTurn && session.CanUseHeroineSkill(i);
             damageText.text = $"攻撃ダメージ   {session.PhysicalDamage}\n" +
                               $"快楽ダメージ   {session.PleasureDamage}\n" +
                               $"混乱ダメージ   {session.ConfusionDamage}";
@@ -195,7 +229,7 @@ namespace Train.Battle
             logText.text = message;
 
             var projection = new StringBuilder();
-            foreach (BattleStatusChange change in session.PreviewStatusChanges(BattleOutcome.MonsterVictory))
+            foreach (BattleStatusChange change in session.PreviewStatusChanges(BattleOutcome.HeroineVictory))
             {
                 if (projection.Length > 0) projection.Append('\n');
                 projection.Append(change.displayName).Append("  ").Append(change.before)
@@ -232,8 +266,12 @@ namespace Train.Battle
         private void ShowResult()
         {
             foreach (Button button in skillButtons) button.interactable = false;
-            resultTitle.text = session.Result.MonsterWon ? "MONSTER VICTORY" : "TURN LIMIT REACHED";
+            resultTitle.text = session.Setup.heroine.displayName +
+                (session.Result.HeroineWon ? "の勝利" : "の敗北");
             var text = new StringBuilder();
+            text.Append(session.Result.outcome == BattleOutcome.HeroineVictory ? "怪人の体力が0になりました。" :
+                session.Result.outcome == BattleOutcome.TurnLimitReached ? "時間切れで怪人が撤退しました。" :
+                "ピュアプリエナジーが0になりました。").Append("\n\n");
             foreach (BattleStatusChange change in session.Result.statusChanges)
             {
                 text.Append(change.displayName).Append("    ").Append(change.before)
@@ -242,8 +280,9 @@ namespace Train.Battle
                     .Append(change.delta).Append(")\n");
             }
             if (text.Length == 0) text.Append("No status rules configured");
-            text.Append("\nEnergy ").Append(session.Result.energyRemaining)
-                .Append("   Turns used ").Append(session.Result.turnsUsed);
+            text.Append("\nエナジー ").Append(session.Result.energyRemaining)
+                .Append("  怪人の体力 ").Append(session.Result.monsterHealthRemaining)
+                .Append("\n残された時間 ").Append(session.Result.turnsRemaining).Append(" ターン");
             resultStatusText.text = text.ToString();
             resultOverlay.SetActive(true);
         }

@@ -265,10 +265,36 @@ MonoBehaviour:
       displayName: "\u602A\u4EBA"
       portrait: {fileID: 21300000, guid: 4c7388dde71029649b862364037e4cbd, type: 3}
     startingEnergy: 100
+    startingMonsterHealth: 100
     turnLimit: 5
     returnSceneName: MainMenu
-    victoryStatusMultiplier: 1
-    defeatStatusMultiplier: 0.25
+    heroineVictoryStatusMultiplier: 0.25
+    heroineDefeatStatusMultiplier: 1
+    heroineSkills:
+    - id: attack
+      displayName: 攻撃
+      description: 怪人の体力を減らす
+      monsterDamage: 30
+      energyCost: 0
+      energyRecovery: 0
+      incomingDamageMultiplier: 1
+      cutIn: {fileID: 0}
+    - id: guard
+      displayName: 防御
+      description: このターンの被ダメージを半分にする
+      monsterDamage: 0
+      energyCost: 0
+      energyRecovery: 0
+      incomingDamageMultiplier: 0.5
+      cutIn: {fileID: 0}
+    - id: recover
+      displayName: 回復
+      description: ピュアプリエナジーを回復する
+      monsterDamage: 0
+      energyCost: 0
+      energyRecovery: 25
+      incomingDamageMultiplier: 1
+      cutIn: {fileID: 0}
     monsterSkills:
     - id: physical
       displayName: "\u653B\u6483"
