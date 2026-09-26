@@ -46,7 +46,7 @@ public static partial class PlayerProfile
         techUnlockStatus = technologies;
         money = data.Money;
         researchPoint = data.ResearchPoint;
-        battlePoint = data.BattlePoint;
+        BattlePoint = data.BattlePoint;
         tokaCurrentBody = body;
         AvailableBattlerData.Clear();
         AvailableBattlerData.AddRange(battlers);
