@@ -30,7 +30,25 @@ public class BattlerHirePanel : MonoBehaviour
         canvasGroup.interactable = visible;
         canvasGroup.blocksRaycasts = visible;
 
-        battlerUnavailableLabel.SetActive(false);
+        if (battlerUnavailableLabel != null)
+            battlerUnavailableLabel.SetActive(false);
+    }
+
+    void OnEnable()
+    {
+        PlayerProfile.BattlePointChanged += UpdateBattlepointDisplay;
+        UpdateBattlepointDisplay(PlayerProfile.BattlePoint);
+    }
+
+    void OnDisable()
+    {
+        PlayerProfile.BattlePointChanged -= UpdateBattlepointDisplay;
+    }
+
+    void UpdateBattlepointDisplay(int battlepoint)
+    {
+        if (battlepoint_display != null)
+            battlepoint_display.text = battlepoint.ToString();
     }
 
     public void DisplayUI(bool display)
@@ -76,7 +94,11 @@ public class BattlerHirePanel : MonoBehaviour
         spawnedModals.Clear();
 
         if (originModal == null || viewport == null || content == null || content.parent != viewport)
+        {
+            if (battlerUnavailableLabel != null)
+                battlerUnavailableLabel.SetActive(true);
             return;
+        }
 
         content.gameObject.SetActive(true);
         scrollRect.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
@@ -121,6 +143,9 @@ public class BattlerHirePanel : MonoBehaviour
         content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,
             Mathf.Max(viewport.rect.width, rowWidth));
         scrollRect.horizontalNormalizedPosition = 0f;
+
+        if (battlerUnavailableLabel != null)
+            battlerUnavailableLabel.SetActive(position == 0);
     }
 
     void OnDestroy()

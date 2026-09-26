@@ -1,10 +1,7 @@
 fileFormatVersion: 2
-guid: e6c951a8f620cf7409e455537325dcaf
+guid: 2e4f169c420347f4966633c699cb6d73
 TextureImporter:
-  internalIDToNameTable:
-  - first:
-      213: 1717959649996741340
-    second: calendar_0
+  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -45,15 +42,15 @@ TextureImporter:
     wrapW: 1
   nPOTScale: 0
   lightmap: 0
-  compressionQuality: 50
-  spriteMode: 2
+  compressionQuality: 100
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 350
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -76,7 +73,7 @@ TextureImporter:
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
-    compressionQuality: 50
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -89,7 +86,7 @@ TextureImporter:
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
-    compressionQuality: 50
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -98,46 +95,23 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: calendar_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1254
-        height: 1254
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 400, y: 352, z: 400, w: 352}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cda9284133b67d710800000000000000
-      internalID: 1717959649996741340
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
-    customData: 
+    customData:
     physicsShape: []
     bones: []
-    spriteID: e1f166b83df9fdf4b87d1ad787c82876
+    spriteID: f70509c99d314e3098712c2aef04af73
     internalID: 0
     vertices: []
-    indices: 
+    indices:
     edges: []
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      calendar_0: 1717959649996741340
-  mipmapLimitGroupName: 
+    nameFileIdTable: {}
+  mipmapLimitGroupName:
   pSDRemoveMatte: 0
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:

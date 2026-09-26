@@ -24,6 +24,23 @@ public static partial class PlayerProfile
 
     static TokaBodyList tokabodylist;
 
+    static public int CurrentDate
+    {
+        get => currentDate;
+        set => currentDate = value;
+    }
+
+    static public Clock CurrentClock
+    {
+        get => currentClock;
+        set
+        {
+            if (!System.Enum.IsDefined(typeof(Clock), value))
+                throw new System.ArgumentOutOfRangeException(nameof(value), value, "Unknown clock value.");
+            currentClock = value;
+        }
+    }
+
     static public int Money
     {
         get => money;

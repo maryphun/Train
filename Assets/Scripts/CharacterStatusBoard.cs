@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using DG.Tweening;
 
 public class HoverActivator : MonoBehaviour
@@ -12,6 +14,9 @@ public class HoverActivator : MonoBehaviour
 
 
     private CanvasGroup canvasGrp;
+    private EventSystem pointerEventSystem;
+    private PointerEventData pointerEventData;
+    private readonly List<RaycastResult> raycastResults = new List<RaycastResult>();
 
     private float timer;
     private bool activated;
@@ -27,7 +32,7 @@ public class HoverActivator : MonoBehaviour
             hoverImageRect,
             Input.mousePosition,
             null
-        );
+        ) && IsUnblockedByUI();
 
         if (mouseInside)
         {
@@ -49,6 +54,54 @@ public class HoverActivator : MonoBehaviour
                 activated = false;
             }
         }
+    }
+
+    private bool IsUnblockedByUI()
+    {
+        EventSystem eventSystem = EventSystem.current;
+        if (eventSystem == null || hoverImageRect == null)
+            return false;
+
+        if (pointerEventData == null || pointerEventSystem != eventSystem)
+        {
+            pointerEventSystem = eventSystem;
+            pointerEventData = new PointerEventData(eventSystem);
+        }
+
+        pointerEventData.position = Input.mousePosition;
+        raycastResults.Clear();
+        eventSystem.RaycastAll(pointerEventData, raycastResults);
+
+        if (raycastResults.Count == 0 || raycastResults[0].gameObject == null)
+            return false;
+
+        Transform topHit = raycastResults[0].gameObject.transform;
+        if (topHit != hoverImageRect && !topHit.IsChildOf(hoverImageRect))
+            return false;
+
+        for (int i = 1; i < raycastResults.Count; i++)
+        {
+            GameObject hitObject = raycastResults[i].gameObject;
+            if (hitObject != null && IsOtherUIBlocker(hitObject.transform))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsOtherUIBlocker(Transform hitTransform)
+    {
+        if (hitTransform.GetComponentInParent<Selectable>() != null)
+            return true;
+
+        for (Transform current = hitTransform; current != null; current = current.parent)
+        {
+            CanvasGroup group = current.GetComponent<CanvasGroup>();
+            if (group != null && group.isActiveAndEnabled && group.blocksRaycasts)
+                return true;
+        }
+
+        return false;
     }
 
     void Activate()
