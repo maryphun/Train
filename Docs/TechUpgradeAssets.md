@@ -18,7 +18,7 @@ when defining prerequisites. No upgrade costs, effects, or localization entries 
 
 ## Starter icon pack
 
-PNG sprites are in `Assets/Graphic/UI/TechUpgrade`. Their white/cyan/electric-blue palette is based on
+PNG sprites are in `Assets/Graphic/UI/Icons`. Their white/cyan/electric-blue palette is based on
 the actual `btn_circle.png` and `window_01_01_frame.png` used by `TechUpgrade.unity`.
 They have transparent backgrounds, no text, and no button frames baked into the artwork.
 
