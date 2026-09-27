@@ -24,6 +24,7 @@ public sealed class PlayerProfileSaveData
     public int Money;
     public int ResearchPoint;
     public int BattlePoint;
+    public int Energy;
     public string TokaBodySpriteName;
     public List<AvailableBattlerRecord> AvailableBattlerData = new List<AvailableBattlerRecord>();
 }

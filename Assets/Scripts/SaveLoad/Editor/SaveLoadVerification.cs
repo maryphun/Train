@@ -75,6 +75,7 @@ public static class SaveLoadVerification
             Money = 1234,
             ResearchPoint = 56,
             BattlePoint = 78,
+            Energy = 3,
             TokaBodySpriteName = testBody != null ? testBody.name : null
         };
         profile.TechUnlockStatus[0] = true;
@@ -95,13 +96,26 @@ public static class SaveLoadVerification
         Check(SaveLoad.TryRead(0, out SaveData saved, out string error), error);
         Check(saved.GameVersion == Application.version, "Game version was not recorded.");
         Check(saved.SchemaVersion == SaveData.CurrentSchemaVersion, "Schema version was not recorded.");
+        Check(saved.PlayerProfile.Energy == 3, "Energy was not saved.");
         Check(DateTime.TryParse(saved.SavedAtUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime timestamp)
             && timestamp.Kind == DateTimeKind.Utc && Math.Abs((DateTime.UtcNow - timestamp).TotalMinutes) < 1,
             "Save timestamp was not recorded as current UTC.");
-        PlayerProfile.Initialization();
-        Check(PlayerProfile.BattlePoint == 0, "New game retained battle points.");
-        Check(SaveLoad.Load(0), SaveLoad.LastError);
-        Check(Snapshot() == expectedProfile, "Profile did not round-trip.");
+        int energyNotifications = 0;
+        Action energyListener = () => energyNotifications++;
+        PlayerProfile.EnergyChanged += energyListener;
+        try
+        {
+            PlayerProfile.Initialization();
+            Check(PlayerProfile.BattlePoint == 0 && PlayerProfile.Energy == 0 && energyNotifications == 1,
+                "New game retained battle points or Energy, or did not notify Energy subscribers.");
+            Check(SaveLoad.Load(0), SaveLoad.LastError);
+            Check(Snapshot() == expectedProfile && energyNotifications == 2,
+                "Profile did not round-trip or loading did not notify Energy subscribers.");
+        }
+        finally
+        {
+            PlayerProfile.EnergyChanged -= energyListener;
+        }
 
         PlayerProfile.Money = 2222;
         Check(SaveLoad.Save(1), SaveLoad.LastError);
@@ -120,8 +134,10 @@ public static class SaveLoadVerification
         edited["GameVersion"] = "modded-build";
         edited["PlayerProfile"]["Money"] = -123;
         edited["PlayerProfile"]["ResearchPoint"] = 1000000;
+        edited["PlayerProfile"]["Energy"] = -5;
         File.WriteAllText(slot, edited.ToString());
-        Check(SaveLoad.Load(0) && PlayerProfile.Money == -123 && PlayerProfile.ResearchPoint == 1000000,
+        Check(SaveLoad.Load(0) && PlayerProfile.Money == -123 && PlayerProfile.ResearchPoint == 1000000
+            && PlayerProfile.Energy == -5,
             "Hand-edited values were rejected or clamped.");
 
         // Simulates an older save missing fields added later.
@@ -129,6 +145,7 @@ public static class SaveLoadVerification
         Check(SaveLoad.Load(0), SaveLoad.LastError);
         PlayerProfileSaveData defaults = PlayerProfile.CaptureSaveData();
         Check(defaults.Money == 42 && defaults.BattlePoint == 0 && defaults.ResearchPoint == 0
+            && defaults.Energy == 0
             && defaults.CurrentClock == Clock.Morning && defaults.AvailableBattlerData.Count == 0
             && defaults.TechUnlockStatus.Length == (int)TechType.maxCount && defaults.TechUnlockStatus[0],
             "Missing fields did not use defaults or the technology list did not expand.");

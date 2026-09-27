@@ -21,6 +21,7 @@ public static partial class PlayerProfile
             Money = money,
             ResearchPoint = researchPoint,
             BattlePoint = battlePoint,
+            Energy = energy,
             TokaBodySpriteName = bodyName,
             AvailableBattlerData = CopyBattlers(AvailableBattlerData)
         };
@@ -40,13 +41,15 @@ public static partial class PlayerProfile
             Array.Copy(data.TechUnlockStatus, technologies, Math.Min(data.TechUnlockStatus.Length, technologies.Length));
         List<AvailableBattlerRecord> battlers = CopyBattlers(data.AvailableBattlerData);
 
-        // No gameplay limits are applied: edited money, points, and levels are preserved.
-        currentDate = data.CurrentDate;
-        currentClock = data.CurrentClock;
+        // No gameplay limits are applied: edited resources and levels are preserved.
+        // Use the public setters so UI subscribers see values restored from a save.
+        CurrentDate = data.CurrentDate;
+        CurrentClock = data.CurrentClock;
         techUnlockStatus = technologies;
-        money = data.Money;
-        researchPoint = data.ResearchPoint;
+        Money = data.Money;
+        ResearchPoint = data.ResearchPoint;
         BattlePoint = data.BattlePoint;
+        Energy = data.Energy;
         tokaCurrentBody = body;
         AvailableBattlerData.Clear();
         AvailableBattlerData.AddRange(battlers);

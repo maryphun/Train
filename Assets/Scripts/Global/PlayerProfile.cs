@@ -11,6 +11,11 @@ public sealed class AvailableBattlerRecord
 public static partial class PlayerProfile
 {
     public static event System.Action<int> BattlePointChanged;
+    public static event System.Action MoneyChanged;
+    public static event System.Action ResearchPointChanged;
+    public static event System.Action EnergyChanged;
+    public static event System.Action DateChanged;
+    public static event System.Action ClockChanged;
 
     // Data that need to be saved
     static int currentDate;
@@ -19,6 +24,7 @@ public static partial class PlayerProfile
     static int money;
     static int researchPoint;
     static int battlePoint;
+    static int energy;
     static Sprite tokaCurrentBody;
     static public List<AvailableBattlerRecord> AvailableBattlerData { get; } = new List<AvailableBattlerRecord>();
 
@@ -27,7 +33,14 @@ public static partial class PlayerProfile
     static public int CurrentDate
     {
         get => currentDate;
-        set => currentDate = value;
+        set
+        {
+            if (currentDate == value)
+                return;
+
+            currentDate = value;
+            DateChanged?.Invoke();
+        }
     }
 
     static public Clock CurrentClock
@@ -38,19 +51,48 @@ public static partial class PlayerProfile
             if (!System.Enum.IsDefined(typeof(Clock), value))
                 throw new System.ArgumentOutOfRangeException(nameof(value), value, "Unknown clock value.");
             currentClock = value;
+
+            ClockChanged?.Invoke();
         }
     }
 
     static public int Money
     {
         get => money;
-        set => money = value;
+        set
+        {
+            if (money == value)
+                return;
+
+            money = value;
+            MoneyChanged?.Invoke();
+        }
     }
 
     static public int ResearchPoint
     {
         get => researchPoint;
-        set => researchPoint = value;
+        set
+        {
+            if (researchPoint == value)
+                return;
+
+            researchPoint = value;
+            ResearchPointChanged?.Invoke();
+        }
+    }
+
+    static public int Energy
+    {
+        get => energy;
+        set
+        {
+            if (energy == value)
+                return;
+
+            energy = value;
+            EnergyChanged?.Invoke();
+        }
     }
 
     static public int BattlePoint
@@ -94,6 +136,7 @@ public static partial class PlayerProfile
         money = 0;
         researchPoint = 0;
         BattlePoint = 0;
+        Energy = 0;
         tokaCurrentBody = tokabodylist != null ? tokabodylist.defaultSprite : null;
         AvailableBattlerData.Clear();
     }

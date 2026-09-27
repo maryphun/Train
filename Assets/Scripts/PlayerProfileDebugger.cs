@@ -60,6 +60,8 @@ public sealed class PlayerProfileDebugger : MonoBehaviour
     public bool AddResearchPoint(int amount) => Execute(() => PlayerProfile.ResearchPoint = checked(PlayerProfile.ResearchPoint + amount), "Research points added.");
     public bool SetBattlePoint(int value) => Execute(() => PlayerProfile.BattlePoint = value, "Battle points updated.");
     public bool AddBattlePoint(int amount) => Execute(() => PlayerProfile.BattlePoint = checked(PlayerProfile.BattlePoint + amount), "Battle points added.");
+    public bool SetEnergy(int value) => Execute(() => PlayerProfile.Energy = value, "Energy updated.");
+    public bool AddEnergy(int amount) => Execute(() => PlayerProfile.Energy = checked(PlayerProfile.Energy + amount), "Energy added.");
     public bool SetCurrentDate(int value) => Execute(() => PlayerProfile.CurrentDate = value, "Current date updated.");
     public bool SetCurrentTime(Clock value) => Execute(() => PlayerProfile.CurrentClock = value, "Current time updated.");
 

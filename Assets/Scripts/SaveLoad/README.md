@@ -11,12 +11,14 @@ if (!SaveLoad.Save(1))
 
 if (SaveLoad.Load(1))
 {
-    // Refresh the UI or load your chosen scene here.
+    // Load your chosen scene here if needed.
 }
 ```
 
 Both return `bool`. A failed load leaves the profile intact. Loading restores data only;
 it does not start a new game, change scenes, or resume an in-progress dialogue/battle.
+Profile change events refresh active subscribers such as `MainMenuManager`; other UI may need
+its own refresh after loading.
 Do not call `PlayerProfile.Initialization()` after loading, since that resets the loaded data.
 `TitleManager.OnClickLoad` is still a UI integration point for you to choose a slot/scene.
 
@@ -49,7 +51,8 @@ if (SaveLoad.TryRead(0, out SaveData data, out string error))
 ## What is saved
 
 `PlayerProfileSaveData` contains the current date/clock, technology unlocks, money,
-research points, battle points, unlocked battler IDs/levels, and current body sprite name.
+research points, battle points, Energy, unlocked battler IDs/levels, and current body sprite name.
+Older save files without Energy load it as `0`; no schema migration is required.
 Snapshots copy arrays/lists/records so changing a snapshot does not mutate the active profile.
 
 Body sprites are resolved by name through `Resources/TokaBodyList` (default sprite and `spriteList`).

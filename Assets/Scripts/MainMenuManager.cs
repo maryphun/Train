@@ -1,16 +1,45 @@
 using UnityEngine;
+using UnityEngine.UI;
+using Assets.SimpleLocalization.Scripts;
 
 public class MainMenuManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("References")]
+    [SerializeField] TMPro.TMP_Text date_label;
+    [SerializeField] TMPro.TMP_Text clock_label;
+    [SerializeField] TMPro.TMP_Text money_label;
+    [SerializeField] EnergyGauge energyGauge;
+    [SerializeField] Image background;
+
+    void OnEnable()
     {
-        
+        PlayerProfile.DateChanged += UpdateUI;
+        PlayerProfile.ClockChanged += UpdateUI;
+        PlayerProfile.MoneyChanged += UpdateUI;
+        PlayerProfile.ResearchPointChanged += UpdateUI;
+        PlayerProfile.EnergyChanged += UpdateUI;
+        UpdateUI();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDisable()
     {
-        
+        PlayerProfile.DateChanged -= UpdateUI;
+        PlayerProfile.ClockChanged -= UpdateUI;
+        PlayerProfile.MoneyChanged -= UpdateUI;
+        PlayerProfile.ResearchPointChanged -= UpdateUI;
+        PlayerProfile.EnergyChanged -= UpdateUI;
+    }
+
+    public void UpdateUI()
+    {
+        string calenderDate = PlayerProfile.CurrentDate.ToString();
+        string currentClock = LocalizationManager.Localize("Calender." + PlayerProfile.CurrentClock.ToString());
+        string money = PlayerProfile.Money.ToString() + LocalizationManager.Localize("Common.MoneyUnit");
+        int energyPoint = PlayerProfile.Energy;
+
+        date_label.text = calenderDate;
+        clock_label.text = currentClock;
+        money_label.text = money;
+        energyGauge.UpdateEnergyGauge(energyPoint);
     }
 }

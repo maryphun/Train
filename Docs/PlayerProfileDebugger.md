@@ -7,7 +7,7 @@ It becomes a persistent singleton when the game runs. On scene changes, look und
 ## Use
 
 1. Enter Play Mode and select **PlayerProfileDebugger**.
-2. Change **Money**, **Research points**, **Battle points**, or **Current date**.
+2. Change **Money**, **Research points**, **Battle points**, **Energy**, or **Current date**.
    Press Enter or leave the numeric field to commit the change. These fields show live profile values.
 3. To increment a resource, enter **Amount to add** below it and press **Add**.
    Negative amounts subtract; integer overflow is rejected without changing the value.
@@ -27,8 +27,10 @@ assets in `Resources/BattlerData`; close and reopen that panel to refresh its li
 - The debugger does not initialize the profile, apply preset values on startup, advance turns,
   invoke date events, reset the game, or save anything automatically.
 - It writes only the chosen field/record; unrelated gameplay changes are not overwritten by a snapshot.
-- Existing UI subscribers still receive `BattlePointChanged`. Other screens update according to
-  their existing behavior; the debugger does not invent a global UI refresh system.
+- Existing profile change events are raised by the corresponding setters. `MainMenuManager`
+  listens for Energy, money, date, and time changes; other screens follow their own subscriptions.
+- Energy remains an unrestricted saved integer. The four-segment main-menu gauge displays the
+  nearest available state for values outside `0`–`4` without changing the profile value.
 - Values are not clamped to invented gameplay limits. Invalid clock values and missing/blank battler
   assets are rejected. The level input is a command argument, not a definition of the game's starting level.
 - Modified profile data can be saved through the existing `SaveLoad.Save(slot)` workflow if desired.
@@ -45,10 +47,12 @@ the existing saved fields; this feature does not change the save schema.
 
 ## Verification
 
-- Runtime and Editor assemblies compile using Unity 6000.3.15f1's bundled Roslyn compiler.
+- Runtime and Editor assemblies compile using Unity 6000.3.15f1's bundled Roslyn compiler,
+  including the new Energy controls.
 - 24 headless checks passed against the real profile/debugger sources with lightweight Unity test
   doubles: Play Mode and enabled-state guards, resource set/add, negative values, overflow preservation,
   battle-point notifications, date/time writes, invalid clock rejection, null/blank battler rejection,
   add/update by ID, no hiring cost or asset mutation, level updates, duplicate-singleton handling,
   persistence registration, and recovery after a static reset.
-- Interactive Inspector and real scene-transition verification still require Unity Play Mode.
+- The prior 24 headless checks do not cover the new Energy controls. Interactive Inspector,
+  save/load verification, and real scene-transition checks still require Unity Editor execution.

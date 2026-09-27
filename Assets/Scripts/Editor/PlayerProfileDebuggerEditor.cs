@@ -8,6 +8,7 @@ public sealed class PlayerProfileDebuggerEditor : Editor
     private int moneyToAdd;
     private int researchToAdd;
     private int battleToAdd;
+    private int energyToAdd;
     private BattlerData battlerToAdd;
     private int battlerLevel;
     private bool showBattlers = true;
@@ -36,6 +37,7 @@ public sealed class PlayerProfileDebuggerEditor : Editor
         DrawResource("Money", PlayerProfile.Money, debugger.SetMoney, ref moneyToAdd, debugger.AddMoney);
         DrawResource("Research points", PlayerProfile.ResearchPoint, debugger.SetResearchPoint, ref researchToAdd, debugger.AddResearchPoint);
         DrawResource("Battle points", PlayerProfile.BattlePoint, debugger.SetBattlePoint, ref battleToAdd, debugger.AddBattlePoint);
+        DrawResource("Energy", PlayerProfile.Energy, debugger.SetEnergy, ref energyToAdd, debugger.AddEnergy);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Date and time", EditorStyles.boldLabel);
