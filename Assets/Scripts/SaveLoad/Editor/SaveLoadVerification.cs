@@ -97,6 +97,7 @@ public static class SaveLoadVerification
         Check(saved.GameVersion == Application.version, "Game version was not recorded.");
         Check(saved.SchemaVersion == SaveData.CurrentSchemaVersion, "Schema version was not recorded.");
         Check(saved.PlayerProfile.Energy == 3, "Energy was not saved.");
+        VerifyMetadata();
         Check(DateTime.TryParse(saved.SavedAtUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime timestamp)
             && timestamp.Kind == DateTimeKind.Utc && Math.Abs((DateTime.UtcNow - timestamp).TotalMinutes) < 1,
             "Save timestamp was not recorded as current UTC.");
@@ -167,6 +168,49 @@ public static class SaveLoadVerification
         Check(!SaveLoad.Save(0) && File.ReadAllText(blocker) == "keep this file" && Snapshot() == beforeFailures,
             "Failed write damaged existing data.");
         SaveLoad.SaveDirectory = validDirectory;
+    }
+
+    private static void VerifyMetadata()
+    {
+        string before = Snapshot();
+        Check(SaveLoad.TryReadMetadata(0, out SaveSlotMetadata metadata, out string error), error);
+        Check(metadata.SlotID == 0 && metadata.InGameDay == 7 && metadata.GameVersion == Application.version,
+            "Preview values do not match the saved slot.");
+        Check(Math.Abs((metadata.SavedAtUtc - DateTimeOffset.UtcNow).TotalMinutes) < 1
+            && metadata.SavedAtLocal == metadata.SavedAtUtc, "Preview timestamp changed the saved instant.");
+
+        string path = SaveLoad.GetSavePath(90);
+        const string stamp = "2026-10-02T23:45:12.0000000Z";
+        File.WriteAllText(path, "{\"SchemaVersion\":1,\"GameVersion\":\"old\",\"SavedAtUtc\":\"" + stamp
+            + "\",\"PlayerProfile\":{\"CurrentDate\":31,\"TokaBodySpriteName\":\"missing-body\","
+            + "\"AvailableBattlerData\":[null],\"Money\":\"not-an-integer\"}}");
+        Check(SaveLoad.TryReadMetadata(90, out metadata, out error) && metadata.InGameDay == 31,
+            "Preview tried to deserialize unrelated gameplay fields or resolve assets: " + error);
+        Check(metadata.SavedAtUtc == new DateTimeOffset(2026, 10, 2, 23, 45, 12, TimeSpan.Zero),
+            "Preview UTC parsing failed.");
+        Check(metadata.SavedAtLocal == metadata.SavedAtUtc.ToLocalTime()
+            && metadata.SavedAtLocal.Offset == TimeZoneInfo.Local.GetUtcOffset(metadata.SavedAtUtc),
+            "Preview local time conversion failed.");
+        Check(SaveLoad.Exists(90) && !SaveLoad.Exists(91) && !SaveLoad.Exists(-1), "Slot existence check failed.");
+        Check(!SaveLoad.TryReadMetadata(91, out metadata, out error) && metadata == null && !string.IsNullOrEmpty(error),
+            "Missing metadata slot should return an error.");
+        Check(!SaveLoad.TryReadMetadata(-1, out metadata, out error), "Negative preview slot accepted.");
+        foreach (string invalid in new[]
+        {
+            "{broken", "null", "[]", "{}",
+            "{\"SchemaVersion\":999,\"PlayerProfile\":{}}",
+            "{\"SchemaVersion\":1,\"PlayerProfile\":{}}",
+            "{\"SchemaVersion\":1,\"SavedAtUtc\":\"invalid\",\"PlayerProfile\":{}}",
+            "{\"SchemaVersion\":1,\"SavedAtUtc\":\"" + stamp + "\"}",
+            "{\"SchemaVersion\":1,\"SavedAtUtc\":\"" + stamp + "\",\"PlayerProfile\":{}} trailing"
+        })
+        {
+            File.WriteAllText(path, invalid);
+            Check(SaveLoad.Exists(90), "Exists should test presence, not validity.");
+            Check(!SaveLoad.TryReadMetadata(90, out metadata, out error) && metadata == null && !string.IsNullOrEmpty(error),
+                "Invalid metadata accepted: " + invalid);
+        }
+        Check(Snapshot() == before, "Reading metadata changed the active profile.");
     }
 
     private static void ExpectLoadFailure(string path, string json)

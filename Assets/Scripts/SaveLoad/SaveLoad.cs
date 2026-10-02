@@ -34,6 +34,7 @@ public static class SaveLoad
         return Path.Combine(SaveDirectory, $"slot_{memoryslotID.ToString(CultureInfo.InvariantCulture)}.json");
     }
 
+    /// <summary>Fast file-existence check only; does not parse or validate the save.</summary>
     public static bool Exists(int memoryslotID)
     {
         return memoryslotID >= 0 && File.Exists(GetSavePath(memoryslotID));
@@ -110,7 +111,71 @@ public static class SaveLoad
         }
     }
 
-    /// <summary>Reads data/metadata for a slot menu without changing the active profile.</summary>
+    /// <summary>
+    /// Reads only preview fields through a streaming reader, without constructing the full save/profile,
+    /// resolving assets, or changing live data. Scans the JSON file but skips unrelated values.
+    /// Success verifies preview fields, not that every gameplay field can be loaded.
+    /// Errors are returned separately and do not change LastError.
+    /// </summary>
+    public static bool TryReadMetadata(int memoryslotID, out SaveSlotMetadata metadata, out string error)
+    {
+        metadata = null;
+        error = null;
+        try
+        {
+            string path = GetSavePath(memoryslotID);
+            if (!File.Exists(path))
+                throw new FileNotFoundException($"No save exists in slot {memoryslotID}.", path);
+
+            SlotPreviewData preview;
+            using (var stream = new StreamReader(path, Encoding.UTF8))
+            using (var reader = new JsonTextReader(stream) { DateParseHandling = DateParseHandling.None })
+            {
+                JsonSerializer serializer = JsonSerializer.Create(JsonSettings);
+                serializer.CheckAdditionalContent = true;
+                preview = serializer.Deserialize<SlotPreviewData>(reader);
+            }
+
+            if (preview == null || !preview.SchemaVersion.HasValue)
+                throw new InvalidDataException("The save file is missing its SchemaVersion.");
+            if (preview.SchemaVersion < 1 || preview.SchemaVersion > SaveData.CurrentSchemaVersion)
+                throw new InvalidDataException($"Save format {preview.SchemaVersion} is not supported.");
+            if (preview.PlayerProfile == null)
+                throw new InvalidDataException("The save file has no PlayerProfile object.");
+            // Save() has always emitted the round-trip UTC format. Do not invent a timestamp
+            // from file modification time when a hand-edited/old file lacks valid metadata.
+            if (!DateTimeOffset.TryParseExact(preview.SavedAtUtc, "O", CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal, out DateTimeOffset savedAt))
+                throw new InvalidDataException("The save file has no valid SavedAtUtc timestamp.");
+
+            metadata = new SaveSlotMetadata(memoryslotID, preview.SchemaVersion.Value,
+                preview.GameVersion, savedAt, preview.PlayerProfile.CurrentDate);
+            return true;
+        }
+        catch (Exception exception)
+        {
+            error = exception.Message;
+            return false;
+        }
+    }
+
+    // A small projection of the existing JSON format: no duplicate day field or sidecar to go stale.
+    [JsonObject(MemberSerialization.OptIn)]
+    private sealed class SlotPreviewData
+    {
+        [JsonProperty] public int? SchemaVersion { get; set; }
+        [JsonProperty] public string GameVersion { get; set; }
+        [JsonProperty] public string SavedAtUtc { get; set; }
+        [JsonProperty] public ProfilePreviewData PlayerProfile { get; set; }
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    private sealed class ProfilePreviewData
+    {
+        [JsonProperty] public int CurrentDate { get; set; }
+    }
+
+    /// <summary>Reads the full save DTO without changing the active profile. Prefer TryReadMetadata for previews.</summary>
     public static bool TryRead(int memoryslotID, out SaveData data, out string error)
     {
         data = null;

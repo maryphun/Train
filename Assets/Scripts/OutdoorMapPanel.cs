@@ -1,16 +1,16 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class OutdoorMapPanel : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [Header("References")]
+    [SerializeField] private CanvasGroup canvasGrp;
 
-    // Update is called once per frame
-    void Update()
+    public void DisplayUI(bool display)
     {
-        
+        canvasGrp.DOKill();
+        canvasGrp.interactable = display;
+        canvasGrp.blocksRaycasts = display;
+        canvasGrp.DOFade(display ? 1f : 0f, 0.5f);
     }
 }

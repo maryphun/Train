@@ -35,7 +35,51 @@ Do not call `PlayerProfile.Initialization()` after loading, since that resets th
 - Overwriting a slot keeps the previous file at `slot_0.json.bak`. A temporary file is fully written before replacing the slot.
   To recover a backup manually, copy it over the corresponding `.json` file. Loading never silently substitutes a backup.
 
-Inspect a slot for a load menu without applying it:
+## Save/load menu previews (no profile load)
+
+`Save()` already records the real-world date/time in `SavedAtUtc` and the in-game day in
+`PlayerProfile.CurrentDate`. No additional call is required when saving. Read them with:
+
+```csharp
+int slotID = 0;
+if (!SaveLoad.Exists(slotID))
+{
+    // Show an empty slot.
+}
+else if (SaveLoad.TryReadMetadata(slotID, out SaveSlotMetadata info, out string error))
+{
+    var local = info.SavedAtLocal;
+    calendarDateText.text = local.ToString("yyyy/MM/dd");
+    clockTimeText.text = local.ToString("HH:mm:ss");
+    gameDayText.text = $"Day {info.InGameDay}";
+}
+else
+{
+    // File exists, but its preview could not be read. Do not label it an empty slot.
+    Debug.LogWarning(error);
+}
+```
+
+- `Exists(slotID)` is a quick file-presence check. It does not parse JSON or guarantee loadability.
+- `TryReadMetadata` never calls `Load`, reads the live profile, fires its events, or resolves sprites.
+  It streams the JSON into a small projection, skipping unrelated properties instead of allocating
+  the full save/profile, battler lists or technology arrays. It still scans the file; it is not a
+  constant-time header/index lookup. Call when opening/refreshing the menu, not every frame.
+- Fields: `SlotID`, `SchemaVersion`, `GameVersion`, `SavedAtUtc`, `SavedAtLocal`, `InGameDay`.
+- `SavedAtLocal` converts the saved UTC instant to the computer's **current local time zone**.
+  The save does not record the original time-zone identity. Use `SavedAtUtc` if UTC display is desired.
+- `InGameDay` is the raw saved `CurrentDate`, with no automatic +1 offset. A missing day defaults to
+  0, matching full-load behavior. The real-world clock is not the in-game `Clock` enum.
+- Existing normal saves work without resaving. A missing/invalid timestamp, malformed JSON, missing
+  profile or unsupported schema returns `false`, null metadata and an error. No file-modification
+  date is substituted for missing metadata.
+- Successful preview reading does not validate all gameplay fields: loading can still fail later
+  (for example, a removed body sprite). Always check the result of `SaveLoad.Load` on selection.
+- This method returns its own `error` and leaves `SaveLoad.LastError` unchanged.
+- No separate metadata file or duplicated game-day value is written, so previews reflect the JSON
+  even after a player edits a save. Existing file replacement/backup behavior remains unchanged.
+
+If you need the **entire saved DTO** rather than the small preview, use `TryRead` without applying it:
 
 ```csharp
 if (SaveLoad.TryRead(0, out SaveData data, out string error))
