@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f76f0bc0fba3e7a43a0dccaa3bf01347, type: 3}
-  m_Name: 1. Runa
+  m_Name: 2. Runa
   m_EditorClassIdentifier: Assembly-CSharp::BattlerData
-  BattlerID: 1
+  BattlerID: 2
   BattlerNameID: Enemy.Runa
   BattlerSprite: {fileID: -6523591523472130383, guid: 40db254de5c15b242a37b94177482c54, type: 3}
   BattlerRequiredPoint: 4000

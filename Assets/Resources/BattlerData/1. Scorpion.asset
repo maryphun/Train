@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f76f0bc0fba3e7a43a0dccaa3bf01347, type: 3}
-  m_Name: 0. Scorpion
+  m_Name: 1. Scorpion
   m_EditorClassIdentifier: Assembly-CSharp::BattlerData
-  BattlerID: 0
+  BattlerID: 1
   BattlerNameID: Enemy.Scorpion
   BattlerSprite: {fileID: 21300000, guid: 4c7388dde71029649b862364037e4cbd, type: 3}
-  BattlerRequiredPoint: 1000
+  BattlerRequiredPoint: 1500
