@@ -27,8 +27,28 @@ public static partial class PlayerProfile
     static int energy;
     static Sprite tokaCurrentBody;
     static public List<AvailableBattlerRecord> AvailableBattlerData { get; } = new List<AvailableBattlerRecord>();
+    static bool[] isTutorialTriggered = new bool[(int)Tutorials.maxCount];
 
     static TokaBodyList tokabodylist;
+
+    public static bool GetTutorialTriggered(Tutorials tutorial)
+    {
+        return isTutorialTriggered[GetTutorialIndex(tutorial)];
+    }
+
+    public static void SetTutorialTriggered(Tutorials tutorial, bool triggered)
+    {
+        isTutorialTriggered[GetTutorialIndex(tutorial)] = triggered;
+    }
+
+    private static int GetTutorialIndex(Tutorials tutorial)
+    {
+        int index = (int)tutorial;
+        if (index < 0 || index >= (int)Tutorials.maxCount
+            || !System.Enum.IsDefined(typeof(Tutorials), tutorial))
+            throw new System.ArgumentOutOfRangeException(nameof(tutorial), tutorial, "Unknown tutorial value.");
+        return index;
+    }
 
     static public int CurrentDate
     {
@@ -124,6 +144,7 @@ public static partial class PlayerProfile
         set => tokaCurrentBody = value;
     }
 
+
     // Data that don't need to be saved
 
     static public void Initialization()
@@ -139,6 +160,7 @@ public static partial class PlayerProfile
         Energy = 0;
         tokaCurrentBody = tokabodylist != null ? tokabodylist.defaultSprite : null;
         AvailableBattlerData.Clear();
+        isTutorialTriggered = new bool[(int)Tutorials.maxCount];
     }
 
     static void EnsureTokaBodyList()

@@ -41,7 +41,7 @@ public static class SaveLoadVerification
             SaveLoad.SaveDirectory = testDirectory;
             Verify();
             string result = "PASS: round-trip, slot isolation, metadata, backups, edited JSON, missing-field defaults, "
-                + "copy isolation, new-game reset, invalid slot, missing file, malformed JSON, future schema, "
+                + "copy isolation, tutorial compatibility, new-game reset, invalid slot, missing file, malformed JSON, future schema, "
                 + "missing body sprite, and failed-write preservation. " + DateTime.UtcNow.ToString("O");
             File.WriteAllText(ResultPath, result);
             Debug.Log(result);
@@ -79,6 +79,7 @@ public static class SaveLoadVerification
             TokaBodySpriteName = testBody != null ? testBody.name : null
         };
         profile.TechUnlockStatus[0] = true;
+        profile.IsTutorialTriggered[(int)Tutorials.MainMenu] = true;
         profile.AvailableBattlerData.Add(new AvailableBattlerRecord { BattlerID = "テスト怪人", BattlerCurrentLevel = 4 });
         PlayerProfile.ApplySaveData(profile);
         string expectedProfile = Snapshot();
@@ -86,9 +87,11 @@ public static class SaveLoadVerification
         // Neither capture nor apply may share mutable collections with the running profile.
         profile.AvailableBattlerData[0].BattlerCurrentLevel = 999;
         profile.TechUnlockStatus[0] = false;
+        profile.IsTutorialTriggered[(int)Tutorials.MainMenu] = false;
         PlayerProfileSaveData captured = PlayerProfile.CaptureSaveData();
         captured.AvailableBattlerData.Clear();
         captured.TechUnlockStatus[0] = false;
+        captured.IsTutorialTriggered[(int)Tutorials.MainMenu] = false;
         Check(Snapshot() == expectedProfile, "Profile snapshots share mutable data.");
 
         Check(SaveLoad.Save(0), SaveLoad.LastError);
@@ -97,6 +100,7 @@ public static class SaveLoadVerification
         Check(saved.GameVersion == Application.version, "Game version was not recorded.");
         Check(saved.SchemaVersion == SaveData.CurrentSchemaVersion, "Schema version was not recorded.");
         Check(saved.PlayerProfile.Energy == 3, "Energy was not saved.");
+        Check(saved.PlayerProfile.IsTutorialTriggered[(int)Tutorials.MainMenu], "Tutorial flags were not saved.");
         VerifyMetadata();
         Check(DateTime.TryParse(saved.SavedAtUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime timestamp)
             && timestamp.Kind == DateTimeKind.Utc && Math.Abs((DateTime.UtcNow - timestamp).TotalMinutes) < 1,
@@ -109,6 +113,8 @@ public static class SaveLoadVerification
             PlayerProfile.Initialization();
             Check(PlayerProfile.BattlePoint == 0 && PlayerProfile.Energy == 0 && energyNotifications == 1,
                 "New game retained battle points or Energy, or did not notify Energy subscribers.");
+            Check(Array.TrueForAll(PlayerProfile.CaptureSaveData().IsTutorialTriggered, flag => !flag),
+                "New game retained tutorial flags.");
             Check(SaveLoad.Load(0), SaveLoad.LastError);
             Check(Snapshot() == expectedProfile && energyNotifications == 2,
                 "Profile did not round-trip or loading did not notify Energy subscribers.");
@@ -147,9 +153,13 @@ public static class SaveLoadVerification
         PlayerProfileSaveData defaults = PlayerProfile.CaptureSaveData();
         Check(defaults.Money == 42 && defaults.BattlePoint == 0 && defaults.ResearchPoint == 0
             && defaults.Energy == 0
+            && defaults.IsTutorialTriggered.Length == (int)Tutorials.maxCount
+            && Array.TrueForAll(defaults.IsTutorialTriggered, flag => !flag)
             && defaults.CurrentClock == Clock.Morning && defaults.AvailableBattlerData.Count == 0
             && defaults.TechUnlockStatus.Length == (int)TechType.maxCount && defaults.TechUnlockStatus[0],
             "Missing fields did not use defaults or the technology list did not expand.");
+
+        VerifyTutorialCompatibility(slot);
 
         ExpectLoadFailure(slot, "{broken json");
         ExpectLoadFailure(slot, "{}");
@@ -168,6 +178,38 @@ public static class SaveLoadVerification
         Check(!SaveLoad.Save(0) && File.ReadAllText(blocker) == "keep this file" && Snapshot() == beforeFailures,
             "Failed write damaged existing data.");
         SaveLoad.SaveDirectory = validDirectory;
+    }
+
+    private static void VerifyTutorialCompatibility(string slot)
+    {
+        // The first array simulates a save made before Battle (or later tutorials) existed.
+        foreach (string flags in new[] { "[true]", "[]", "null", "[true,false,true]" })
+        {
+            PlayerProfile.SetTutorialTriggered(Tutorials.Battle, true);
+            File.WriteAllText(slot, "{\"SchemaVersion\":1,\"PlayerProfile\":{\"IsTutorialTriggered\":" + flags + "}}");
+            Check(SaveLoad.Load(0), SaveLoad.LastError);
+            bool[] loaded = PlayerProfile.CaptureSaveData().IsTutorialTriggered;
+            Check(loaded.Length == (int)Tutorials.maxCount, "Loaded tutorial array has the wrong length.");
+            Check(PlayerProfile.GetTutorialTriggered(Tutorials.MainMenu) == flags.StartsWith("[true")
+                && !PlayerProfile.GetTutorialTriggered(Tutorials.Battle),
+                "Tutorial loading lost old flags or retained stale/new flags.");
+        }
+
+        PlayerProfile.SetTutorialTriggered(Tutorials.Battle, true);
+        Check(PlayerProfile.GetTutorialTriggered(Tutorials.Battle), "Tutorial setter did not update the flag.");
+        PlayerProfile.SetTutorialTriggered(Tutorials.Battle, false);
+        Check(!PlayerProfile.GetTutorialTriggered(Tutorials.Battle), "Tutorial setter could not clear the flag.");
+        foreach (Tutorials invalid in new[] { (Tutorials)(-1), Tutorials.maxCount, (Tutorials)int.MaxValue })
+        {
+            string before = Snapshot();
+            bool getRejected = false;
+            bool setRejected = false;
+            try { PlayerProfile.GetTutorialTriggered(invalid); }
+            catch (ArgumentOutOfRangeException) { getRejected = true; }
+            try { PlayerProfile.SetTutorialTriggered(invalid, true); }
+            catch (ArgumentOutOfRangeException) { setRejected = true; }
+            Check(getRejected && setRejected && Snapshot() == before, "Invalid tutorial ID was accepted or changed the profile.");
+        }
     }
 
     private static void VerifyMetadata()

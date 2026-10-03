@@ -4,6 +4,9 @@ Recorded 2026-09-08. This is a source index and onboarding snapshot, not an appr
 
 ## User decisions
 
+- On 2026-10-03 the user requested a Japanese JRPG-style dialogue click-to-continue down-arrow cue and confirmed **plain white** and a **filled downward triangle**. Created `Assets/Graphic/UI/Icons/DialogueNextArrow.png`, a transparent Single UI sprite with mipmaps and trilinear filtering, and checked a 32×32 preview. This is artwork; dialogue placement, animation, and show/hide timing remain unspecified. Refreshed the live MainMenu Trello card and main planning deck. See `Docs/DialogueNextArrowArtwork.md`.
+
+- On 2026-10-03 the user requested persistence and public get/set access for their new `isTutorialTriggered` array. Save snapshots now include `IsTutorialTriggered`; loading copies flags into the current `Tutorials.maxCount` length and defaults absent/new entries to false. `GetTutorialTriggered(Tutorials)` and `SetTutorialTriggered(Tutorials, bool)` expose individual flags, and new-game initialization clears them. Preserve existing enum IDs when adding tutorials. Refreshed the live save/load Trello card; this is an optional schema-1 field. Runtime and Editor assemblies compile; the extended save/load verification passed headlessly using actual profile/persistence code with Unity/Editor stubs, including tutorial round-trip, missing/null/short/long arrays, copy isolation, reset and invalid IDs. Live Unity verification remains available from the existing menu.
 - Develop the main game in this Unity project: `Train`.
 - Ask about even small uncertainties before implementing dependent changes. The user wants precise control of the process.
 - Combat source precedence: when other documents conflict with `戦闘案`, follow `戦闘案`.

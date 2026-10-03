@@ -18,6 +18,7 @@ public static partial class PlayerProfile
             CurrentDate = currentDate,
             CurrentClock = currentClock,
             TechUnlockStatus = (bool[])techUnlockStatus.Clone(),
+            IsTutorialTriggered = (bool[])isTutorialTriggered.Clone(),
             Money = money,
             ResearchPoint = researchPoint,
             BattlePoint = battlePoint,
@@ -39,6 +40,10 @@ public static partial class PlayerProfile
         var technologies = new bool[(int)TechType.maxCount];
         if (data.TechUnlockStatus != null)
             Array.Copy(data.TechUnlockStatus, technologies, Math.Min(data.TechUnlockStatus.Length, technologies.Length));
+        // Older saves can have no flags or fewer entries; new tutorials remain false.
+        var tutorials = new bool[(int)Tutorials.maxCount];
+        if (data.IsTutorialTriggered != null)
+            Array.Copy(data.IsTutorialTriggered, tutorials, Math.Min(data.IsTutorialTriggered.Length, tutorials.Length));
         List<AvailableBattlerRecord> battlers = CopyBattlers(data.AvailableBattlerData);
 
         // No gameplay limits are applied: edited resources and levels are preserved.
@@ -46,6 +51,7 @@ public static partial class PlayerProfile
         CurrentDate = data.CurrentDate;
         CurrentClock = data.CurrentClock;
         techUnlockStatus = technologies;
+        isTutorialTriggered = tutorials;
         Money = data.Money;
         ResearchPoint = data.ResearchPoint;
         BattlePoint = data.BattlePoint;

@@ -107,6 +107,16 @@ No Unity instance IDs or sprite asset references are written into JSON.
 Technology unlocks currently follow `TechType` array order: append new enum entries before `maxCount`;
 do not reorder old entries without a migration. Added entries load as `false` from shorter arrays.
 
+Tutorial flags use the same rule: append tutorials before `Tutorials.maxCount`, keeping existing
+numeric IDs unchanged. Missing, null, or shorter `IsTutorialTriggered` arrays load with new entries
+set to `false`; extra entries from longer arrays are ignored. A new game clears all tutorial flags.
+
+```csharp
+bool alreadyTriggered = PlayerProfile.GetTutorialTriggered(Tutorials.MainMenu);
+PlayerProfile.SetTutorialTriggered(Tutorials.MainMenu, true);
+PlayerProfile.SetTutorialTriggered(Tutorials.MainMenu, false); // Allow it to trigger again.
+```
+
 ## Adding more data
 
 For another player field, edit these three places:

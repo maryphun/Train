@@ -21,3 +21,11 @@ public enum Clock
     Night,
     Midnight
 }
+
+public enum Tutorials
+{
+    MainMenu,
+    Battle,
+
+    maxCount
+}

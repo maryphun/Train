@@ -10,6 +10,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] TMPro.TMP_Text money_label;
     [SerializeField] EnergyGauge energyGauge;
     [SerializeField] Image background;
+    [SerializeField] MainMenuTurorial tutorial;
 
     void OnEnable()
     {
@@ -41,5 +42,14 @@ public class MainMenuManager : MonoBehaviour
         clock_label.text = currentClock;
         money_label.text = money;
         energyGauge.UpdateEnergyGauge(energyPoint);
+    }
+
+    private void Start()
+    {
+        if (PlayerProfile.GetTutorialTriggered(Tutorials.MainMenu) == false)
+        {
+            // Start tutorial
+            tutorial.StartTutorial();
+        }
     }
 }

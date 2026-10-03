@@ -21,6 +21,7 @@ public sealed class PlayerProfileSaveData
     public int CurrentDate;
     public Clock CurrentClock = Clock.Morning;
     public bool[] TechUnlockStatus = new bool[(int)TechType.maxCount];
+    public bool[] IsTutorialTriggered = new bool[(int)Tutorials.maxCount];
     public int Money;
     public int ResearchPoint;
     public int BattlePoint;
