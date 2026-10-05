@@ -57,12 +57,22 @@ public class TitleManager : MonoBehaviour
         PlayerProfile.Initialization();
 
         // change scene
-        SceneTransitionManager.Instance.LoadScene("MainMenu", 0.75f);
+        DOTween.Sequence()
+                     .AppendCallback(() => btnBackground.GetComponent<CanvasGroup>().interactable = false)
+                     .Append(btnBackground.GetComponent<RectTransform>().DOSizeDelta(new Vector2(0.0f, 276.23f), 1.0f).SetEase(Ease.Linear))
+                     .AppendCallback(() => SceneTransitionManager.Instance.LoadScene("MainMenu", 0.75f));
     }
 
     public void OnClickLoad()
     {
-        // todo
+        btnBackground.GetComponent<RectTransform>().DOSizeDelta(new Vector2(0.0f, 276.23f), 1.0f).SetEase(Ease.Linear);
+        btnBackground.GetComponent<CanvasGroup>().interactable = false;
+    }
+
+    public void OnCloseLoadPanel()
+    {
+        btnBackground.GetComponent<RectTransform>().DOSizeDelta(new Vector2(2400.0f, 276.23f), 1.0f).SetEase(Ease.Linear);
+        btnBackground.GetComponent<CanvasGroup>().interactable = true;
     }
 
     public void OnClickQuit()
