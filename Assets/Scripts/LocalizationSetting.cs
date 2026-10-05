@@ -40,15 +40,19 @@ namespace Assets.SimpleLocalization
 #if UNITY_EDITOR
 			DebugLanguage debugLanguage = Resources.Load<DebugLanguage>("DebugLanguage");
 
-        if (debugLanguage == null)
-        {
-            Debug.LogError( "DebugLanguage asset not found at " + "Assets/Resources/DebugLanguage.asset" );
-            return;
-        }
+			if (debugLanguage == null)
+			{	
+				Debug.LogError( "DebugLanguage asset not found at " + "Assets/Resources/DebugLanguage.asset" );
+				return;
+			}
 
-			LocalizationManager.Language = debugLanguage.Language.ToString();
+			if (LocalizationManager.Language!= debugLanguage.Language.ToString())
+            {
+                LocalizationManager.Language = debugLanguage.Language.ToString();
+                Debug.Log("Changed game language into " + LocalizationManager.Language.ToString() + "for debug session.");
+            }
 #endif
-		}
+        }
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Initialize()
