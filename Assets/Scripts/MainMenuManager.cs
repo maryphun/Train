@@ -6,6 +6,7 @@ public class MainMenuManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] TMPro.TMP_Text date_label;
+    [SerializeField] TMPro.TMP_Text weekday_label;
     [SerializeField] TMPro.TMP_Text clock_label;
     [SerializeField] TMPro.TMP_Text money_label;
     [SerializeField] EnergyGauge energyGauge;
@@ -45,13 +46,23 @@ public class MainMenuManager : MonoBehaviour
     {
         string calenderDate = PlayerProfile.CurrentDate.ToString();
         string currentClock = LocalizationManager.Localize("Calender." + PlayerProfile.CurrentClock.ToString());
-        string money = PlayerProfile.Money.ToString() + LocalizationManager.Localize("Common.MoneyUnit");
+        string money = PlayerProfile.Money.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)
+            + LocalizationManager.Localize("Common.MoneyUnit");
         int energyPoint = PlayerProfile.Energy;
 
         date_label.text = calenderDate;
+        weekday_label.text = LocalizationManager.Localize("Calender." + GetWeekday(PlayerProfile.CurrentDate));
         clock_label.text = currentClock;
         money_label.text = money;
         energyGauge.UpdateEnergyGauge(energyPoint);
+    }
+
+    /// <summary>Converts the game's day counter to a weekday: day 1 is Thursday.</summary>
+    public static System.DayOfWeek GetWeekday(int currentDate)
+    {
+        // Normalize before adding the offset to support negative debug dates and avoid overflow.
+        int dayInWeek = ((currentDate % 7) + 7) % 7;
+        return (System.DayOfWeek)((dayInWeek + (int)System.DayOfWeek.Wednesday) % 7);
     }
 
     private void Start()
