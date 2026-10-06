@@ -16,6 +16,7 @@ public static partial class PlayerProfile
     public static event System.Action EnergyChanged;
     public static event System.Action DateChanged;
     public static event System.Action ClockChanged;
+    public static event System.Action TokaBodyChanged;
 
     // Data that need to be saved
     static int currentDate;
@@ -26,10 +27,13 @@ public static partial class PlayerProfile
     static int battlePoint;
     static int energy;
     static Sprite tokaCurrentBody;
+    static List<int> tokaAvailableBody = new List<int>();
     static public List<AvailableBattlerRecord> AvailableBattlerData { get; } = new List<AvailableBattlerRecord>();
     static bool[] isTutorialTriggered = new bool[(int)Tutorials.maxCount];
 
     static TokaBodyList tokabodylist;
+
+    public static IReadOnlyList<int> TokaAvailableBody => tokaAvailableBody;
 
     public static bool GetTutorialTriggered(Tutorials tutorial)
     {
@@ -141,7 +145,13 @@ public static partial class PlayerProfile
 
             return tokaCurrentBody;
         }
-        set => tokaCurrentBody = value;
+        set
+        {
+            if (tokaCurrentBody == value)
+                return;
+            tokaCurrentBody = value;
+            TokaBodyChanged?.Invoke();
+        }
     }
 
 
@@ -151,17 +161,21 @@ public static partial class PlayerProfile
     {
         EnsureTokaBodyList();
 
-        currentDate = 0;
-        currentClock = Clock.Morning;
+        currentDate = 1;
+        currentClock = Clock.Evening;
         System.Array.Fill(techUnlockStatus, false); // set all tech unlock status into false
-        money = 0;
+        money = 10000;
         researchPoint = 0;
         BattlePoint = 0;
-        Energy = 0;
-        tokaCurrentBody = tokabodylist != null ? tokabodylist.defaultSprite : null;
+        Energy = 4;
         AvailableBattlerData.Clear();
         isTutorialTriggered = new bool[(int)Tutorials.maxCount];
+        tokaAvailableBody = CreateDefaultAvailableBodies();
+        TokaCurrentBody = tokabodylist != null ? tokabodylist.defaultSprite : null;
     }
+
+    // Shared by new-game initialization and saves that predate available-body tracking.
+    internal static List<int> CreateDefaultAvailableBodies() => new List<int> { 0, 2, 3 };
 
     static void EnsureTokaBodyList()
     {

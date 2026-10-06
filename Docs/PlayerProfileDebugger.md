@@ -16,6 +16,12 @@ It becomes a persistent singleton when the game runs. On scene changes, look und
 5. Drag a **BattlerData** asset into the battler slot, choose **Level to assign**, then click
    **Add / Update Battler**. An existing matching ID gets the selected level instead of another record.
    Expand **Available battlers** to edit existing levels directly.
+6. Click **Initialize New Player Profile** under **New game profile** to call
+   `PlayerProfile.Initialization()` and discard the live profile's unsaved progress.
+   Uses the existing new-game defaults; save files and the current scene remain unchanged.
+   The debugger fields repaint immediately. Other UI follows the existing initialization
+   notifications; initialization currently assigns money, research points, date and clock
+   directly, so their subscribed UI may need refreshing separately.
 
 Adding a battler unlocks availability, not hiring. It does not spend points or modify the ScriptableObject.
 Only `BattlerID` and `BattlerCurrentLevel` are stored in the profile. The existing hire panel expects
@@ -24,9 +30,10 @@ assets in `Resources/BattlerData`; close and reopen that panel to refresh its li
 ## Scope and safety
 
 - Editing controls are available only on the active, enabled singleton during Play Mode.
-- The debugger does not initialize the profile, apply preset values on startup, advance turns,
-  invoke date events, reset the game, or save anything automatically.
-- It writes only the chosen field/record; unrelated gameplay changes are not overwritten by a snapshot.
+- The debugger does not apply preset values on startup, advance turns, change scenes,
+  or save anything automatically. Initialization runs only when explicitly requested.
+- Ordinary edit commands write only the chosen field/record; the explicit initialization
+  command instead resets the entire live profile to the existing new-game defaults.
 - Existing profile change events are raised by the corresponding setters. `MainMenuManager`
   listens for Energy, money, date, and time changes; other screens follow their own subscriptions.
 - Energy remains an unrestricted saved integer. The four-segment main-menu gauge displays the
@@ -47,6 +54,12 @@ the existing saved fields; this feature does not change the save schema.
 
 ## Verification
 
+- The initialization button changes compile in both runtime and Editor assemblies. The extended
+  headless debugger suite passes 31 checks, including reset defaults and rejection outside Play
+  Mode, on disabled components, and on duplicate singletons. Interactive Inspector testing remains pending.
+- The initialization button changes compile in both runtime and Editor assemblies. The extended
+  headless debugger suite passes 31 checks, including reset defaults and rejection outside Play
+  Mode, on disabled components, and on duplicate singletons. Interactive Inspector testing remains pending.
 - Runtime and Editor assemblies compile using Unity 6000.3.15f1's bundled Roslyn compiler,
   including the new Energy controls.
 - 24 headless checks passed against the real profile/debugger sources with lightweight Unity test

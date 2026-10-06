@@ -11,6 +11,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] EnergyGauge energyGauge;
     [SerializeField] Image background;
     [SerializeField] MainMenuTurorial tutorial;
+    [SerializeField] Image tokaBodyImage;
 
     void OnEnable()
     {
@@ -19,7 +20,9 @@ public class MainMenuManager : MonoBehaviour
         PlayerProfile.MoneyChanged += UpdateUI;
         PlayerProfile.ResearchPointChanged += UpdateUI;
         PlayerProfile.EnergyChanged += UpdateUI;
+        PlayerProfile.TokaBodyChanged += UpdateTokaBody;
         UpdateUI();
+        UpdateTokaBody();
     }
 
     void OnDisable()
@@ -29,6 +32,13 @@ public class MainMenuManager : MonoBehaviour
         PlayerProfile.MoneyChanged -= UpdateUI;
         PlayerProfile.ResearchPointChanged -= UpdateUI;
         PlayerProfile.EnergyChanged -= UpdateUI;
+        PlayerProfile.TokaBodyChanged -= UpdateTokaBody;
+    }
+
+    void UpdateTokaBody()
+    {
+        if (tokaBodyImage != null)
+            tokaBodyImage.sprite = PlayerProfile.TokaCurrentBody;
     }
 
     public void UpdateUI()

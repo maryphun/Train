@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-/// <summary>Play Mode-only commands for the live profile. Never initializes or saves it.</summary>
+/// <summary>Play Mode-only commands for the live profile. Never changes it on startup or saves it.</summary>
 [DisallowMultipleComponent]
 [AddComponentMenu("Debug/Player Profile Debugger")]
 public sealed class PlayerProfileDebugger : MonoBehaviour
@@ -53,6 +53,9 @@ public sealed class PlayerProfileDebugger : MonoBehaviour
         if (instance == this)
             instance = null;
     }
+
+    public bool InitializeNewPlayerProfile() => Execute(PlayerProfile.Initialization,
+        "New player profile initialized. Save files and the current scene are unchanged.");
 
     public bool SetMoney(int value) => Execute(() => PlayerProfile.Money = value, "Money updated.");
     public bool AddMoney(int amount) => Execute(() => PlayerProfile.Money = checked(PlayerProfile.Money + amount), "Money added.");

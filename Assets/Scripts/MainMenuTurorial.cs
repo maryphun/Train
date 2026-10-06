@@ -16,7 +16,7 @@ public class MainMenuTurorial : MonoBehaviour
 
 
     [Header("References for copy")]
-    [SerializeField] private Image tohka;
+    [SerializeField] private GameObject toka;
     [SerializeField] private GameObject playerProfile;
     [SerializeField] private GameObject actionBtn;
     [SerializeField] private GameObject actionPanel;
@@ -69,13 +69,14 @@ public class MainMenuTurorial : MonoBehaviour
                 break;
             case 2:
                 {
+                    CanvasGroup canvasGrp = null;
                     DOTween.Sequence()
                            .Append(tutorialtextRect.DOAnchorPos(new Vector2(21.2455f, 0.0f), 0.25f))
                            .Join(tutorialtextRect.DOSizeDelta(new Vector2(0.0f, 100.0f), 0.25f))
-                           .JoinCallback(() => exampleGraphic.enabled = true)
-                           .JoinCallback(() => CopyImage(exampleGraphic, tohka))
-                           .JoinCallback(() => exampleGraphic.color = new Color(0.75f, 0.75f, 0.75f, 1.0f))
-                           .Append(exampleGraphic.DOColor(Color.white, 1.0f))
+                           .JoinCallback(() => copiedObject = CopyObjectWithoutButtons(toka, transform))
+                           .JoinCallback(() => canvasGrp = copiedObject.AddComponent<CanvasGroup>())
+                           .Append(canvasGrp.DOFade(0.0f, 0.0f))
+                           .Append(canvasGrp.DOFade(1.0f, 1.0f))
                            .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-2"), 2.0f))
                            .Join(tutorialtextRect.DOSizeDelta(new Vector2(1125.0f, 100.0f), 0.25f))
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))
@@ -85,7 +86,8 @@ public class MainMenuTurorial : MonoBehaviour
                 break;
             case 3:
                 {
-                    exampleGraphic.DOFade(0.0f, 0.50f);
+                    copiedObject.GetComponent<CanvasGroup>().DOFade(0.0f, 0.50f);
+                    Destroy(copiedObject, 0.51f);
                     copiedObject = CopyObjectWithoutButtons(playerProfile, transform);
                     var canvasGroup = copiedObject.AddComponent<CanvasGroup>();
                     canvasGroup.alpha = 0.0f;
@@ -205,6 +207,7 @@ public class MainMenuTurorial : MonoBehaviour
     public GameObject CopyObjectWithoutButtons(GameObject source, Transform parent = null)
     {
         GameObject copy = Instantiate(source, parent);
+        copy.transform.SetAsFirstSibling();
 
         Button[] buttons = copy.GetComponentsInChildren<Button>(true);
 

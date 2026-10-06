@@ -13,6 +13,9 @@ using UnityEditor;
 public class DialogueCharacterController : DialoguePresenterBase
 {
     private const float CharacterHorizontalOverscan = 250f;
+    private const float CharacterReferenceHeight = 1080f;
+    private const float ExistingCharacterMoveDuration = 0.25f;
+    private const float SpeakerFocusFadeDuration = 0.5f;
     private const string CharacterFolder = "Assets/Graphic/Characters";
     private const string TokaBodyResource = "TokaBodyList";
     private const string TokaBodyPrefix = "Ch_Toka_Body_";
@@ -20,13 +23,14 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     [SerializeField] private RectTransform characterRoot;
     [SerializeField] private List<Sprite> characterSprites = new();
-    [SerializeField, Range(0.1f, 1.5f)] private float characterHeightRatio = 0.9f;
-    [SerializeField] private float bottomOffset;
+    [SerializeField, Range(0.1f, 1.5f)] private float characterHeightRatio = 1.3f;
+    // Reference pixels at 1080p, matching the scenario editor's preview setting.
+    [SerializeField] private float bottomOffset = -600f;
     [SerializeField] private Vector2 characterPivot = new(0.5f, 0f);
 
     [Header("Speaker Focus")]
     [SerializeField] private bool focusSpeakerOnDialogueLine = true;
-    [SerializeField] private Color nonSpeakerColor = new(0.68f, 0.68f, 0.68f, 1f);
+    [SerializeField] private Color nonSpeakerColor = new(0.4f, 0.4f, 0.4f, 1f);
     [SerializeField] private DialogueRunner dialogueRunner;
 
     private static DialogueCharacterController activeController;
@@ -52,7 +56,7 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     private void OnDisable()
     {
-        SetSpeakingCharacter(null);
+        SetSpeakingCharacter(null, false);
         UnregisterAsDialoguePresenter();
 
         if (activeController == this)
@@ -80,13 +84,13 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     public override YarnTask OnDialogueStartedAsync()
     {
-        SetSpeakingCharacter(null);
+        SetSpeakingCharacter(null, false);
         return YarnTask.CompletedTask;
     }
 
     public override YarnTask OnDialogueCompleteAsync()
     {
-        SetSpeakingCharacter(null);
+        SetSpeakingCharacter(null, false);
         return YarnTask.CompletedTask;
     }
 
@@ -101,6 +105,192 @@ public class DialogueCharacterController : DialoguePresenterBase
         }
 
         yield return controller.RunCharacterCommand(args);
+    }
+
+    // Exporters coordinate literal command blocks without changing author syntax.
+    [YarnCommand("dialogue_stage")]
+    public static IEnumerator StageCommand(string payload)
+    {
+        DialogueStageSequence sequence;
+        try
+        {
+            string json = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(payload));
+            sequence = JsonUtility.FromJson<DialogueStageSequence>(json);
+        }
+        catch (System.Exception error)
+        {
+            Debug.LogWarning($"Invalid dialogue stage commands: {error.Message}");
+            yield break;
+        }
+
+        DialogueCharacterController controller = GetActiveController();
+        if (controller == null || sequence?.commands == null)
+        {
+            Debug.LogWarning("Dialogue stage commands need a character controller and command list.");
+            yield break;
+        }
+
+        int backgrounds = 0;
+        foreach (DialogueStageCommand command in sequence.commands)
+        {
+            if (command == null || command.args == null
+                || !IsStageKind(command.kind))
+            {
+                Debug.LogWarning("Invalid command in dialogue stage sequence.");
+                yield break;
+            }
+            foreach (string argument in command.args)
+            {
+                if (argument == null)
+                {
+                    Debug.LogWarning("Null argument in dialogue stage sequence.");
+                    yield break;
+                }
+            }
+            if ((command.kind == "background" || command.kind == "bg") && ++backgrounds > 1)
+            {
+                Debug.LogWarning("A dialogue stage sequence can contain only one background transition.");
+                yield break;
+            }
+        }
+
+        yield return controller.RunStageCommands(sequence.commands);
+    }
+
+    private IEnumerator RunStageCommands(DialogueStageCommand[] commands)
+    {
+        List<Coroutine> immediateRoutines = new();
+        List<IEnumerator> immediateCommands = new();
+        try
+        {
+            foreach (DialogueStageCommand command in commands)
+            {
+                if (command.kind == "se")
+                    DialogueAudioCommandController.SoundEffectCommand(command.args);
+                else if (command.kind == "shake")
+                {
+                    IEnumerator shake = DialogueShakeController.ShakeCommand(command.args);
+                    immediateCommands.Add(shake);
+                    immediateRoutines.Add(StartCoroutine(shake));
+                }
+            }
+
+            yield return RunStagePresentation(commands);
+            foreach (DialogueStageCommand command in commands)
+            {
+                switch (command.kind)
+                {
+                    case "fade":
+                        yield return DialogueFadeController.FadeCommand(command.args);
+                        break;
+                    case "dialogue":
+                        yield return DialogueUICommandController.DialogueCommand(command.args);
+                        break;
+                    case "wait":
+                        yield return new WaitForSeconds(ParseFadeTime(GetArg(command.args, 0, "0")));
+                        break;
+                }
+            }
+            // Immediate shakes overlap the presentation, but their original
+            // completion still matters before Yarn advances to the next line.
+            foreach (Coroutine routine in immediateRoutines)
+                if (routine != null) yield return routine;
+        }
+        finally
+        {
+            foreach (Coroutine routine in immediateRoutines)
+                if (routine != null) StopCoroutine(routine);
+            foreach (IEnumerator command in immediateCommands)
+                (command as System.IDisposable)?.Dispose();
+        }
+    }
+
+    private static bool IsStageKind(string kind)
+    {
+        return kind == "char" || kind == "background" || kind == "bg" || kind == "bgm"
+            || kind == "se" || kind == "shake" || kind == "fade" || kind == "dialogue" || kind == "wait";
+    }
+
+    private IEnumerator RunStagePresentation(DialogueStageCommand[] commands)
+    {
+        DialogueStageCommand background = null;
+        foreach (DialogueStageCommand command in commands)
+        {
+            if (command.kind == "background" || command.kind == "bg")
+                background = command;
+        }
+
+        bool musicApplied = false;
+        IEnumerator ApplyMusic()
+        {
+            musicApplied = true;
+            foreach (DialogueStageCommand command in commands)
+                if (command.kind == "bgm")
+                    yield return DialogueAudioCommandController.BgmCommand(command.args);
+        }
+        if (background == null)
+            yield return ApplyMusic();
+
+        bool hasBackgroundFade = background != null
+            && ParseFadeTime(GetArg(background.args, 1, "instant")) > 0f;
+        List<DialogueStageCommand> midpointRemovals = new();
+        foreach (DialogueStageCommand command in commands)
+        {
+            if (!IsStageRemoval(command)) continue;
+            string action = GetArg(command.args, 0, string.Empty).Trim().ToLowerInvariant();
+            int durationIndex = action == "clear" || action == "hide_all" || action == "remove_all" ? 1 : 2;
+            if (hasBackgroundFade && ParseFadeTime(GetArg(command.args, durationIndex, "instant")) <= 0f)
+                midpointRemovals.Add(command);
+            else
+                yield return RunCharacterCommand(command.args);
+        }
+
+        List<DialogueStageCommand> newCharacterCommands = new();
+        bool positionsApplied = false;
+        IEnumerator ApplyPositions()
+        {
+            positionsApplied = true;
+            foreach (DialogueStageCommand removal in midpointRemovals)
+                yield return RunCharacterCommand(removal.args);
+
+            HashSet<string> newIds = new(System.StringComparer.OrdinalIgnoreCase);
+            foreach (DialogueStageCommand command in commands)
+            {
+                if (command.kind != "char") continue;
+                string action = GetArg(command.args, 0, string.Empty).Trim().ToLowerInvariant();
+                string id = GetArg(command.args, 1, string.Empty);
+                if ((action == "show" || action == "add") && !activeCharacters.ContainsKey(id))
+                    newIds.Add(id);
+            }
+
+            foreach (DialogueStageCommand command in commands)
+            {
+                if (command.kind != "char" || IsStageRemoval(command)) continue;
+                if (newIds.Contains(GetArg(command.args, 1, string.Empty)))
+                    newCharacterCommands.Add(command);
+                else
+                    yield return RunCharacterCommand(command.args);
+            }
+        }
+
+        if (background != null)
+            yield return DialogueBackgroundController.ChangeBackgroundDuringStage(background.args, ApplyPositions(), ApplyMusic());
+        if (!musicApplied)
+            yield return ApplyMusic();
+        // Missing backgrounds must not suppress the character commands in the group.
+        if (!positionsApplied)
+            yield return ApplyPositions();
+
+        foreach (DialogueStageCommand command in newCharacterCommands)
+            yield return RunCharacterCommand(command.args);
+    }
+
+    private static bool IsStageRemoval(DialogueStageCommand command)
+    {
+        if (command.kind != "char") return false;
+        string action = command.args != null && command.args.Length > 0 ? (command.args[0] ?? string.Empty).Trim().ToLowerInvariant() : string.Empty;
+        return action == "hide" || action == "remove" || action == "clear"
+            || action == "hide_all" || action == "remove_all";
     }
 
     private static DialogueCharacterController GetActiveController()
@@ -192,9 +382,12 @@ public class DialogueCharacterController : DialoguePresenterBase
             yield break;
         }
 
-        view.GameObject.SetActive(true);
+        bool wasVisible = view.GameObject.activeSelf && view.CanvasGroup.alpha > 0f;
+        float startXPosition = view.XPosition;
         string orderValue = GetArg(args, 6, string.Empty);
-        if (!string.IsNullOrWhiteSpace(orderValue) && TryParseDisplayOrder(orderValue, out int displayOrder))
+        if (!string.IsNullOrWhiteSpace(orderValue)
+            && !string.Equals(orderValue, "keep", System.StringComparison.OrdinalIgnoreCase)
+            && TryParseDisplayOrder(orderValue, out int displayOrder))
         {
             view.DisplayOrder = displayOrder;
         }
@@ -209,22 +402,60 @@ public class DialogueCharacterController : DialoguePresenterBase
             fadeInTime = fadeTime * 0.5f;
         }
 
+        string scaleValue = GetArg(args, 7, "keep");
+        if (!string.Equals(scaleValue, "keep", System.StringComparison.OrdinalIgnoreCase))
+        {
+            view.DisplayScale = ParseScale(scaleValue);
+        }
+        view.XPosition = wasVisible ? startXPosition : xPosition;
+        view.Flipped = flipped;
+        ApplyCharacterScale(view);
         SetCharacterVisual(view, characterId, sprite);
-        SetCharacterPosition(view, xPosition);
-        SetCharacterFlip(view, flipped);
+        view.GameObject.SetActive(true);
 
         if (fadeTime <= 0f)
         {
             view.CanvasGroup.alpha = 1f;
-            yield break;
         }
-
-        if (view.CanvasGroup.alpha <= 0f)
+        else if (view.CanvasGroup.alpha <= 0f)
         {
             view.CanvasGroup.alpha = 0f;
         }
 
-        yield return FadeCharacter(view, 1f, fadeInTime);
+        // Existing characters always ease position changes, independently of fade
+        // duration or legacy instant-placement markers in generated commands.
+        float moveTime = wasVisible && !Mathf.Approximately(startXPosition, xPosition)
+            ? ExistingCharacterMoveDuration
+            : 0f;
+        yield return RevealCharacter(view, xPosition, fadeInTime, moveTime);
+    }
+
+    private IEnumerator RevealCharacter(CharacterView view, float xPosition, float fadeTime, float moveTime)
+    {
+        float startX = view.XPosition;
+        float startAlpha = view.CanvasGroup.alpha;
+        if (moveTime <= 0f)
+        {
+            SetCharacterPosition(view, xPosition);
+        }
+
+        float elapsed = 0f;
+        float duration = Mathf.Max(fadeTime, moveTime);
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            if (moveTime > 0f)
+            {
+                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / moveTime));
+                SetCharacterPosition(view, Mathf.Lerp(startX, xPosition, progress));
+            }
+            view.CanvasGroup.alpha = fadeTime > 0f
+                ? Mathf.Lerp(startAlpha, 1f, Mathf.Clamp01(elapsed / fadeTime))
+                : 1f;
+            yield return null;
+        }
+        SetCharacterPosition(view, xPosition);
+        view.CanvasGroup.alpha = 1f;
     }
 
     private void ChangeCharacterOrder(string[] args)
@@ -249,8 +480,15 @@ public class DialogueCharacterController : DialoguePresenterBase
     private void SortCharacterViews()
     {
         List<CharacterView> ordered = new(activeCharacters.Values);
+        foreach (CharacterView view in ordered)
+            if (IsSpeakingCharacter(view))
+                PromoteSpeaker(view);
         ordered.Sort((a, b) =>
         {
+            // Current speakers always stay foremost. Their runtime promotion
+            // persists afterwards until an explicit order command changes it.
+            int bySpeaker = IsSpeakingCharacter(a).CompareTo(IsSpeakingCharacter(b));
+            if (bySpeaker != 0) return bySpeaker;
             int byOrder = b.DisplayOrder.CompareTo(a.DisplayOrder);
             return byOrder != 0 ? byOrder : a.DisplaySequence.CompareTo(b.DisplaySequence);
         });
@@ -309,15 +547,23 @@ public class DialogueCharacterController : DialoguePresenterBase
         }
 
         float xPosition = ParseNormalizedPosition(positionValue);
-        float fadeTime = ParseFadeTime(GetArg(args, 3, "instant"));
-
-        if (fadeTime <= 0f)
+        if (Mathf.Approximately(view.XPosition, xPosition))
         {
             SetCharacterPosition(view, xPosition);
             yield break;
         }
 
-        yield return MoveCharacterTo(view, xPosition, fadeTime);
+        float moveTime = view.GameObject.activeSelf && view.CanvasGroup.alpha > 0f
+            ? ExistingCharacterMoveDuration
+            : ParseFadeTime(GetArg(args, 3, "instant"));
+
+        if (moveTime <= 0f)
+        {
+            SetCharacterPosition(view, xPosition);
+            yield break;
+        }
+
+        yield return MoveCharacterTo(view, xPosition, moveTime);
     }
 
     private void FlipCharacter(string[] args)
@@ -409,6 +655,9 @@ public class DialogueCharacterController : DialoguePresenterBase
             yield return FadeCharacter(view, 0f, fadeTime);
         }
 
+        view.CanvasGroup.alpha = 0f;
+        StopSpeakerFocusFade(view);
+        view.GameObject.SetActive(false);
         Destroy(view.GameObject);
     }
 
@@ -447,6 +696,9 @@ public class DialogueCharacterController : DialoguePresenterBase
         {
             if (view.GameObject != null)
             {
+                StopSpeakerFocusFade(view);
+                view.CanvasGroup.alpha = 0f;
+                view.GameObject.SetActive(false);
                 Destroy(view.GameObject);
             }
         }
@@ -465,6 +717,7 @@ public class DialogueCharacterController : DialoguePresenterBase
         }
 
         GameObject characterObject = new GameObject($"Character {characterId}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(CanvasGroup));
+        characterObject.SetActive(false);
         characterObject.transform.SetParent(characterRoot, false);
 
         RectTransform rectTransform = characterObject.GetComponent<RectTransform>();
@@ -496,6 +749,8 @@ public class DialogueCharacterController : DialoguePresenterBase
             tokaFaceImage,
             canvasGroup
         );
+        view.FocusColor = SpeakerFocusColor(view);
+        view.FocusTarget = view.FocusColor;
         activeCharacters.Add(characterId, view);
         return view;
     }
@@ -582,16 +837,75 @@ public class DialogueCharacterController : DialoguePresenterBase
         registeredDialogueRunner = null;
     }
 
-    private void SetSpeakingCharacter(string characterId)
+    private void SetSpeakingCharacter(string characterId, bool animate = true)
     {
-        speakingCharacterId = string.IsNullOrWhiteSpace(characterId)
+        string nextSpeaker = string.IsNullOrWhiteSpace(characterId)
             ? null
             : characterId.Trim();
+        bool changed = !string.Equals(speakingCharacterId, nextSpeaker, System.StringComparison.OrdinalIgnoreCase)
+            && !(IsTokaCharacterId(speakingCharacterId) && IsTokaCharacterId(nextSpeaker));
+        if (changed)
+        {
+            // Preserve the outgoing speaker's actual front position before the
+            // next speaker moves forward; do not restore its original order.
+            foreach (CharacterView view in activeCharacters.Values)
+                if (IsSpeakingCharacter(view)) PromoteSpeaker(view);
+        }
+        speakingCharacterId = nextSpeaker;
 
         foreach (CharacterView view in activeCharacters.Values)
         {
+            Color target = SpeakerFocusColor(view);
+            if (animate && view.FocusTarget == target)
+                continue;
+            StopSpeakerFocusFade(view);
+            view.FocusTarget = target;
+            if (!animate || !view.GameObject.activeSelf || view.CanvasGroup.alpha <= 0f)
+            {
+                view.FocusColor = target;
+                ApplyCharacterTint(view);
+            }
+            else
+            {
+                view.FocusFade = FadeSpeakerFocus(view, target);
+                view.FocusRoutine = StartCoroutine(view.FocusFade);
+            }
+        }
+        SortCharacterViews();
+    }
+
+    private void PromoteSpeaker(CharacterView view)
+    {
+        view.DisplayOrder = 0;
+        view.DisplaySequence = ++showSequence;
+    }
+
+    private void StopSpeakerFocusFade(CharacterView view)
+    {
+        if (view.FocusRoutine != null) StopCoroutine(view.FocusRoutine);
+        (view.FocusFade as System.IDisposable)?.Dispose();
+        view.FocusRoutine = null;
+        view.FocusFade = null;
+    }
+
+    private IEnumerator FadeSpeakerFocus(CharacterView view, Color target)
+    {
+        Color start = view.FocusColor;
+        float elapsed = 0f;
+        while (elapsed < SpeakerFocusFadeDuration && view.GameObject != null)
+        {
+            elapsed += Time.deltaTime;
+            view.FocusColor = Color.Lerp(start, target, Mathf.Clamp01(elapsed / SpeakerFocusFadeDuration));
+            ApplyCharacterTint(view);
+            yield return null;
+        }
+        if (view.GameObject != null)
+        {
+            view.FocusColor = target;
             ApplyCharacterTint(view);
         }
+        view.FocusRoutine = null;
+        view.FocusFade = null;
     }
 
     private bool EnsureReferences()
@@ -891,25 +1205,24 @@ public class DialogueCharacterController : DialoguePresenterBase
             ? Mathf.Lerp(left, right, normalizedPosition)
             : Mathf.Lerp(-CharacterHorizontalOverscan, stageWidth + CharacterHorizontalOverscan, normalizedPosition);
 
-        view.RectTransform.anchoredPosition = new Vector2(x, bottomOffset);
+        float y = bottomOffset * GetStageHeight() / CharacterReferenceHeight;
+        view.RectTransform.anchoredPosition = new Vector2(x, y);
     }
 
     private IEnumerator MoveCharacterTo(CharacterView view, float normalizedPosition, float duration)
     {
-        Vector2 startPosition = view.RectTransform.anchoredPosition;
-        SetCharacterPosition(view, normalizedPosition);
-        Vector2 endPosition = view.RectTransform.anchoredPosition;
-        view.RectTransform.anchoredPosition = startPosition;
+        float startPosition = view.XPosition;
 
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            view.RectTransform.anchoredPosition = Vector2.Lerp(startPosition, endPosition, Mathf.Clamp01(elapsed / duration));
+            float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            SetCharacterPosition(view, Mathf.Lerp(startPosition, normalizedPosition, progress));
             yield return null;
         }
 
-        view.RectTransform.anchoredPosition = endPosition;
+        SetCharacterPosition(view, normalizedPosition);
     }
 
     private void SetCharacterFlip(CharacterView view, bool flipped)
@@ -959,11 +1272,7 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     private void ApplyCharacterTint(CharacterView view)
     {
-        bool hasNamedSpeaker = !string.IsNullOrWhiteSpace(speakingCharacterId);
-        bool isSpeaking = hasNamedSpeaker
-            && (string.Equals(view.CharacterId, speakingCharacterId, System.StringComparison.OrdinalIgnoreCase)
-                || IsTokaCharacterId(view.CharacterId) && IsTokaCharacterId(speakingCharacterId));
-        Color focusColor = !hasNamedSpeaker || isSpeaking ? Color.white : nonSpeakerColor;
+        Color focusColor = view.FocusColor;
         Color baseColor = view.TintColor;
 
         Color displayColor = new Color(
@@ -976,6 +1285,19 @@ public class DialogueCharacterController : DialoguePresenterBase
         view.Image.color = displayColor;
         view.TokaBodyImage.color = displayColor;
         view.TokaFaceImage.color = displayColor;
+    }
+
+    private Color SpeakerFocusColor(CharacterView view)
+    {
+        return string.IsNullOrWhiteSpace(speakingCharacterId) || IsSpeakingCharacter(view)
+            ? Color.white : nonSpeakerColor;
+    }
+
+    private bool IsSpeakingCharacter(CharacterView view)
+    {
+        return !string.IsNullOrWhiteSpace(speakingCharacterId)
+            && (string.Equals(view.CharacterId, speakingCharacterId, System.StringComparison.OrdinalIgnoreCase)
+                || IsTokaCharacterId(view.CharacterId) && IsTokaCharacterId(speakingCharacterId));
     }
 
     private IEnumerator TintCharacterTo(CharacterView view, Color targetColor, float duration)
@@ -1206,7 +1528,7 @@ public class DialogueCharacterController : DialoguePresenterBase
             return height;
         }
 
-        return Screen.height > 0 ? Screen.height : 1080f;
+        return Screen.height > 0 ? Screen.height : CharacterReferenceHeight;
     }
 
     private void BuildSpriteLookup()
@@ -1405,6 +1727,10 @@ public class DialogueCharacterController : DialoguePresenterBase
         public int DisplayOrder { get; set; }
         public long DisplaySequence { get; set; }
         public Color TintColor { get; set; } = Color.white;
+        public Color FocusColor { get; set; } = Color.white;
+        public Color FocusTarget { get; set; } = Color.white;
+        public Coroutine FocusRoutine { get; set; }
+        public IEnumerator FocusFade { get; set; }
         public bool UsesTokaLayers { get; set; }
     }
 }

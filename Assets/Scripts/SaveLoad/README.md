@@ -119,6 +119,12 @@ PlayerProfile.SetTutorialTriggered(Tutorials.MainMenu, false); // Allow it to tr
 
 ## Adding more data
 
+`TokaAvailableBody` saves the profile's available body IDs as an integer list. Missing or null lists
+in older saves use the current new-game defaults (`0, 2, 3`), shared through
+`PlayerProfile.CreateDefaultAvailableBodies()`. An explicit empty list stays empty. Save snapshots
+and loaded lists are independent copies; saving preserves the ID order and does not unlock bodies
+added to the game later automatically.
+
 For another player field, edit these three places:
 
 1. Add the runtime field/property in `PlayerProfile.cs`.

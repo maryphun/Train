@@ -76,6 +76,13 @@ public sealed class PlayerProfileDebuggerEditor : Editor
             EditorGUI.indentLevel--;
         }
 
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("New game profile", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Resets the live profile to PlayerProfile.Initialization() defaults. " +
+            "Unsaved profile changes will be lost. Does not save, delete save files, or change scenes.", MessageType.Warning);
+        if (GUILayout.Button("Initialize New Player Profile"))
+            debugger.InitializeNewPlayerProfile();
+
         if (!string.IsNullOrEmpty(debugger.LastMessage))
             EditorGUILayout.HelpBox(debugger.LastMessage, debugger.LastCommandFailed ? MessageType.Error : MessageType.Info);
     }

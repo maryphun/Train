@@ -41,7 +41,7 @@ public static class SaveLoadVerification
             SaveLoad.SaveDirectory = testDirectory;
             Verify();
             string result = "PASS: round-trip, slot isolation, metadata, backups, edited JSON, missing-field defaults, "
-                + "copy isolation, tutorial compatibility, new-game reset, invalid slot, missing file, malformed JSON, future schema, "
+                + "copy isolation, available bodies, tutorial compatibility, new-game reset, invalid slot, missing file, malformed JSON, future schema, "
                 + "missing body sprite, and failed-write preservation. " + DateTime.UtcNow.ToString("O");
             File.WriteAllText(ResultPath, result);
             Debug.Log(result);
@@ -76,7 +76,8 @@ public static class SaveLoadVerification
             ResearchPoint = 56,
             BattlePoint = 78,
             Energy = 3,
-            TokaBodySpriteName = testBody != null ? testBody.name : null
+            TokaBodySpriteName = testBody != null ? testBody.name : null,
+            TokaAvailableBody = new System.Collections.Generic.List<int> { 3, 0 }
         };
         profile.TechUnlockStatus[0] = true;
         profile.IsTutorialTriggered[(int)Tutorials.MainMenu] = true;
@@ -88,10 +89,12 @@ public static class SaveLoadVerification
         profile.AvailableBattlerData[0].BattlerCurrentLevel = 999;
         profile.TechUnlockStatus[0] = false;
         profile.IsTutorialTriggered[(int)Tutorials.MainMenu] = false;
+        profile.TokaAvailableBody.Clear();
         PlayerProfileSaveData captured = PlayerProfile.CaptureSaveData();
         captured.AvailableBattlerData.Clear();
         captured.TechUnlockStatus[0] = false;
         captured.IsTutorialTriggered[(int)Tutorials.MainMenu] = false;
+        captured.TokaAvailableBody.Clear();
         Check(Snapshot() == expectedProfile, "Profile snapshots share mutable data.");
 
         Check(SaveLoad.Save(0), SaveLoad.LastError);
@@ -101,6 +104,9 @@ public static class SaveLoadVerification
         Check(saved.SchemaVersion == SaveData.CurrentSchemaVersion, "Schema version was not recorded.");
         Check(saved.PlayerProfile.Energy == 3, "Energy was not saved.");
         Check(saved.PlayerProfile.IsTutorialTriggered[(int)Tutorials.MainMenu], "Tutorial flags were not saved.");
+        Check(saved.PlayerProfile.TokaAvailableBody.Count == 2
+            && saved.PlayerProfile.TokaAvailableBody[0] == 3 && saved.PlayerProfile.TokaAvailableBody[1] == 0,
+            "Available body IDs or their order were not saved.");
         VerifyMetadata();
         Check(DateTime.TryParse(saved.SavedAtUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime timestamp)
             && timestamp.Kind == DateTimeKind.Utc && Math.Abs((DateTime.UtcNow - timestamp).TotalMinutes) < 1,
@@ -115,6 +121,7 @@ public static class SaveLoadVerification
                 "New game retained battle points or Energy, or did not notify Energy subscribers.");
             Check(Array.TrueForAll(PlayerProfile.CaptureSaveData().IsTutorialTriggered, flag => !flag),
                 "New game retained tutorial flags.");
+            CheckAvailableBodies(new System.Collections.Generic.List<int> { 0, 2, 3 }, "New-game body defaults were not restored.");
             Check(SaveLoad.Load(0), SaveLoad.LastError);
             Check(Snapshot() == expectedProfile && energyNotifications == 2,
                 "Profile did not round-trip or loading did not notify Energy subscribers.");
@@ -158,6 +165,14 @@ public static class SaveLoadVerification
             && defaults.CurrentClock == Clock.Morning && defaults.AvailableBattlerData.Count == 0
             && defaults.TechUnlockStatus.Length == (int)TechType.maxCount && defaults.TechUnlockStatus[0],
             "Missing fields did not use defaults or the technology list did not expand.");
+        CheckAvailableBodies(new System.Collections.Generic.List<int> { 0, 2, 3 }, "Older saves did not use default available bodies.");
+
+        File.WriteAllText(slot, "{\"SchemaVersion\":1,\"PlayerProfile\":{\"TokaAvailableBody\":null}}");
+        Check(SaveLoad.Load(0), SaveLoad.LastError);
+        CheckAvailableBodies(new System.Collections.Generic.List<int> { 0, 2, 3 }, "Null available bodies did not use defaults.");
+        File.WriteAllText(slot, "{\"SchemaVersion\":1,\"PlayerProfile\":{\"TokaAvailableBody\":[]}}");
+        Check(SaveLoad.Load(0), SaveLoad.LastError);
+        CheckAvailableBodies(new System.Collections.Generic.List<int>(), "An explicit empty available-body list was replaced.");
 
         VerifyTutorialCompatibility(slot);
 
@@ -264,6 +279,14 @@ public static class SaveLoadVerification
     }
 
     private static string Snapshot() => JsonConvert.SerializeObject(PlayerProfile.CaptureSaveData());
+
+    private static void CheckAvailableBodies(System.Collections.Generic.List<int> expected, string message)
+    {
+        System.Collections.Generic.List<int> actual = PlayerProfile.CaptureSaveData().TokaAvailableBody;
+        Check(actual.Count == expected.Count, message);
+        for (int i = 0; i < expected.Count; i++)
+            Check(actual[i] == expected[i], message);
+    }
 
     private static void Check(bool condition, string message)
     {

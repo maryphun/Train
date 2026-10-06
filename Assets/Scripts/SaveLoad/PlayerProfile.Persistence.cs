@@ -24,6 +24,7 @@ public static partial class PlayerProfile
             BattlePoint = battlePoint,
             Energy = energy,
             TokaBodySpriteName = bodyName,
+            TokaAvailableBody = new List<int>(tokaAvailableBody),
             AvailableBattlerData = CopyBattlers(AvailableBattlerData)
         };
     }
@@ -45,6 +46,9 @@ public static partial class PlayerProfile
         if (data.IsTutorialTriggered != null)
             Array.Copy(data.IsTutorialTriggered, tutorials, Math.Min(data.IsTutorialTriggered.Length, tutorials.Length));
         List<AvailableBattlerRecord> battlers = CopyBattlers(data.AvailableBattlerData);
+        List<int> availableBodies = data.TokaAvailableBody != null
+            ? new List<int>(data.TokaAvailableBody)
+            : CreateDefaultAvailableBodies();
 
         // No gameplay limits are applied: edited resources and levels are preserved.
         // Use the public setters so UI subscribers see values restored from a save.
@@ -56,9 +60,10 @@ public static partial class PlayerProfile
         ResearchPoint = data.ResearchPoint;
         BattlePoint = data.BattlePoint;
         Energy = data.Energy;
-        tokaCurrentBody = body;
+        tokaAvailableBody = availableBodies;
         AvailableBattlerData.Clear();
         AvailableBattlerData.AddRange(battlers);
+        TokaCurrentBody = body;
     }
 
     private static List<AvailableBattlerRecord> CopyBattlers(List<AvailableBattlerRecord> source)

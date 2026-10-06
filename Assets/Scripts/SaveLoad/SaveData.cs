@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 /// <summary>Plain JSON data. Add new systems as fields here.</summary>
 [Serializable]
@@ -27,5 +28,7 @@ public sealed class PlayerProfileSaveData
     public int BattlePoint;
     public int Energy;
     public string TokaBodySpriteName;
+    [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+    public List<int> TokaAvailableBody = PlayerProfile.CreateDefaultAvailableBodies();
     public List<AvailableBattlerRecord> AvailableBattlerData = new List<AvailableBattlerRecord>();
 }

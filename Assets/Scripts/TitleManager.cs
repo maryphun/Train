@@ -60,7 +60,13 @@ public class TitleManager : MonoBehaviour
         DOTween.Sequence()
                      .AppendCallback(() => btnBackground.GetComponent<CanvasGroup>().interactable = false)
                      .Append(btnBackground.GetComponent<RectTransform>().DOSizeDelta(new Vector2(0.0f, 276.23f), 1.0f).SetEase(Ease.Linear))
-                     .AppendCallback(() => SceneTransitionManager.Instance.LoadScene("MainMenu", 0.75f));
+                     .AppendCallback(() =>
+                     {
+                         if (DialogueFlow.Setup("Prologue", "MainMenu"))
+                         {
+                             SceneTransitionManager.Instance.LoadScene("Dialogue", 0.75f);
+                         }
+                     });
     }
 
     public void OnClickLoad()

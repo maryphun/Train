@@ -88,7 +88,21 @@ public class DialogueBackgroundController : MonoBehaviour
         yield return activeController.ChangeBackground(spriteName, fadeTimeOrInstant, fadeColor);
     }
 
-    private IEnumerator ChangeBackground(string spriteName, string fadeTimeOrInstant, string fadeColorName)
+    internal static IEnumerator ChangeBackgroundDuringStage(string[] args, IEnumerator beforeSwap, IEnumerator atChange = null)
+    {
+        if (activeController == null)
+        {
+            Debug.LogError("No active DialogueBackgroundController found in the scene.");
+            yield break;
+        }
+
+        string sprite = args != null && args.Length > 0 ? args[0] : string.Empty;
+        string duration = args != null && args.Length > 1 ? args[1] : "instant";
+        string color = args != null && args.Length > 2 ? args[2] : "black";
+        yield return activeController.ChangeBackground(sprite, duration, color, beforeSwap, atChange);
+    }
+
+    private IEnumerator ChangeBackground(string spriteName, string fadeTimeOrInstant, string fadeColorName, IEnumerator beforeSwap = null, IEnumerator atChange = null)
     {
         if (!EnsureReferences())
         {
@@ -107,13 +121,21 @@ public class DialogueBackgroundController : MonoBehaviour
 
         if (fadeTime <= 0f)
         {
+            if (beforeSwap != null) yield return beforeSwap;
+            if (atChange != null) yield return atChange;
             ApplyBackgroundSprite(nextSprite);
             SetFadeAlpha(0f, fadeColor);
             yield break;
         }
 
         float halfFadeTime = fadeTime * 0.5f;
-        yield return FadeOverlay(fadeColor.a, halfFadeTime, fadeColor);
+        IEnumerator AtPeak()
+        {
+            if (atChange != null) yield return atChange;
+            if (beforeSwap != null) yield return beforeSwap;
+        }
+        yield return FadeOverlay(fadeColor.a, halfFadeTime, fadeColor,
+            beforeSwap != null || atChange != null ? AtPeak() : null);
         ApplyBackgroundSprite(nextSprite);
         yield return FadeOverlay(0f, halfFadeTime, fadeColor);
     }
@@ -189,11 +211,12 @@ public class DialogueBackgroundController : MonoBehaviour
         backgroundImage.enabled = true;
     }
 
-    private IEnumerator FadeOverlay(float targetAlpha, float duration, Color fadeColor)
+    private IEnumerator FadeOverlay(float targetAlpha, float duration, Color fadeColor, IEnumerator atTarget = null)
     {
         if (duration <= 0f)
         {
             SetFadeAlpha(targetAlpha, fadeColor);
+            if (atTarget != null) yield return atTarget;
             yield break;
         }
 
@@ -206,6 +229,13 @@ public class DialogueBackgroundController : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             fadeImage.color = Color.Lerp(startColor, targetColor, Mathf.Clamp01(elapsed / duration));
+            // Apply instant removals in the first fully covered frame, before
+            // Unity renders it. Position changes hold this midpoint until done.
+            if (elapsed >= duration && atTarget != null)
+            {
+                yield return atTarget;
+                atTarget = null;
+            }
             yield return null;
         }
 
@@ -449,4 +479,17 @@ public class DialogueBackgroundController : MonoBehaviour
             : key;
     }
 #endif
+}
+
+[System.Serializable]
+internal sealed class DialogueStageSequence
+{
+    public DialogueStageCommand[] commands;
+}
+
+[System.Serializable]
+internal sealed class DialogueStageCommand
+{
+    public string kind;
+    public string[] args;
 }

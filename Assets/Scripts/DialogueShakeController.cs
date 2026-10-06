@@ -19,7 +19,15 @@ public class DialogueShakeController : MonoBehaviour
         RectTransform uiTarget = FindShakeRectTarget();
         if (uiTarget != null)
         {
-            yield return ShakeRectTransform(uiTarget, duration, strength);
+            Vector2 original = uiTarget.anchoredPosition;
+            try
+            {
+                yield return ShakeRectTransform(uiTarget, duration, strength);
+            }
+            finally
+            {
+                if (uiTarget != null) uiTarget.anchoredPosition = original;
+            }
             yield break;
         }
 
@@ -30,7 +38,15 @@ public class DialogueShakeController : MonoBehaviour
             yield break;
         }
 
-        yield return ShakeTransform(cameraTarget, duration, strength * 0.01f);
+        Vector3 cameraPosition = cameraTarget.localPosition;
+        try
+        {
+            yield return ShakeTransform(cameraTarget, duration, strength * 0.01f);
+        }
+        finally
+        {
+            if (cameraTarget != null) cameraTarget.localPosition = cameraPosition;
+        }
     }
 
     private static RectTransform FindShakeRectTarget()
