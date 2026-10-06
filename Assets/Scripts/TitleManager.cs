@@ -1,7 +1,10 @@
-using UnityEngine;
-using UnityEngine.UI;
-
 using DG.Tweening;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using Train.Battle;
+using Assets.SimpleLocalization.Scripts;
 
 public class TitleManager : MonoBehaviour
 {
@@ -10,6 +13,8 @@ public class TitleManager : MonoBehaviour
     [SerializeField] Transform character_Mask;
     [SerializeField] Transform character;
     [SerializeField] Image btnBackground;
+    [SerializeField] private Sprite heroineBattlePortrait;
+    [SerializeField] private BattlerData enemyData;
 
     private void Start()
     {
@@ -62,8 +67,9 @@ public class TitleManager : MonoBehaviour
                      .Append(btnBackground.GetComponent<RectTransform>().DOSizeDelta(new Vector2(0.0f, 276.23f), 1.0f).SetEase(Ease.Linear))
                      .AppendCallback(() =>
                      {
-                         if (DialogueFlow.Setup("Prologue", "MainMenu"))
+                         if (DialogueFlow.Setup("Prologue", "Battle"))
                          {
+                             SetupBattle(enemyData);
                              SceneTransitionManager.Instance.LoadScene("Dialogue", 0.75f);
                          }
                      });
@@ -84,5 +90,69 @@ public class TitleManager : MonoBehaviour
     public void OnClickQuit()
     {
         Application.Quit();
+    }
+
+    public void SetupBattle(BattlerData battler)
+    {
+        if (battler == null)
+            return;
+
+        var setup = new BattleSetup
+        {
+            heroine = new BattleCharacter
+            {
+                id = "toka",
+                displayName = LocalizationManager.Localize("Heroine.Peach"),
+                portrait = heroineBattlePortrait
+            },
+            monster = new BattleCharacter
+            {
+                id = battler.BattlerID,
+                displayName = LocalizationManager.Localize(battler.BattlerNameID),
+                portrait = battler.BattlerSprite
+            },
+
+            startingEnergy = 100,
+            startingMonsterHealth = 100,
+            turnLimit = 5,
+
+            // Return to whichever scene called this method.
+            returnSceneName = SceneManager.GetActiveScene().name,
+
+            heroineSkills = new List<BattleHeroineSkill>
+            {
+                new BattleHeroineSkill
+                {
+                    id = "attack",
+                    displayName = LocalizationManager.Localize("Heroine.PeachPunch"),
+                    monsterDamage = 30
+                },
+                new BattleHeroineSkill
+                {
+                    id = "attack2",
+                    displayName = LocalizationManager.Localize("Heroine.PeachKick"),
+                    monsterDamage = 50
+                },
+                new BattleHeroineSkill
+                {
+                    id = "recover",
+                    displayName = LocalizationManager.Localize("Heroine.PeachRecover"),
+                    energyRecovery = 25
+                }
+            },
+
+            monsterSkills = new List<BattleSkill>
+            {
+                new BattleSkill
+                {
+                    id = "physical",
+                    displayName = "çUåÇ",
+                    energyDamage = 25,
+                    physicalDamage = 50
+                }
+            }
+        };
+
+        BattleFlow.Setup(setup);
     }
 }

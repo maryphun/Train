@@ -428,7 +428,8 @@ public class DialogueSheetConverterAsset : ScriptableObject
             // Within a coordinated stage, other effect families cannot delay
             // a new character's initial pose until after its reveal.
             List<string> otherTokens = coordinateStage ? ReadLiteralCommand(command) : null;
-            if (otherTokens == null || otherTokens[0] == "char" || !IsStageEffectKind(otherTokens[0]))
+            bool immediateCharacterEffect = coordinateStage && tokens != null && (action == "flash" || action == "shake");
+            if (!immediateCharacterEffect && (otherTokens == null || otherTokens[0] == "char" || !IsStageEffectKind(otherTokens[0])))
                 shows.Clear();
             output.Add(command);
             outputTokens.Add(tokens);
@@ -556,6 +557,7 @@ public class DialogueSheetConverterAsset : ScriptableObject
                 || kind == "char" && (clear || tokens.Count > 2 && (hide || show
                     || action == "move" || action == "position" || action == "face" || action == "sprite"
                     || action == "variation" || action == "flip" || action == "tint" || action == "color"
+                    || action == "flash" || action == "shake"
                     || action == "scale" || action == "size" || action == "order"));
             if (!supported)
             {

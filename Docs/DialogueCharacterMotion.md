@@ -82,6 +82,30 @@ speaker's configured order. An explicit `char:order` can reposition a former spe
 active speaker stays foremost. Narration retains the resulting stack. Source spreadsheet and Yarn
 commands are unchanged; these focus changes apply only in the game, not the web preview.
 
+## Temporary character effects
+
+The editor's **一瞬着色** control writes `[char:flash:ID:#RRGGBB]` using a color picker.
+It immediately applies the chosen RGB, then fades back over `0.5` seconds to the current authored
+`char:tint` color. The game's speaker-focus multiplier and authored alpha remain independent;
+the flash does not permanently replace either. Authored tint changes during the flash are reflected
+in its return color. Ordinary sprites and Toka's body/face layers use the same temporary tint.
+
+**横に揺らす** writes `[char:shake:ID:Strength]`, with integer strength `1–10`.
+Only that character's horizontal position shakes for `0.7` seconds. Maximum displacement is
+`strength × 5` reference pixels in either direction at 1080p, scaled by stage height.
+The offset is separate from authored position, so concurrent movement ends at its intended position.
+Completion, removal and cancellation clear the temporary offset/tint; a replacement effect cannot
+be cleared by an older effect's cleanup.
+
+Both effects start with SE, overlapping character/background presentation. If the target is newly
+shown in the same command group, its pending effects start after its visual setup and before its
+first reveal. Missing targets are reported rather than delaying the group indefinitely.
+
+Selecting or editing a line silently replays these temporary effects in the web preview without
+changing the reconstructed scene state or adding a transport play button. Reduced-motion preference
+suppresses the preview's spatial shaking while retaining the color transition. The existing browser
+speaker shading remains separate from the game's speaker-focus behavior.
+
 ## Coordinated presentation
 
 The confirmed priority for characters in one command group is:
@@ -100,7 +124,7 @@ characters appear. Instant background changes remain instant and add no blackout
 | Command family | Start timing |
 | --- | --- |
 | BGM | Background fade peak; at the sprite swap for instant backgrounds; immediately without a background change |
-| SE / shake | Immediately, overlapping presentation |
+| SE / screen shake / character flash / character shake | Immediately, overlapping presentation |
 | Screen fade / dialogue UI / wait | After character presentation finishes |
 
 Shakes retain their supplied duration and completion wait, with their offset restored on cleanup.
@@ -158,3 +182,11 @@ The speaker-focus update compiled both assemblies and passed 56 checks using the
 controller with UI/Yarn doubles, covering fade timing, rapid speaker changes, concurrent tint/motion/
 opacity, Toka layers, cleanup, persistent speaker promotion and later explicit order changes.
 All 127 motion and 435 stage checks also passed. Unity Play Mode visual playback remains unverified.
+
+The temporary-effects update compiled both assemblies and passed 67 checks against the production
+controller, covering fixed durations, strength/resolution scaling, concurrent movement/SE, authored
+tint/focus/alpha, ordinary and Toka rendering, first reveal, invalid inputs, replacement and cleanup.
+The 127 motion, 435 stage and 56 focus checks still pass. All 78 converter checks and 44 relevant
+web tests pass; the production build and local browser form checks succeed. The complete web suite
+reports 47 passes and the same 23 unrelated Apps Script instruction-format failures noted above.
+No current scenario content or generated Yarn was changed for these effects; Play Mode remains unverified.

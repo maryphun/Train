@@ -16,6 +16,9 @@ public class DialogueCharacterController : DialoguePresenterBase
     private const float CharacterReferenceHeight = 1080f;
     private const float ExistingCharacterMoveDuration = 0.25f;
     private const float SpeakerFocusFadeDuration = 0.5f;
+    private const float CharacterFlashDuration = 0.5f;
+    private const float CharacterShakeDuration = 0.7f;
+    private const float CharacterShakePixelsPerStrength = 5f;
     private const string CharacterFolder = "Assets/Graphic/Characters";
     private const string TokaBodyResource = "TokaBodyList";
     private const string TokaBodyPrefix = "Ch_Toka_Body_";
@@ -40,6 +43,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     private string speakingCharacterId;
     private TokaBodyList tokaBodyList;
     private long showSequence;
+    private System.Action<CharacterView> startPendingCharacterEffects;
 
     private void Awake()
     {
@@ -56,6 +60,7 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     private void OnDisable()
     {
+        foreach (CharacterView view in activeCharacters.Values) ResetCharacterEffects(view);
         SetSpeakingCharacter(null, false);
         UnregisterAsDialoguePresenter();
 
@@ -84,12 +89,14 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     public override YarnTask OnDialogueStartedAsync()
     {
+        foreach (CharacterView view in activeCharacters.Values) ResetCharacterEffects(view);
         SetSpeakingCharacter(null, false);
         return YarnTask.CompletedTask;
     }
 
     public override YarnTask OnDialogueCompleteAsync()
     {
+        foreach (CharacterView view in activeCharacters.Values) ResetCharacterEffects(view);
         SetSpeakingCharacter(null, false);
         return YarnTask.CompletedTask;
     }
@@ -161,6 +168,24 @@ public class DialogueCharacterController : DialoguePresenterBase
     {
         List<Coroutine> immediateRoutines = new();
         List<IEnumerator> immediateCommands = new();
+        List<DialogueStageCommand> pendingCharacterEffects = new();
+        System.Action<CharacterView> previousPendingEffects = startPendingCharacterEffects;
+        void StartEffect(DialogueStageCommand command)
+        {
+            IEnumerator effect = GetArg(command.args, 0, string.Empty).Equals("flash", System.StringComparison.OrdinalIgnoreCase)
+                ? FlashCharacter(command.args) : ShakeCharacter(command.args);
+            immediateCommands.Add(effect);
+            immediateRoutines.Add(StartCoroutine(effect));
+        }
+        startPendingCharacterEffects = view =>
+        {
+            foreach (DialogueStageCommand command in pendingCharacterEffects.ToArray())
+            {
+                if (!string.Equals(GetArg(command.args, 1, string.Empty), view.CharacterId, System.StringComparison.OrdinalIgnoreCase)) continue;
+                pendingCharacterEffects.Remove(command);
+                StartEffect(command);
+            }
+        };
         try
         {
             foreach (DialogueStageCommand command in commands)
@@ -173,9 +198,16 @@ public class DialogueCharacterController : DialoguePresenterBase
                     immediateCommands.Add(shake);
                     immediateRoutines.Add(StartCoroutine(shake));
                 }
+                else if (IsImmediateCharacterEffect(command))
+                {
+                    if (activeCharacters.ContainsKey(GetArg(command.args, 1, string.Empty))) StartEffect(command);
+                    else pendingCharacterEffects.Add(command);
+                }
             }
 
             yield return RunStagePresentation(commands);
+            foreach (DialogueStageCommand command in pendingCharacterEffects)
+                Debug.LogWarning($"Character '{GetArg(command.args, 1, string.Empty)}' was not shown for its effect.");
             foreach (DialogueStageCommand command in commands)
             {
                 switch (command.kind)
@@ -198,6 +230,7 @@ public class DialogueCharacterController : DialoguePresenterBase
         }
         finally
         {
+            startPendingCharacterEffects = previousPendingEffects;
             foreach (Coroutine routine in immediateRoutines)
                 if (routine != null) StopCoroutine(routine);
             foreach (IEnumerator command in immediateCommands)
@@ -265,7 +298,7 @@ public class DialogueCharacterController : DialoguePresenterBase
 
             foreach (DialogueStageCommand command in commands)
             {
-                if (command.kind != "char" || IsStageRemoval(command)) continue;
+                if (command.kind != "char" || IsStageRemoval(command) || IsImmediateCharacterEffect(command)) continue;
                 if (newIds.Contains(GetArg(command.args, 1, string.Empty)))
                     newCharacterCommands.Add(command);
                 else
@@ -293,6 +326,13 @@ public class DialogueCharacterController : DialoguePresenterBase
             || action == "hide_all" || action == "remove_all";
     }
 
+    private bool IsImmediateCharacterEffect(DialogueStageCommand command)
+    {
+        if (command.kind != "char") return false;
+        string action = GetArg(command.args, 0, string.Empty).Trim().ToLowerInvariant();
+        return action == "flash" || action == "shake";
+    }
+
     private static DialogueCharacterController GetActiveController()
     {
         if (activeController != null)
@@ -308,7 +348,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     {
         if (args == null || args.Length == 0)
         {
-            Debug.LogWarning("Character command needs an action: show, order, face, move, flip, tint, scale, hide, or clear.");
+            Debug.LogWarning("Character command needs an action: show, order, face, move, flip, tint, flash, shake, scale, hide, or clear.");
             yield break;
         }
 
@@ -337,6 +377,12 @@ public class DialogueCharacterController : DialoguePresenterBase
             case "tint":
             case "color":
                 yield return TintCharacter(args);
+                break;
+            case "shake":
+                yield return ShakeCharacter(args);
+                break;
+            case "flash":
+                yield return FlashCharacter(args);
                 break;
             case "scale":
             case "size":
@@ -412,6 +458,7 @@ public class DialogueCharacterController : DialoguePresenterBase
         ApplyCharacterScale(view);
         SetCharacterVisual(view, characterId, sprite);
         view.GameObject.SetActive(true);
+        startPendingCharacterEffects?.Invoke(view);
 
         if (fadeTime <= 0f)
         {
@@ -609,6 +656,99 @@ public class DialogueCharacterController : DialoguePresenterBase
         yield return TintCharacterTo(view, tintColor, fadeTime);
     }
 
+    private IEnumerator FlashCharacter(string[] args)
+    {
+        if (!TryReadArg(args, 1, "flash", "character id", out string characterId)
+            || !TryReadArg(args, 2, "flash", "color", out string colorValue))
+            yield break;
+        if (!activeCharacters.TryGetValue(characterId, out CharacterView view))
+        {
+            Debug.LogWarning($"Character '{characterId}' is not currently shown.");
+            yield break;
+        }
+        if (colorValue.Length != 7 || colorValue[0] != '#' || !ColorUtility.TryParseHtmlString(colorValue, out Color color))
+        {
+            Debug.LogWarning("Character flash color must use #RRGGBB format.");
+            yield break;
+        }
+
+        int version = ++view.FlashVersion;
+        float elapsed = 0f;
+        try
+        {
+            while (elapsed < CharacterFlashDuration && view.GameObject != null
+                && view.GameObject.activeSelf && view.FlashVersion == version)
+            {
+                Color tint = Color.Lerp(color, view.TintColor, Mathf.Clamp01(elapsed / CharacterFlashDuration));
+                tint.a = view.TintColor.a;
+                view.FlashTint = tint;
+                ApplyCharacterTint(view);
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+        }
+        finally
+        {
+            if (view.FlashVersion == version)
+            {
+                view.FlashTint = null;
+                if (view.GameObject != null) ApplyCharacterTint(view);
+            }
+        }
+    }
+
+    private IEnumerator ShakeCharacter(string[] args)
+    {
+        if (!TryReadArg(args, 1, "shake", "character id", out string characterId))
+            yield break;
+        if (!int.TryParse(GetArg(args, 2, "1"), NumberStyles.Integer, CultureInfo.InvariantCulture, out int strength)
+            || strength < 1 || strength > 10)
+        {
+            Debug.LogWarning("Character shake strength must be an integer from 1 to 10.");
+            yield break;
+        }
+        if (!activeCharacters.TryGetValue(characterId, out CharacterView view))
+        {
+            Debug.LogWarning($"Character '{characterId}' is not currently shown.");
+            yield break;
+        }
+
+        int version = ++view.ShakeVersion;
+        float elapsed = 0f;
+        try
+        {
+            while (elapsed < CharacterShakeDuration && view.GameObject != null && view.GameObject.activeSelf
+                && view.ShakeVersion == version)
+            {
+                elapsed += Time.deltaTime;
+                view.ShakeOffset = Random.insideUnitCircle.x * strength * CharacterShakePixelsPerStrength;
+                SetCharacterPosition(view, view.XPosition);
+                yield return null;
+            }
+        }
+        finally
+        {
+            if (view.ShakeVersion == version)
+            {
+                view.ShakeOffset = 0f;
+                if (view.GameObject != null) SetCharacterPosition(view, view.XPosition);
+            }
+        }
+    }
+
+    private void ResetCharacterEffects(CharacterView view)
+    {
+        view.FlashVersion++;
+        view.ShakeVersion++;
+        view.FlashTint = null;
+        view.ShakeOffset = 0f;
+        if (view.GameObject != null)
+        {
+            SetCharacterPosition(view, view.XPosition);
+            ApplyCharacterTint(view);
+        }
+    }
+
     private IEnumerator ScaleCharacter(string[] args)
     {
         if (!TryReadArg(args, 1, "scale", "character id", out string characterId)
@@ -657,6 +797,7 @@ public class DialogueCharacterController : DialoguePresenterBase
 
         view.CanvasGroup.alpha = 0f;
         StopSpeakerFocusFade(view);
+        ResetCharacterEffects(view);
         view.GameObject.SetActive(false);
         Destroy(view.GameObject);
     }
@@ -697,6 +838,7 @@ public class DialogueCharacterController : DialoguePresenterBase
             if (view.GameObject != null)
             {
                 StopSpeakerFocusFade(view);
+                ResetCharacterEffects(view);
                 view.CanvasGroup.alpha = 0f;
                 view.GameObject.SetActive(false);
                 Destroy(view.GameObject);
@@ -1206,7 +1348,7 @@ public class DialogueCharacterController : DialoguePresenterBase
             : Mathf.Lerp(-CharacterHorizontalOverscan, stageWidth + CharacterHorizontalOverscan, normalizedPosition);
 
         float y = bottomOffset * GetStageHeight() / CharacterReferenceHeight;
-        view.RectTransform.anchoredPosition = new Vector2(x, y);
+        view.RectTransform.anchoredPosition = new Vector2(x + view.ShakeOffset * GetStageHeight() / CharacterReferenceHeight, y);
     }
 
     private IEnumerator MoveCharacterTo(CharacterView view, float normalizedPosition, float duration)
@@ -1273,7 +1415,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     private void ApplyCharacterTint(CharacterView view)
     {
         Color focusColor = view.FocusColor;
-        Color baseColor = view.TintColor;
+        Color baseColor = view.FlashTint ?? view.TintColor;
 
         Color displayColor = new Color(
             baseColor.r * focusColor.r,
@@ -1722,11 +1864,15 @@ public class DialogueCharacterController : DialoguePresenterBase
         public RawImage TokaFaceImage { get; }
         public CanvasGroup CanvasGroup { get; }
         public float XPosition { get; set; }
+        public float ShakeOffset { get; set; }
+        public int ShakeVersion { get; set; }
         public bool Flipped { get; set; }
         public float DisplayScale { get; set; } = 1f;
         public int DisplayOrder { get; set; }
         public long DisplaySequence { get; set; }
         public Color TintColor { get; set; } = Color.white;
+        public Color? FlashTint { get; set; }
+        public int FlashVersion { get; set; }
         public Color FocusColor { get; set; } = Color.white;
         public Color FocusTarget { get; set; } = Color.white;
         public Coroutine FocusRoutine { get; set; }

@@ -15,7 +15,8 @@ namespace Train.Battle
 
         public static BattleResult LastResult { get; private set; }
 
-        public static void Enter(BattleSetup setup, Action<BattleResult> onCompleted = null)
+        /// <summary>Prepares the next Battle scene load without changing scenes.</summary>
+        public static void Setup(BattleSetup setup, Action<BattleResult> onCompleted = null)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (pendingSetup != null)
@@ -34,7 +35,23 @@ namespace Train.Battle
             returnSceneName = destination;
             completionCallback = onCompleted;
             LastResult = null;
+        }
+
+        /// <summary>Prepares combat and immediately loads the Battle scene.</summary>
+        public static void Enter(BattleSetup setup, Action<BattleResult> onCompleted = null)
+        {
+            Setup(setup, onCompleted);
             SceneManager.LoadScene(SceneName);
+        }
+
+        /// <summary>Releases a setup that has not yet been consumed by the Battle scene.</summary>
+        public static bool CancelSetup()
+        {
+            if (pendingSetup == null) return false;
+            pendingSetup = null;
+            returnSceneName = null;
+            completionCallback = null;
+            return true;
         }
 
         internal static bool TryTakeSetup(out BattleSetup setup)

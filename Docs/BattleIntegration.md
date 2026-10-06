@@ -95,4 +95,28 @@ BattleFlow.Enter(setup, result =>
 
 The callback runs after the return scene loads. `BattleFlow.LastResult` also holds the result. Combat returns status changes; the caller applies and persists them. The current `PlayerProfile` does not have these status fields. Avoid callbacks that access scene objects destroyed when entering Battle.
 
+## Prepare a battle before dialogue
+
+Use `BattleFlow.Setup(setup, callback)` to validate and store a copy of the battle data without
+loading a scene. `BattleFlow.Enter` still prepares the data and immediately loads Battle.
+The next Battle scene load consumes the prepared data once, including when DialogueFlow
+loads Battle after dialogue. Intermediate scenes do not consume it.
+
+For TitleManager's existing prologue flow, `SetupBattle(enemyData)` now calls `BattleFlow.Setup`:
+
+```csharp
+if (DialogueFlow.Setup("Prologue", BattleFlow.SceneName))
+{
+    SetupBattle(enemyData);
+    SceneTransitionManager.Instance.LoadScene("Dialogue", 0.75f);
+}
+```
+
+This produces Title → Dialogue → Battle. Battle's result return uses
+`BattleSetup.returnSceneName`, independently of DialogueFlow's destination.
+An empty battle return scene is resolved when `BattleFlow.Setup` is called.
+Assign the enemy data and heroine portrait on TitleManager in the Inspector.
+Only one pending battle setup is allowed. If the flow is abandoned before Battle loads,
+call `BattleFlow.CancelSetup()` to release it; cancellation returns false after consumption.
+
 For callers of the earlier prototype: replace `UseMonsterSkill` with `UseHeroineSkill`, provide `heroineSkills`, and use `heroineVictoryStatusMultiplier` / `heroineDefeatStatusMultiplier`. Previously serialized scene multiplier values migrate to the matching heroine outcome automatically.
