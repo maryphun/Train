@@ -70,12 +70,12 @@ public class TitleManager : MonoBehaviour
                      .Append(btnBackground.GetComponent<RectTransform>().DOSizeDelta(new Vector2(0.0f, 276.23f), 1.0f).SetEase(Ease.Linear))
                      .AppendCallback(() =>
                      {
-                         SetupBattle(enemyData);
-                         //if (DialogueFlow.Setup("Prologue", "Battle"))
-                         //{
-                         //    SetupBattle(enemyData);
-                         //    SceneTransitionManager.Instance.LoadScene("Dialogue", 0.75f);
-                         //}
+                         //SetupBattle(enemyData);
+                         if (DialogueFlow.Setup("Prologue", "Battle"))
+                         {
+                             SetupBattle(enemyData);
+                             SceneTransitionManager.Instance.LoadScene("Dialogue", 0.75f);
+                         }
                      });
     }
 
@@ -164,7 +164,7 @@ public class TitleManager : MonoBehaviour
             }
         };
 
-        //BattleFlow.Setup(setup);
-        BattleFlow.Enter(setup);
+        BattleFlow.Setup(setup);
+        //BattleFlow.Enter(setup);
     }
 }
