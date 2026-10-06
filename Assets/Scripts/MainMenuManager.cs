@@ -40,6 +40,9 @@ public class MainMenuManager : MonoBehaviour
     {
         if (tokaBodyImage != null)
             tokaBodyImage.sprite = PlayerProfile.TokaCurrentBody;
+
+        // perform an autosave everytime there is a change in UI in the mainmenu
+        SaveLoad.AutoSave();
     }
 
     public void UpdateUI()
@@ -55,6 +58,9 @@ public class MainMenuManager : MonoBehaviour
         clock_label.text = currentClock;
         money_label.text = money;
         energyGauge.UpdateEnergyGauge(energyPoint);
+
+        // perform an autosave everytime there is a change in UI in the mainmenu
+        SaveLoad.AutoSave();
     }
 
     /// <summary>Converts the game's day counter to a weekday: day 1 is Thursday.</summary>

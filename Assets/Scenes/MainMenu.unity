@@ -1178,8 +1178,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -276.28, y: 449.28}
-  m_SizeDelta: {x: 267.871, y: 62}
+  m_AnchoredPosition: {x: -321.36044, y: 449.28}
+  m_SizeDelta: {x: 358.0318, y: 62}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &158058012
 MonoBehaviour:
@@ -12874,7 +12874,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2103
+  m_text: "1,000,000\uFFE5"
   m_isDynamicFont: 1
   m_isDialog: 0
   m_localizeID: 
@@ -12912,9 +12912,9 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 4
-  m_VerticalAlignment: 4096
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: -6
+  m_characterSpacing: -3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0

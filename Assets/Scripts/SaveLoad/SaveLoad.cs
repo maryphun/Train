@@ -40,6 +40,12 @@ public static class SaveLoad
         return memoryslotID >= 0 && File.Exists(GetSavePath(memoryslotID));
     }
 
+    /// <summary>perform an autosave.</summary>
+    public static bool AutoSave()
+    {
+        return Save(4);
+    }
+
     /// <summary>Writes the profile to the slot. An overwritten slot is retained as .json.bak.</summary>
     public static bool Save(int memoryslotID)
     {
