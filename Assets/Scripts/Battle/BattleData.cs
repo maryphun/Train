@@ -21,6 +21,12 @@ namespace Train.Battle
         HeroineVictory
     }
 
+    public enum BattleAnimationDirection
+    {
+        RightToLeft,
+        LeftToRight
+    }
+
     [Serializable]
     public sealed class BattleCharacter
     {
@@ -44,7 +50,9 @@ namespace Train.Battle
         [Min(0)] public int physicalDamage;
         [Min(0)] public int pleasureDamage;
         [Min(0)] public int confusionDamage;
+        [Tooltip("Ability graphic for SpellAnimation. Leave empty to skip the animation.")]
         public Sprite cutIn;
+        public BattleAnimationDirection animationDirection = BattleAnimationDirection.RightToLeft;
 
         public BattleSkill Copy()
         {
@@ -63,7 +71,9 @@ namespace Train.Battle
         [Min(0)] public int energyRecovery;
         [Tooltip("Multiplier on all damage from the monster's response this turn. 0.5 halves it.")]
         [Range(0f, 1f)] public float incomingDamageMultiplier = 1f;
+        [Tooltip("Ability graphic for SpellAnimation. Leave empty to skip the animation.")]
         public Sprite cutIn;
+        public BattleAnimationDirection animationDirection = BattleAnimationDirection.RightToLeft;
 
         public BattleHeroineSkill Copy()
         {
@@ -108,6 +118,8 @@ namespace Train.Battle
     {
         public BattleCharacter heroine = new BattleCharacter();
         public BattleCharacter monster = new BattleCharacter();
+        [Tooltip("Optional battle background sprite. Leave empty for a black background.")]
+        public Sprite background;
         [Min(1)] public int startingEnergy;
         [Min(1)] public int startingMonsterHealth = 100;
         [Tooltip("Remaining time, measured in completed turns (not real-time seconds).")]

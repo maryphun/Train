@@ -1,0 +1,70 @@
+[
+  {
+    "name": "HeroineEnergyBar",
+    "path": "Assets/Graphic/UI/HeroineEnergyBar.png",
+    "guid": "c5d895eac0f94377a9ebe361e561cd09",
+    "sprite_file_id": 21710321511974875,
+    "texture_size": [
+      2172,
+      724
+    ],
+    "sprite_rect": [
+      8,
+      265,
+      2156,
+      214
+    ],
+    "sha256": "b06109f7576bc8f08ea8fc2de2bd1f596f56ff20c9d99b97374c215e206bfc0d"
+  },
+  {
+    "name": "HeroineEnergyFill",
+    "path": "Assets/Graphic/UI/HeroineEnergyFill.png",
+    "guid": "fac3615b0b1b4b898b567661ae1ee4b7",
+    "sprite_file_id": 19056980873671790,
+    "texture_size": [
+      2172,
+      724
+    ],
+    "sprite_rect": [
+      46,
+      294,
+      2081,
+      147
+    ],
+    "sha256": "4e210be4763c76940a5592f5c71a0ac5387afe3be0cf58f95f0af6b176c1662d"
+  },
+  {
+    "name": "EnemyHealthBar",
+    "path": "Assets/Graphic/UI/EnemyHealthBar.png",
+    "guid": "926d5d58fe50490589838166f6906807",
+    "sprite_file_id": 19684791229057000,
+    "texture_size": [
+      2172,
+      724
+    ],
+    "sprite_rect": [
+      8,
+      265,
+      2156,
+      214
+    ],
+    "sha256": "b06109f7576bc8f08ea8fc2de2bd1f596f56ff20c9d99b97374c215e206bfc0d"
+  },
+  {
+    "name": "EnemyHealthFill",
+    "path": "Assets/Graphic/UI/EnemyHealthFill.png",
+    "guid": "c5267d34508545998e1296590fb8195d",
+    "sprite_file_id": 20807305868033549,
+    "texture_size": [
+      2172,
+      724
+    ],
+    "sprite_rect": [
+      46,
+      294,
+      2081,
+      147
+    ],
+    "sha256": "929b0ec17213026b92ad121687e65586e89118be7418d65a6ab83ebd508310f3"
+  }
+]

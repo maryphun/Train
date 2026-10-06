@@ -14,7 +14,10 @@ public class TitleManager : MonoBehaviour
     [SerializeField] Transform character;
     [SerializeField] Image btnBackground;
     [SerializeField] private Sprite heroineBattlePortrait;
+    [SerializeField] private Sprite battleBackground;
     [SerializeField] private BattlerData enemyData;
+    [SerializeField] private Sprite spritePunch;
+    [SerializeField] private Sprite spriteKick;
 
     private void Start()
     {
@@ -67,11 +70,12 @@ public class TitleManager : MonoBehaviour
                      .Append(btnBackground.GetComponent<RectTransform>().DOSizeDelta(new Vector2(0.0f, 276.23f), 1.0f).SetEase(Ease.Linear))
                      .AppendCallback(() =>
                      {
-                         if (DialogueFlow.Setup("Prologue", "Battle"))
-                         {
-                             SetupBattle(enemyData);
-                             SceneTransitionManager.Instance.LoadScene("Dialogue", 0.75f);
-                         }
+                         SetupBattle(enemyData);
+                         //if (DialogueFlow.Setup("Prologue", "Battle"))
+                         //{
+                         //    SetupBattle(enemyData);
+                         //    SceneTransitionManager.Instance.LoadScene("Dialogue", 0.75f);
+                         //}
                      });
     }
 
@@ -99,6 +103,7 @@ public class TitleManager : MonoBehaviour
 
         var setup = new BattleSetup
         {
+            background = battleBackground,
             heroine = new BattleCharacter
             {
                 id = "toka",
@@ -125,13 +130,19 @@ public class TitleManager : MonoBehaviour
                 {
                     id = "attack",
                     displayName = LocalizationManager.Localize("Heroine.PeachPunch"),
-                    monsterDamage = 30
+                    energyCost = 5,
+                    monsterDamage = 15,
+                    cutIn = spritePunch,
+                    animationDirection = BattleAnimationDirection.LeftToRight
                 },
                 new BattleHeroineSkill
                 {
                     id = "attack2",
                     displayName = LocalizationManager.Localize("Heroine.PeachKick"),
-                    monsterDamage = 50
+                    energyCost = 25,
+                    monsterDamage = 50,
+                    cutIn = spriteKick,
+                    animationDirection = BattleAnimationDirection.RightToLeft
                 },
                 new BattleHeroineSkill
                 {
@@ -153,6 +164,7 @@ public class TitleManager : MonoBehaviour
             }
         };
 
-        BattleFlow.Setup(setup);
+        //BattleFlow.Setup(setup);
+        BattleFlow.Enter(setup);
     }
 }

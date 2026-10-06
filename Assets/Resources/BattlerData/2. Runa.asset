@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattlerData
   BattlerID: 2
   BattlerNameID: Enemy.Runa
-  BattlerSprite: {fileID: -6523591523472130383, guid: 40db254de5c15b242a37b94177482c54, type: 3}
+  BattlerSprite: {fileID: 21300000, guid: 40db254de5c15b242a37b94177482c54, type: 3}
   BattlerRequiredPoint: 4000

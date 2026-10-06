@@ -1,0 +1,97 @@
+{
+  "source": "Assets/Graphic/UI/BattleCutInRibbon.png",
+  "source_sha256": "3456d6a94869438134902513b1991a7673edc4900372f13bce9fb60ccc50a70f",
+  "method": "user-authorized programmatic edge deformation",
+  "frame_count": 10,
+  "size": [
+    1619,
+    971
+  ],
+  "loop_duration_ms": 800,
+  "loop": true,
+  "fps": 12.5,
+  "frame_duration_ms": 80,
+  "ripple_amplitude_px": [
+    6.3,
+    6.3
+  ],
+  "edge_support_px": [
+    54.0,
+    54.0
+  ],
+  "fixed_center_pixel_count": 362960,
+  "frame_step_mean_absolute_rgba_differences": [
+    2.55149107947653,
+    2.2740956229735843,
+    2.2124998966317206,
+    2.1932449306605584,
+    2.2106065078124155,
+    2.2232812081557256,
+    2.210687294098339,
+    2.2055503677048236,
+    2.267560839388594,
+    2.557471809084831
+  ],
+  "frames": [
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_01.png",
+      "guid": "24d33ec0c01342db94ac2c9521446484",
+      "time_ms": 0,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_02.png",
+      "guid": "e8233e2b8dde479e908373d8366cfc83",
+      "time_ms": 80,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_03.png",
+      "guid": "eff0ea0958c54cfe9a86aa627ed57bd4",
+      "time_ms": 160,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_04.png",
+      "guid": "99f764b662a8467ca0af8b0e41e3a78d",
+      "time_ms": 240,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_05.png",
+      "guid": "30de35acf8704f368d5e12df40fe93d8",
+      "time_ms": 320,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_06.png",
+      "guid": "4d371cd353c94dd7b738a54a4028ad4e",
+      "time_ms": 400,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_07.png",
+      "guid": "9f82141796e94aea999632e780677217",
+      "time_ms": 480,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_08.png",
+      "guid": "5f29d840d4a8459193068d1904aa5d09",
+      "time_ms": 560,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_09.png",
+      "guid": "ad1fce5c35884dc79112ae2d7c813390",
+      "time_ms": 640,
+      "duration_ms": 80
+    },
+    {
+      "path": "Assets/Graphic/UI/BattleCutInRibbonLoop/BattleCutInRibbon_10.png",
+      "guid": "7a27f6fd3ec14b2e9bd8041759b805d8",
+      "time_ms": 720,
+      "duration_ms": 80
+    }
+  ]
+}

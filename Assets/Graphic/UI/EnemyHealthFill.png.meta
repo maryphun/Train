@@ -1,10 +1,7 @@
 fileFormatVersion: 2
-guid: 7d5a26f6340aba64cb25ff50cf9660cc
+guid: c5267d34508545998e1296590fb8195d
 TextureImporter:
-  internalIDToNameTable:
-  - first:
-      213: 4372017276561645987
-    second: CG_Battle_Kick_0
+  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -34,7 +31,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
     filterMode: 1
@@ -45,15 +42,15 @@ TextureImporter:
     wrapW: 1
   nPOTScale: 0
   lightmap: 0
-  compressionQuality: 50
-  spriteMode: 1
+  compressionQuality: 100
+  spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 450
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -72,11 +69,11 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
+    textureCompression: 0
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -85,11 +82,11 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
+    textureCompression: 0
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -100,23 +97,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CG_Battle_Kick_0
+      name: EnemyHealthFill
       rect:
         serializedVersion: 2
-        x: 240
-        y: 0
-        width: 1353
-        height: 1059
+        x: 46
+        y: 294
+        width: 2081
+        height: 147
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 468, y: 73, z: 468, w: 73}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3a1e3519c868cac30800000000000000
-      internalID: 4372017276561645987
+      spriteID: a5f0237919a54f5da6a5b910eba58d53
+      internalID: 20807305868033549
       vertices: []
       indices: 
       edges: []
@@ -125,7 +122,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: ae7d04a33dfc4bd08984ba87821bc66d
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +132,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CG_Battle_Kick_0: 4372017276561645987
+      EnemyHealthFill: 20807305868033549
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -4,24 +4,48 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using Assets.SimpleLocalization.Scripts;
+using DG.Tweening;
 
 namespace Train.Battle
 {
-    // This component is the only object added to Battle.unity. Its serialized setup is a
-    // playable Inspector-editable example; BattleFlow.Enter can replace it at runtime.
+    // Uses the scene's assigned UI, or builds the prototype UI when no scene UI is assigned.
     public sealed class BattleSceneController : MonoBehaviour
     {
         [SerializeField] private BattleSetup standaloneSetup;
+        [SerializeField] private BattleUIReferences sceneUI;
+
+        [Header("Action presentation")]
+        [Tooltip("Additional wait after the heroine's cut-in, or after her action event when there is no cut-in.")]
+        [Min(0)] [SerializeField] private float heroineActionDelay;
+        [Tooltip("Additional wait after the monster's cut-in, or after its response event when there is no cut-in.")]
+        [Min(0)] [SerializeField] private float monsterActionDelay;
+        [Tooltip("Duration of the fallback Cut In Image. SpellAnimation uses its own completion time.")]
+        [Min(0)] [SerializeField] private float cutInDuration = 0.8f;
+        [SerializeField] private UnityEvent onHeroineActionStarted = new UnityEvent();
+        [SerializeField] private UnityEvent onMonsterActionStarted = new UnityEvent();
+
+        [Header("Gauge animation")]
+        [Tooltip("Seconds to ease changed gauge values. Initial values appear instantly; zero disables easing.")]
+        [Min(0)] [SerializeField] private float gaugeAnimationDuration = 0.5f;
+        [SerializeField] private Ease gaugeEase = Ease.OutCubic;
+
+        public BattleTurnReport CurrentTurnReport { get; private set; }
 
         private BattleSession session;
         private TMP_FontAsset font;
+        private Image backgroundImage;
         private Image heroineImage;
         private Image monsterImage;
         private RectTransform energyFill;
         private RectTransform monsterHealthFill;
+        private Image sceneEnergyFill;
+        private Image sceneMonsterHealthFill;
         private Image cutInImage;
+        private SpellAnimation spellAnimation;
         private TMP_Text energyText;
         private TMP_Text monsterHealthText;
         private TMP_Text monsterIntentText;
@@ -32,8 +56,15 @@ namespace Train.Battle
         private GameObject resultOverlay;
         private TMP_Text resultTitle;
         private TMP_Text resultStatusText;
+        private Button returnButton;
+        private GameObject actionPopup;
         private Button[] skillButtons;
         private bool resolvingTurn;
+        private Tween energyGaugeTween;
+        private Tween monsterHealthGaugeTween;
+        private float energyGaugeTarget;
+        private float monsterHealthGaugeTarget;
+        private bool gaugesInitialized;
 
         private static readonly Color Background = new Color(0.075f, 0.055f, 0.12f);
         private static readonly Color Panel = new Color(0.15f, 0.105f, 0.22f, 0.96f);
@@ -52,7 +83,11 @@ namespace Train.Battle
             try
             {
                 session = new BattleSession(setup);
-                BuildInterface();
+                if (sceneUI != null)
+                    BindSceneInterface();
+                else
+                    BuildInterface();
+                ApplyBackground();
                 RefreshInterface($"{session.Setup.heroine.displayName}の行動を選んでください。\n行動後、怪人が自動で反撃します。");
             }
             catch (Exception exception)
@@ -62,10 +97,73 @@ namespace Train.Battle
             }
         }
 
+        private void BindSceneInterface()
+        {
+            sceneUI.ValidateReferences();
+            EnsureEventSystem();
+            backgroundImage = sceneUI.backgroundImage;
+            heroineImage = sceneUI.heroineImage;
+            monsterImage = sceneUI.monsterImage;
+            sceneEnergyFill = sceneUI.energyFill;
+            sceneMonsterHealthFill = sceneUI.monsterHealthFill;
+            energyText = sceneUI.energyText;
+            monsterHealthText = sceneUI.monsterHealthText;
+            monsterIntentText = sceneUI.monsterIntentText;
+            turnsText = sceneUI.turnsText;
+            damageText = sceneUI.damageText;
+            projectedStatusText = sceneUI.projectedStatusText;
+            logText = sceneUI.logText;
+            cutInImage = sceneUI.cutInImage;
+            spellAnimation = sceneUI.spellAnimation;
+            resultOverlay = sceneUI.resultOverlay;
+            resultTitle = sceneUI.resultTitle;
+            resultStatusText = sceneUI.resultStatusText;
+            returnButton = sceneUI.returnButton;
+            actionPopup = sceneUI.actionPopup;
+
+            SetText(sceneUI.heroineNameText, session.Setup.heroine.displayName);
+            SetText(sceneUI.monsterNameText, session.Setup.monster.displayName);
+            SetText(sceneUI.skillsHeadingText, session.Setup.heroine.displayName + "の行動");
+            if (monsterImage != null)
+            {
+                monsterImage.sprite = session.Setup.monster.portrait;
+                monsterImage.enabled = monsterImage.sprite != null;
+            }
+            if (cutInImage != null) cutInImage.gameObject.SetActive(false);
+            if (spellAnimation != null) spellAnimation.EndAnimation();
+            SetPopupVisible(resultOverlay, false);
+            SetPopupVisible(actionPopup, false);
+            returnButton.onClick.AddListener(ReturnFromBattle);
+
+            int count = session.Setup.heroineSkills.Count;
+            skillButtons = new Button[count];
+            for (int i = 0; i < count; i++)
+            {
+                int selectedIndex = i;
+                BattleSkillButtonUI skillUI = Instantiate(sceneUI.skillButtonTemplate,
+                    sceneUI.skillButtonParent, false);
+                skillUI.Bind(session.Setup.heroineSkills[i], () => UseSkill(selectedIndex));
+                skillUI.gameObject.SetActive(true);
+                skillButtons[i] = skillUI.Button;
+            }
+        }
+
+        private void ApplyBackground()
+        {
+            backgroundImage.sprite = session.Setup.background;
+            backgroundImage.overrideSprite = null;
+            backgroundImage.type = Image.Type.Simple;
+            backgroundImage.preserveAspect = false;
+            backgroundImage.color = session.Setup.background != null ? Color.white : Color.black;
+            backgroundImage.enabled = true;
+            backgroundImage.raycastTarget = false;
+        }
+
         private void BuildInterface()
         {
             RectTransform canvas = CreateCanvas();
-            MakePanel(canvas, "Background", Vector2.zero, Vector2.one, Background);
+            backgroundImage = MakePanel(canvas, "Background", Vector2.zero, Vector2.one,
+                Color.black).GetComponent<Image>();
 
             RectTransform header = MakePanel(canvas, "Header", new Vector2(0, 0.87f),
                 Vector2.one, Panel);
@@ -114,6 +212,7 @@ namespace Train.Battle
 
             RectTransform skillsPanel = MakePanel(canvas, "Heroine Skills", new Vector2(0.035f, 0.035f),
                 new Vector2(0.62f, 0.27f), Panel);
+            actionPopup = skillsPanel.gameObject;
             MakeText(skillsPanel, "Skills Heading", session.Setup.heroine.displayName + "の行動", 25, Accent,
                 TextAlignmentOptions.Left, new Vector2(0.03f, 0.79f), new Vector2(0.97f, 0.98f));
             BuildSkillButtons(skillsPanel);
@@ -169,6 +268,7 @@ namespace Train.Battle
         {
             if (resolvingTurn || !session.CanUseHeroineSkill(index)) return;
             BattleTurnReport report = session.UseHeroineSkill(index);
+            CurrentTurnReport = report;
             resolvingTurn = true;
             var message = new StringBuilder();
             message.Append(session.Setup.heroine.displayName).Append(": ")
@@ -192,41 +292,66 @@ namespace Train.Battle
 
         private IEnumerator ShowTurn(BattleTurnReport report, string message)
         {
-            if (report.heroineSkill.cutIn != null) yield return ShowCutIn(report.heroineSkill.cutIn);
-            if (report.monsterSkill != null && report.monsterSkill.cutIn != null)
-                yield return ShowCutIn(report.monsterSkill.cutIn);
-            resolvingTurn = false;
-            RefreshInterface(message);
-            if (session.Result != null) ShowResult();
+            try
+            {
+                onHeroineActionStarted?.Invoke();
+                yield return ShowAbility(report.heroineSkill.displayName,
+                    report.heroineSkill.cutIn, report.heroineSkill.animationDirection);
+                if (heroineActionDelay > 0f) yield return new WaitForSecondsRealtime(heroineActionDelay);
+                if (report.monsterSkill != null)
+                {
+                    onMonsterActionStarted?.Invoke();
+                    yield return ShowAbility(report.monsterSkill.displayName,
+                        report.monsterSkill.cutIn, report.monsterSkill.animationDirection);
+                    if (monsterActionDelay > 0f) yield return new WaitForSecondsRealtime(monsterActionDelay);
+                }
+            }
+            finally
+            {
+                resolvingTurn = false;
+                RefreshInterface(message);
+                if (session.Result != null) ShowResult();
+            }
         }
 
-        private IEnumerator ShowCutIn(Sprite sprite)
+        private IEnumerator ShowAbility(string abilityName, Sprite sprite, BattleAnimationDirection direction)
         {
+            if (sprite == null) yield break;
+            if (spellAnimation != null)
+            {
+                spellAnimation.InitAnimation(abilityName, sprite, direction);
+                while (spellAnimation != null && spellAnimation.IsPlaying) yield return null;
+                yield break;
+            }
+
+            if (cutInImage == null) yield break;
             cutInImage.sprite = sprite;
             cutInImage.gameObject.SetActive(true);
-            yield return new WaitForSecondsRealtime(0.8f);
+            if (cutInDuration > 0f) yield return new WaitForSecondsRealtime(cutInDuration);
             cutInImage.gameObject.SetActive(false);
         }
 
         private void RefreshInterface(string message)
         {
-            energyText.text = $"{session.EnergyRemaining} / {session.Setup.startingEnergy}";
-            energyFill.anchorMax = new Vector2(
-                (float)session.EnergyRemaining / session.Setup.startingEnergy, 1f);
-            turnsText.text = $"残された時間  {session.TurnsRemaining} ターン";
-            monsterHealthText.text = $"体力  {session.MonsterHealthRemaining} / {session.Setup.startingMonsterHealth}";
-            monsterHealthFill.anchorMax = new Vector2(
-                (float)session.MonsterHealthRemaining / session.Setup.startingMonsterHealth, 1f);
-            monsterIntentText.text = session.NextMonsterSkill != null
-                ? "次の行動: " + session.NextMonsterSkill.displayName : "";
+            SetText(energyText, $"{session.EnergyRemaining} / {session.Setup.startingEnergy}");
+            RefreshGauges();
+            UpdateTurnText();
+            SetText(monsterHealthText, $"体力  {session.MonsterHealthRemaining} / {session.Setup.startingMonsterHealth}");
+            SetText(monsterIntentText, session.NextMonsterSkill != null
+                ? "次の行動: " + session.NextMonsterSkill.displayName : "");
             for (int i = 0; i < skillButtons.Length; i++)
                 skillButtons[i].interactable = !resolvingTurn && session.CanUseHeroineSkill(i);
-            damageText.text = $"攻撃ダメージ   {session.PhysicalDamage}\n" +
+            SetText(damageText, $"攻撃ダメージ   {session.PhysicalDamage}\n" +
                               $"快楽ダメージ   {session.PleasureDamage}\n" +
-                              $"混乱ダメージ   {session.ConfusionDamage}";
-            heroineImage.sprite = session.HeroinePortrait;
-            heroineImage.enabled = heroineImage.sprite != null;
-            logText.text = message;
+                              $"混乱ダメージ   {session.ConfusionDamage}");
+            if (heroineImage != null)
+            {
+                heroineImage.sprite = session.HeroinePortrait;
+                heroineImage.enabled = heroineImage.sprite != null;
+            }
+            SetText(logText, message);
+            if (actionPopup != null)
+                SetPopupVisible(actionPopup, !resolvingTurn && session.Outcome == BattleOutcome.InProgress);
 
             var projection = new StringBuilder();
             foreach (BattleStatusChange change in session.PreviewStatusChanges(BattleOutcome.HeroineVictory))
@@ -237,7 +362,106 @@ namespace Train.Battle
                     .Append("  (").Append(change.delta >= 0 ? "+" : "")
                     .Append(change.delta).Append(')');
             }
-            projectedStatusText.text = projection.Length > 0 ? projection.ToString() : "No status rules configured";
+            SetText(projectedStatusText, projection.Length > 0 ? projection.ToString() : "No status rules configured");
+        }
+
+        private void RefreshGauges()
+        {
+            UpdateGauge(sceneEnergyFill, energyFill,
+                (float)session.EnergyRemaining / session.Setup.startingEnergy,
+                ref energyGaugeTween, ref energyGaugeTarget);
+            UpdateGauge(sceneMonsterHealthFill, monsterHealthFill,
+                (float)session.MonsterHealthRemaining / session.Setup.startingMonsterHealth,
+                ref monsterHealthGaugeTween, ref monsterHealthGaugeTarget);
+            gaugesInitialized = true;
+        }
+
+        private void UpdateGauge(Image fill, RectTransform prototypeFill, float target,
+            ref Tween tween, ref float previousTarget)
+        {
+            if (gaugesInitialized && Mathf.Approximately(previousTarget, target)) return;
+            tween?.Kill();
+            tween = null;
+            previousTarget = target;
+
+            if (!gaugesInitialized || gaugeAnimationDuration <= 0f)
+            {
+                SetGaugeValue(fill, prototypeFill, target);
+                return;
+            }
+            if (fill == null && prototypeFill == null) return;
+
+            float displayed = fill != null ? fill.fillAmount : prototypeFill.anchorMax.x;
+            tween = DOTween.To(() => displayed, value =>
+                {
+                    displayed = value;
+                    SetGaugeValue(fill, prototypeFill, value);
+                }, target, gaugeAnimationDuration)
+                .SetEase(gaugeEase)
+                .SetUpdate(true);
+        }
+
+        private static void SetGaugeValue(Image fill, RectTransform prototypeFill, float value)
+        {
+            if (fill != null) fill.fillAmount = value;
+            if (prototypeFill != null) prototypeFill.anchorMax = new Vector2(value, 1f);
+        }
+
+        private void CancelGaugeAnimations()
+        {
+            energyGaugeTween?.Kill();
+            monsterHealthGaugeTween?.Kill();
+            energyGaugeTween = null;
+            monsterHealthGaugeTween = null;
+            gaugesInitialized = false;
+        }
+
+        private static void SetText(TMP_Text label, string value)
+        {
+            if (label != null) label.text = value;
+        }
+
+        private void OnEnable()
+        {
+            LocalizationManager.OnLocalizationChanged += UpdateTurnText;
+            UpdateTurnText();
+            if (session != null && !gaugesInitialized) RefreshGauges();
+        }
+
+        private void OnDisable()
+        {
+            LocalizationManager.OnLocalizationChanged -= UpdateTurnText;
+            CancelGaugeAnimations();
+        }
+
+        private void UpdateTurnText()
+        {
+            if (session != null && turnsText != null)
+                turnsText.text = LocalizationManager.Localize("Battle.TurnLeft", session.TurnsRemaining);
+        }
+
+        private static void SetPopupVisible(GameObject popup, bool visible)
+        {
+            if (popup == null) return;
+            CanvasGroup group = popup.GetComponent<CanvasGroup>();
+            if (group != null)
+            {
+                group.alpha = visible ? 1f : 0f;
+                group.interactable = visible;
+                group.blocksRaycasts = visible;
+            }
+            popup.SetActive(visible);
+        }
+
+        public void ReturnFromBattle()
+        {
+            if (session?.Result != null)
+                BattleFlow.Complete(session.Result, session.Setup.returnSceneName);
+        }
+
+        private void OnDestroy()
+        {
+            if (returnButton != null) returnButton.onClick.RemoveListener(ReturnFromBattle);
         }
 
         private void BuildResultOverlay(RectTransform canvas)
@@ -255,19 +479,19 @@ namespace Train.Battle
                 TextAlignmentOptions.TopLeft, new Vector2(0.12f, 0.24f), new Vector2(0.88f, 0.69f));
             RectTransform buttonRect = MakePanel(panel, "Return Button", new Vector2(0.33f, 0.07f),
                 new Vector2(0.67f, 0.20f), Accent);
-            Button returnButton = buttonRect.gameObject.AddComponent<Button>();
+            returnButton = buttonRect.gameObject.AddComponent<Button>();
             returnButton.targetGraphic = buttonRect.GetComponent<Image>();
-            returnButton.onClick.AddListener(() => BattleFlow.Complete(session.Result, session.Setup.returnSceneName));
+            returnButton.onClick.AddListener(ReturnFromBattle);
             MakeText(buttonRect, "Label", "Return", 26, Background, TextAlignmentOptions.Center,
                 Vector2.zero, Vector2.one);
-            resultOverlay.SetActive(false);
+            SetPopupVisible(resultOverlay, false);
         }
 
         private void ShowResult()
         {
             foreach (Button button in skillButtons) button.interactable = false;
-            resultTitle.text = session.Setup.heroine.displayName +
-                (session.Result.HeroineWon ? "の勝利" : "の敗北");
+            SetText(resultTitle, session.Setup.heroine.displayName +
+                (session.Result.HeroineWon ? "の勝利" : "の敗北"));
             var text = new StringBuilder();
             text.Append(session.Result.outcome == BattleOutcome.HeroineVictory ? "怪人の体力が0になりました。" :
                 session.Result.outcome == BattleOutcome.TurnLimitReached ? "時間切れで怪人が撤退しました。" :
@@ -283,14 +507,21 @@ namespace Train.Battle
             text.Append("\nエナジー ").Append(session.Result.energyRemaining)
                 .Append("  怪人の体力 ").Append(session.Result.monsterHealthRemaining)
                 .Append("\n残された時間 ").Append(session.Result.turnsRemaining).Append(" ターン");
-            resultStatusText.text = text.ToString();
-            resultOverlay.SetActive(true);
+            SetText(resultStatusText, text.ToString());
+            SetPopupVisible(resultOverlay, true);
         }
 
         private void BuildErrorInterface(string error)
         {
+            if (sceneUI != null)
+            {
+                SetPopupVisible(sceneUI.actionPopup, false);
+                SetPopupVisible(sceneUI.resultOverlay, false);
+                SetText(sceneUI.logText, "Battle setup is missing or invalid:\n" + error);
+                return;
+            }
             RectTransform canvas = CreateCanvas();
-            MakePanel(canvas, "Background", Vector2.zero, Vector2.one, Background);
+            MakePanel(canvas, "Background", Vector2.zero, Vector2.one, Color.black);
             MakeText(canvas, "Setup Error", "Battle setup is missing or invalid:\n" + error +
                 "\n\nEdit the Battle Scene Controller setup in Battle.unity, or call BattleFlow.Enter(setup).",
                 32, Color.white, TextAlignmentOptions.Center,
@@ -309,13 +540,19 @@ namespace Train.Battle
             scaler.referenceResolution = new Vector2(1920, 1080);
             scaler.matchWidthOrHeight = 0.5f;
 
+            EnsureEventSystem();
+
+            return rect;
+        }
+
+        private static void EnsureEventSystem()
+        {
             if (EventSystem.current == null)
             {
                 var eventObject = new GameObject("Battle EventSystem", typeof(EventSystem));
                 eventObject.AddComponent<InputSystemUIInputModule>().AssignDefaultActions();
             }
 
-            return rect;
         }
 
         private static RectTransform MakePanel(Transform parent, string name, Vector2 min, Vector2 max,
