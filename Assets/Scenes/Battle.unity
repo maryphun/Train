@@ -1101,8 +1101,8 @@ RectTransform:
   - {fileID: 779483827}
   - {fileID: 1645618441}
   - {fileID: 1318441923}
-  - {fileID: 1649509695}
   - {fileID: 1905577623}
+  - {fileID: 1649509695}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1132,6 +1132,7 @@ MonoBehaviour:
   energyText: {fileID: 0}
   monsterHealthText: {fileID: 0}
   turnsText: {fileID: 1987952295}
+  currentTurnText: {fileID: 1950000102}
   monsterIntentText: {fileID: 0}
   damageText: {fileID: 0}
   projectedStatusText: {fileID: 0}
@@ -3091,6 +3092,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1987952294}
+  - {fileID: 1950000101}
   m_Father: {fileID: 795522287}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
@@ -3401,12 +3403,12 @@ MonoBehaviour:
     heroine:
       id: toka
       displayName: "\u6843\u9999"
-      portrait: {fileID: 7151974670648531192, guid: 5b01f551dd4e9284da952b15ab61819a, type: 3}
+      portrait: {fileID: 21300000, guid: 5b01f551dd4e9284da952b15ab61819a, type: 3}
     monster:
       id: scorpion
       displayName: "\u602A\u4EBA"
       portrait: {fileID: 21300000, guid: 4c7388dde71029649b862364037e4cbd, type: 3}
-    background: {fileID: 0}
+    background: {fileID: 2359829674510631814, guid: bce5e9a8c96b5e54da15a69c036d2ac2, type: 3}
     startingEnergy: 100
     startingMonsterHealth: 100
     turnLimit: 5
@@ -3422,6 +3424,7 @@ MonoBehaviour:
       energyRecovery: 0
       incomingDamageMultiplier: 1
       cutIn: {fileID: 0}
+      animationDirection: 0
     - id: guard
       displayName: "\u9632\u5FA1"
       description: "\u3053\u306E\u30BF\u30FC\u30F3\u306E\u88AB\u30C0\u30E1\u30FC\u30B8\u3092\u534A\u5206\u306B\u3059\u308B"
@@ -3430,6 +3433,7 @@ MonoBehaviour:
       energyRecovery: 0
       incomingDamageMultiplier: 0.5
       cutIn: {fileID: 0}
+      animationDirection: 0
     - id: recover
       displayName: "\u56DE\u5FA9"
       description: "\u30D4\u30E5\u30A2\u30D7\u30EA\u30A8\u30CA\u30B8\u30FC\u3092\u56DE\u5FA9\u3059\u308B"
@@ -3438,6 +3442,7 @@ MonoBehaviour:
       energyRecovery: 25
       incomingDamageMultiplier: 1
       cutIn: {fileID: 0}
+      animationDirection: 0
     monsterSkills:
     - id: physical
       displayName: "\u653B\u6483"
@@ -3447,6 +3452,7 @@ MonoBehaviour:
       pleasureDamage: 0
       confusionDamage: 0
       cutIn: {fileID: 0}
+      animationDirection: 0
     - id: pleasure
       displayName: "\u5FEB\u697D"
       description: Pleasure damage example
@@ -3455,6 +3461,7 @@ MonoBehaviour:
       pleasureDamage: 60
       confusionDamage: 0
       cutIn: {fileID: 0}
+      animationDirection: 0
     - id: confusion
       displayName: "\u6DF7\u4E71"
       description: Confusion damage example
@@ -3463,6 +3470,7 @@ MonoBehaviour:
       pleasureDamage: 0
       confusionDamage: 50
       cutIn: {fileID: 0}
+      animationDirection: 0
     portraitStages:
     - label: "\u8CA0\u50B7"
       damageType: 0
@@ -3494,16 +3502,17 @@ MonoBehaviour:
       pleasureDamageRate: 0
       confusionDamageRate: 0
   sceneUI: {fileID: 795522288}
-  heroineActionDelay: 0
-  monsterActionDelay: 0
+  heroineActionDelay: 2
+  monsterActionDelay: 2
   cutInDuration: 0.8
-  gaugeAnimationDuration: 0.5
   onHeroineActionStarted:
     m_PersistentCalls:
       m_Calls: []
   onMonsterActionStarted:
     m_PersistentCalls:
       m_Calls: []
+  gaugeAnimationDuration: 0.5
+  gaugeEase: 9
 --- !u!114 &1900000200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3895,10 +3904,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1649509695}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1987952295
 MonoBehaviour:
@@ -4154,6 +4163,146 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2105302771}
+  m_CullTransparentMesh: 1
+--- !u!1 &1950000100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1950000101}
+  - component: {fileID: 1950000103}
+  - component: {fileID: 1950000102}
+  m_Layer: 5
+  m_Name: Current turn text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1950000101
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950000100}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1649509695}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1950000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950000100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: "\u3042\u306a\u305f\u306e\u30bf\u30fc\u30f3"
+  m_isDynamicFont: 1
+  m_isDialog: 0
+  m_localizeID:
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 16eb7ed6b8f1d4c4ea2eb1520173f9d3, type: 2}
+  m_sharedMaterial: {fileID: 4779943674751263729, guid: 16eb7ed6b8f1d4c4ea2eb1520173f9d3, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 45
+  m_fontSizeBase: 45
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 0
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1950000103
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950000100}
   m_CullTransparentMesh: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -18,7 +18,12 @@ public static class BattleSessionChecks
         CheckEnergyDefeat();
         CheckPortraitBonusOnlyOnce();
         CheckInputAndSetupIsolation();
-        Debug.Log("Battle checks passed: 8 cases (heroine controls, automatic responses, HP victory, guard, recovery, time, defeat, status results and setup isolation).");
+        CheckDeferredActionEffects();
+        CheckDeferredFinishingAttack();
+        CheckPhasedActionGuards();
+        CheckDeferredStagesAndOutcome();
+        CheckInterruptedTurnCompletion();
+        Debug.Log("Battle checks passed: 13 cases (combat rules, deferred action effects, response order, terminal outcomes and turn isolation).");
     }
 
     private static BattleSetup Setup()
@@ -159,6 +164,103 @@ public static class BattleSessionChecks
             "A running battle must not share mutable skill data with its caller.");
         setup.heroineSkills.Clear();
         ExpectFailure<ArgumentException>(() => new BattleSession(setup));
+    }
+
+    private static void CheckDeferredActionEffects()
+    {
+        BattleSetup setup = Setup();
+        setup.heroineSkills[0].energyCost = 5;
+        var session = new BattleSession(setup);
+        BattleTurnReport report = session.BeginHeroineSkill(0);
+        Require(session.IsResolvingTurn && session.MonsterHealthRemaining == 100 &&
+            session.EnergyRemaining == 100 && session.TurnsUsed == 0 && session.PhysicalDamage == 0,
+            "Selecting an action must reserve it without applying either character's effects.");
+        session.ApplyHeroineAction(report);
+        Require(session.MonsterHealthRemaining == 70 && session.EnergyRemaining == 95 &&
+            session.PhysicalDamage == 0 && session.TurnsUsed == 1 && session.TurnsRemaining == 4,
+            "The heroine effect step must apply only her own damage/cost and consume one turn.");
+        Require(report.heroineActionResolved && !report.monsterActionResolved && report.energyAfter == 95 &&
+            session.NextMonsterSkill.id == "attack", "The selected monster response must remain queued.");
+        session.ApplyMonsterResponse(report);
+        Require(session.EnergyRemaining == 70 && session.PhysicalDamage == 50 &&
+            report.monsterActionResolved && report.incomingEnergyDamage == 25 && !session.IsResolvingTurn &&
+            session.NextMonsterSkill.id == "pleasure", "Enemy effects must apply only in the response step.");
+    }
+
+    private static void CheckDeferredFinishingAttack()
+    {
+        BattleSetup setup = Setup();
+        setup.startingMonsterHealth = 30;
+        var session = new BattleSession(setup);
+        BattleTurnReport report = session.BeginHeroineSkill(0);
+        Require(session.Result == null && session.MonsterHealthRemaining == 30,
+            "A selected finishing move must wait for its effect step.");
+        session.ApplyHeroineAction(report);
+        Require(session.Result.HeroineWon && report.monsterSkill == null && !session.IsResolvingTurn &&
+            !report.monsterActionResolved && session.EnergyRemaining == 100,
+            "A finishing heroine effect must end the turn and skip the enemy response.");
+        ExpectFailure<InvalidOperationException>(() => session.ApplyMonsterResponse(report));
+    }
+
+    private static void CheckPhasedActionGuards()
+    {
+        var session = new BattleSession(Setup());
+        BattleTurnReport report = session.BeginHeroineSkill(0);
+        Require(!session.CanUseHeroineSkill(0), "Input must remain locked while a turn is pending.");
+        ExpectFailure<InvalidOperationException>(() => session.BeginHeroineSkill(1));
+        ExpectFailure<InvalidOperationException>(() => session.ApplyMonsterResponse(report));
+        ExpectFailure<ArgumentException>(() => session.ApplyHeroineAction(new BattleTurnReport()));
+        session.ApplyHeroineAction(report);
+        ExpectFailure<InvalidOperationException>(() => session.ApplyHeroineAction(report));
+        session.ApplyMonsterResponse(report);
+        ExpectFailure<InvalidOperationException>(() => session.ApplyMonsterResponse(report));
+        Require(session.EnergyRemaining == 75 && session.TurnsUsed == 1 && session.CanUseHeroineSkill(0),
+            "Rejected duplicate phases must not apply extra damage or consume extra turns.");
+    }
+
+    private static void CheckDeferredStagesAndOutcome()
+    {
+        BattleSetup setup = Setup();
+        setup.turnLimit = 1;
+        setup.portraitStages.Add(new BattlePortraitStage
+        { label = "stage", damageType = BattleDamageType.Physical, threshold = 50, bonusTurns = 1 });
+        var session = new BattleSession(setup);
+        BattleTurnReport report = session.BeginHeroineSkill(0);
+        session.ApplyHeroineAction(report);
+        Require(session.TurnsRemaining == 0 && session.Result == null && report.reachedStages.Count == 0,
+            "Time expiry and response stages must wait for the enemy effect step.");
+        session.ApplyMonsterResponse(report);
+        Require(session.TurnsRemaining == 1 && session.Result == null && report.reachedStages.Count == 1,
+            "Enemy damage stages must add time before checking expiry.");
+
+        setup.startingEnergy = 10;
+        setup.portraitStages.Clear();
+        session = new BattleSession(setup);
+        report = session.BeginHeroineSkill(0);
+        session.ApplyHeroineAction(report);
+        Require(session.Result == null && session.EnergyRemaining == 10,
+            "Pending enemy damage must not end the battle early.");
+        session.ApplyMonsterResponse(report);
+        Require(session.Result.MonsterWon && session.Result.energyRemaining == 0,
+            "Enemy Energy depletion must still take priority over time expiry.");
+    }
+
+    private static void CheckInterruptedTurnCompletion()
+    {
+        var baseline = new BattleSession(Setup());
+        BattleTurnReport expected = baseline.UseHeroineSkill(0);
+        for (int completedSteps = 0; completedSteps < 2; completedSteps++)
+        {
+            var session = new BattleSession(Setup());
+            BattleTurnReport report = session.BeginHeroineSkill(0);
+            if (completedSteps == 1) session.ApplyHeroineAction(report);
+            session.CompleteTurn(report);
+            Require(session.EnergyRemaining == baseline.EnergyRemaining &&
+                session.MonsterHealthRemaining == baseline.MonsterHealthRemaining &&
+                session.PhysicalDamage == baseline.PhysicalDamage && session.TurnsUsed == 1 &&
+                report.incomingEnergyDamage == expected.incomingEnergyDamage && !session.IsResolvingTurn,
+                "Finishing an interrupted presentation must apply each remaining effect exactly once.");
+        }
     }
 
     private static void Require(bool condition, string message)

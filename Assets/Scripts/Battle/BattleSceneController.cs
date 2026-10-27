@@ -15,13 +15,17 @@ namespace Train.Battle
     // Uses the scene's assigned UI, or builds the prototype UI when no scene UI is assigned.
     public sealed class BattleSceneController : MonoBehaviour
     {
+#if UNITY_EDITOR
+        [Header("Editor debug preset (Unity Editor Play Mode only)")]
+        [Tooltip("Used when Battle starts without a setup from BattleFlow. Excluded from player builds.")]
         [SerializeField] private BattleSetup standaloneSetup;
+#endif
         [SerializeField] private BattleUIReferences sceneUI;
 
         [Header("Action presentation")]
-        [Tooltip("Additional wait after the heroine's cut-in, or after her action event when there is no cut-in.")]
+        [Tooltip("Wait after the heroine's animation and effects, before the monster responds. Runs alongside damage feedback.")]
         [Min(0)] [SerializeField] private float heroineActionDelay;
-        [Tooltip("Additional wait after the monster's cut-in, or after its response event when there is no cut-in.")]
+        [Tooltip("Wait after the monster's animation and effects, before the next player choice or results. Runs alongside damage feedback.")]
         [Min(0)] [SerializeField] private float monsterActionDelay;
         [Tooltip("Duration of the fallback Cut In Image. SpellAnimation uses its own completion time.")]
         [Min(0)] [SerializeField] private float cutInDuration = 0.8f;
@@ -32,6 +36,20 @@ namespace Train.Battle
         [Tooltip("Seconds to ease changed gauge values. Initial values appear instantly; zero disables easing.")]
         [Min(0)] [SerializeField] private float gaugeAnimationDuration = 0.5f;
         [SerializeField] private Ease gaugeEase = Ease.OutCubic;
+
+        [Header("Damage feedback")]
+        [Tooltip("Seconds for the damaged portrait's horizontal shake and red tint to fade back to normal. Zero disables feedback.")]
+        [Min(0)] [SerializeField] private float damageFeedbackDuration = 0.5f;
+        [Tooltip("Distance of the immediate sideways hit and its fading recoils, in Canvas UI units. Zero disables movement.")]
+        [Min(0)] [SerializeField] private float damageShakeStrength = 20f;
+        [Tooltip("Blend from the portrait's original color toward red, preserving its alpha. Zero disables tint.")]
+        [Range(0f, 1f)] [SerializeField] private float damageTintStrength = 0.5f;
+
+        [Header("Attacker feedback")]
+        [Tooltip("Instant scale relative to the attacking portrait's original size. Use 1 to disable the snap.")]
+        [Min(1)] [SerializeField] private float attackScaleMultiplier = 1.05f;
+        [Tooltip("Seconds to return from the scale snap. Zero disables the snap.")]
+        [Min(0)] [SerializeField] private float attackScaleReturnDuration = 0.1f;
 
         public BattleTurnReport CurrentTurnReport { get; private set; }
 
@@ -50,6 +68,7 @@ namespace Train.Battle
         private TMP_Text monsterHealthText;
         private TMP_Text monsterIntentText;
         private TMP_Text turnsText;
+        private TMP_Text currentTurnText;
         private TMP_Text damageText;
         private TMP_Text projectedStatusText;
         private TMP_Text logText;
@@ -60,11 +79,21 @@ namespace Train.Battle
         private GameObject actionPopup;
         private Button[] skillButtons;
         private bool resolvingTurn;
+        private bool isMonsterTurn;
         private Tween energyGaugeTween;
         private Tween monsterHealthGaugeTween;
         private float energyGaugeTarget;
         private float monsterHealthGaugeTarget;
         private bool gaugesInitialized;
+        private Sequence damageFeedbackTween;
+        private Image damageFeedbackTarget;
+        private Vector2 damageFeedbackOriginalPosition;
+        private Color damageFeedbackOriginalColor;
+        private Tween attackerScaleTween;
+        private Image attackerScaleTarget;
+        private Vector3 attackerOriginalScale;
+
+        private const int DamageShakeReversals = 10;
 
         private static readonly Color Background = new Color(0.075f, 0.055f, 0.12f);
         private static readonly Color Panel = new Color(0.15f, 0.105f, 0.22f, 0.96f);
@@ -77,12 +106,9 @@ namespace Train.Battle
             font = Resources.Load<TMP_FontAsset>("Fonts & Materials/KiwiMaru-Regular SDF");
             if (font == null) font = TMP_Settings.defaultFontAsset;
 
-            BattleSetup setup = BattleFlow.TryTakeSetup(out BattleSetup requested)
-                ? requested
-                : standaloneSetup;
             try
             {
-                session = new BattleSession(setup);
+                session = new BattleSession(ResolveSetup());
                 if (sceneUI != null)
                     BindSceneInterface();
                 else
@@ -95,6 +121,17 @@ namespace Train.Battle
                 Debug.LogError($"Battle setup failed: {exception}");
                 BuildErrorInterface(exception.Message);
             }
+        }
+
+        private BattleSetup ResolveSetup()
+        {
+            if (BattleFlow.TryTakeSetup(out BattleSetup requested)) return requested;
+#if UNITY_EDITOR
+            if (standaloneSetup != null) return standaloneSetup;
+            throw new InvalidOperationException("Assign the Battle Scene Controller's Editor debug preset before starting Battle directly.");
+#else
+            throw new InvalidOperationException("No battle setup was provided. Call BattleFlow.Setup or BattleFlow.Enter before loading Battle.");
+#endif
         }
 
         private void BindSceneInterface()
@@ -110,6 +147,7 @@ namespace Train.Battle
             monsterHealthText = sceneUI.monsterHealthText;
             monsterIntentText = sceneUI.monsterIntentText;
             turnsText = sceneUI.turnsText;
+            currentTurnText = sceneUI.currentTurnText;
             damageText = sceneUI.damageText;
             projectedStatusText = sceneUI.projectedStatusText;
             logText = sceneUI.logText;
@@ -167,7 +205,7 @@ namespace Train.Battle
 
             RectTransform header = MakePanel(canvas, "Header", new Vector2(0, 0.87f),
                 Vector2.one, Panel);
-            MakeText(header, "Title", "BATTLE", 48, Accent, TextAlignmentOptions.Left,
+            currentTurnText = MakeText(header, "Current Turn", "", 48, Accent, TextAlignmentOptions.Left,
                 new Vector2(0.03f, 0.12f), new Vector2(0.52f, 0.90f));
             turnsText = MakeText(header, "Turns", "", 30, Color.white, TextAlignmentOptions.Right,
                 new Vector2(0.53f, 0.12f), new Vector2(0.97f, 0.90f));
@@ -267,16 +305,22 @@ namespace Train.Battle
         private void UseSkill(int index)
         {
             if (resolvingTurn || !session.CanUseHeroineSkill(index)) return;
-            BattleTurnReport report = session.UseHeroineSkill(index);
+            BattleTurnReport report = session.BeginHeroineSkill(index);
             CurrentTurnReport = report;
             resolvingTurn = true;
+            RefreshInterface(BuildTurnMessage(report));
+            StartCoroutine(ShowTurn(report));
+        }
+
+        private string BuildTurnMessage(BattleTurnReport report)
+        {
             var message = new StringBuilder();
             message.Append(session.Setup.heroine.displayName).Append(": ")
                 .Append(report.heroineSkill.displayName);
             if (report.monsterHealthBefore != report.monsterHealthAfter)
                 message.Append("  体力 -").Append(report.monsterHealthBefore - report.monsterHealthAfter);
             if (report.energyRecovered > 0) message.Append("  エナジー +").Append(report.energyRecovered);
-            if (report.monsterSkill != null)
+            if (report.monsterActionResolved && report.monsterSkill != null)
                 message.Append('\n').Append(session.Setup.monster.displayName).Append(": ")
                     .Append(report.monsterSkill.displayName).Append("  エナジー -")
                     .Append(report.incomingEnergyDamage);
@@ -286,30 +330,56 @@ namespace Train.Battle
                 if (stage.bonusTurns > 0) message.Append("  残された時間 +").Append(stage.bonusTurns);
             }
 
-            RefreshInterface(message.ToString());
-            StartCoroutine(ShowTurn(report, message.ToString()));
+            return message.ToString();
         }
 
-        private IEnumerator ShowTurn(BattleTurnReport report, string message)
+        private IEnumerator ShowTurn(BattleTurnReport report)
         {
             try
             {
+                isMonsterTurn = false;
+                UpdateTurnText();
                 onHeroineActionStarted?.Invoke();
                 yield return ShowAbility(report.heroineSkill.displayName,
                     report.heroineSkill.cutIn, report.heroineSkill.animationDirection);
-                if (heroineActionDelay > 0f) yield return new WaitForSecondsRealtime(heroineActionDelay);
+                session.ApplyHeroineAction(report);
+                RefreshInterface(BuildTurnMessage(report));
+                if (report.heroineSkill.monsterDamage > 0) PlayAttackerFeedback(heroineImage);
+                Sequence feedback = report.monsterHealthAfter < report.monsterHealthBefore
+                    ? PlayDamageFeedback(monsterImage) : null;
+                yield return WaitForActionFeedback(feedback, heroineActionDelay);
                 if (report.monsterSkill != null)
                 {
+                    isMonsterTurn = true;
+                    UpdateTurnText();
                     onMonsterActionStarted?.Invoke();
                     yield return ShowAbility(report.monsterSkill.displayName,
                         report.monsterSkill.cutIn, report.monsterSkill.animationDirection);
-                    if (monsterActionDelay > 0f) yield return new WaitForSecondsRealtime(monsterActionDelay);
+                    int physicalBefore = session.PhysicalDamage;
+                    int pleasureBefore = session.PleasureDamage;
+                    int confusionBefore = session.ConfusionDamage;
+                    session.ApplyMonsterResponse(report);
+                    RefreshInterface(BuildTurnMessage(report));
+                    if (report.monsterSkill.energyDamage > 0 || report.monsterSkill.physicalDamage > 0 ||
+                        report.monsterSkill.pleasureDamage > 0 || report.monsterSkill.confusionDamage > 0)
+                        PlayAttackerFeedback(monsterImage);
+                    bool heroineTookDamage = report.incomingEnergyDamage > 0 ||
+                        session.PhysicalDamage > physicalBefore || session.PleasureDamage > pleasureBefore ||
+                        session.ConfusionDamage > confusionBefore;
+                    feedback = heroineTookDamage ? PlayDamageFeedback(heroineImage) : null;
+                    yield return WaitForActionFeedback(feedback, monsterActionDelay);
                 }
             }
             finally
             {
+                if (spellAnimation != null && spellAnimation.IsPlaying) spellAnimation.EndAnimation();
+                if (cutInImage != null) cutInImage.gameObject.SetActive(false);
+                CancelDamageFeedback();
+                CancelAttackerFeedback();
+                if (session.IsResolvingTurn) session.CompleteTurn(report);
                 resolvingTurn = false;
-                RefreshInterface(message);
+                isMonsterTurn = false;
+                RefreshInterface(BuildTurnMessage(report));
                 if (session.Result != null) ShowResult();
             }
         }
@@ -329,6 +399,100 @@ namespace Train.Battle
             cutInImage.gameObject.SetActive(true);
             if (cutInDuration > 0f) yield return new WaitForSecondsRealtime(cutInDuration);
             cutInImage.gameObject.SetActive(false);
+        }
+
+        private Sequence PlayDamageFeedback(Image target)
+        {
+            CancelDamageFeedback();
+            if (target == null || !target.isActiveAndEnabled || damageFeedbackDuration <= 0f ||
+                damageShakeStrength <= 0f && damageTintStrength <= 0f)
+                return null;
+
+            damageFeedbackTarget = target;
+            damageFeedbackOriginalPosition = target.rectTransform.anchoredPosition;
+            damageFeedbackOriginalColor = target.color;
+            Sequence feedback = DOTween.Sequence().SetUpdate(true);
+            damageFeedbackTween = feedback;
+            feedback.AppendInterval(damageFeedbackDuration);
+            if (damageShakeStrength > 0f)
+            {
+                Vector2 origin = damageFeedbackOriginalPosition;
+                float strength = damageShakeStrength;
+                float progress = 0f;
+                target.rectTransform.anchoredPosition = new Vector2(origin.x + strength, origin.y);
+                feedback.Join(DOTween.To(() => progress, value =>
+                    {
+                        progress = value;
+                        if (target != null)
+                            target.rectTransform.anchoredPosition = new Vector2(
+                                origin.x + EvaluateDamageShake(progress, strength), origin.y);
+                    }, 1f, damageFeedbackDuration).SetEase(Ease.Linear));
+            }
+            if (damageTintStrength > 0f)
+            {
+                Color red = new Color(1f, 0f, 0f, damageFeedbackOriginalColor.a);
+                target.color = Color.Lerp(damageFeedbackOriginalColor, red, damageTintStrength);
+                feedback.Join(target.DOColor(damageFeedbackOriginalColor, damageFeedbackDuration)
+                    .SetEase(Ease.OutCubic));
+            }
+            return feedback;
+        }
+
+        private static float EvaluateDamageShake(float progress, float strength)
+        {
+            progress = Mathf.Clamp01(progress);
+            return Mathf.Cos(progress * Mathf.PI * DamageShakeReversals) * strength * (1f - progress);
+        }
+
+        private void PlayAttackerFeedback(Image target)
+        {
+            CancelAttackerFeedback();
+            if (target == null || !target.isActiveAndEnabled || attackScaleMultiplier <= 1f ||
+                attackScaleReturnDuration <= 0f)
+                return;
+
+            attackerScaleTarget = target;
+            attackerOriginalScale = target.rectTransform.localScale;
+            target.rectTransform.localScale = attackerOriginalScale * attackScaleMultiplier;
+            attackerScaleTween = target.rectTransform.DOScale(attackerOriginalScale, attackScaleReturnDuration)
+                .SetEase(Ease.OutCubic).SetUpdate(true);
+        }
+
+        private void CancelAttackerFeedback()
+        {
+            if (attackerScaleTween != null) attackerScaleTween.Kill();
+            attackerScaleTween = null;
+            if (attackerScaleTarget != null)
+                attackerScaleTarget.rectTransform.localScale = attackerOriginalScale;
+            attackerScaleTarget = null;
+        }
+
+        private IEnumerator WaitForActionFeedback(Sequence feedback, float actionDelay)
+        {
+            try
+            {
+                if (actionDelay > 0f) yield return new WaitForSecondsRealtime(actionDelay);
+                while ((feedback != null && feedback.IsActive() && feedback.IsPlaying()) ||
+                    (attackerScaleTween != null && attackerScaleTween.IsActive() && attackerScaleTween.IsPlaying()))
+                    yield return null;
+            }
+            finally
+            {
+                if (damageFeedbackTween == feedback) CancelDamageFeedback();
+                CancelAttackerFeedback();
+            }
+        }
+
+        private void CancelDamageFeedback()
+        {
+            if (damageFeedbackTween != null) damageFeedbackTween.Kill();
+            damageFeedbackTween = null;
+            if (damageFeedbackTarget != null)
+            {
+                damageFeedbackTarget.rectTransform.anchoredPosition = damageFeedbackOriginalPosition;
+                damageFeedbackTarget.color = damageFeedbackOriginalColor;
+            }
+            damageFeedbackTarget = null;
         }
 
         private void RefreshInterface(string message)
@@ -432,12 +596,22 @@ namespace Train.Battle
         {
             LocalizationManager.OnLocalizationChanged -= UpdateTurnText;
             CancelGaugeAnimations();
+            CancelDamageFeedback();
+            CancelAttackerFeedback();
         }
 
         private void UpdateTurnText()
         {
             if (session != null && turnsText != null)
                 turnsText.text = LocalizationManager.Localize("Battle.TurnLeft", session.TurnsRemaining);
+            if (session != null && currentTurnText != null)
+            {
+                bool visible = session.Outcome == BattleOutcome.InProgress;
+                currentTurnText.gameObject.SetActive(visible);
+                if (visible)
+                    currentTurnText.text = LocalizationManager.Localize(
+                        isMonsterTurn ? "Battle.PhaseEnemy" : "Battle.PhasePlayer");
+            }
         }
 
         private static void SetPopupVisible(GameObject popup, bool visible)
@@ -517,13 +691,18 @@ namespace Train.Battle
             {
                 SetPopupVisible(sceneUI.actionPopup, false);
                 SetPopupVisible(sceneUI.resultOverlay, false);
+                if (sceneUI.currentTurnText != null) sceneUI.currentTurnText.gameObject.SetActive(false);
                 SetText(sceneUI.logText, "Battle setup is missing or invalid:\n" + error);
                 return;
             }
             RectTransform canvas = CreateCanvas();
             MakePanel(canvas, "Background", Vector2.zero, Vector2.one, Color.black);
+            string setupHint = "Call BattleFlow.Setup or BattleFlow.Enter before loading Battle.";
+#if UNITY_EDITOR
+            setupHint = "Edit the Battle Scene Controller's Editor debug preset, or call BattleFlow.Enter(setup).";
+#endif
             MakeText(canvas, "Setup Error", "Battle setup is missing or invalid:\n" + error +
-                "\n\nEdit the Battle Scene Controller setup in Battle.unity, or call BattleFlow.Enter(setup).",
+                "\n\n" + setupHint,
                 32, Color.white, TextAlignmentOptions.Center,
                 new Vector2(0.12f, 0.20f), new Vector2(0.88f, 0.80f));
         }

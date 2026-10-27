@@ -249,8 +249,10 @@ namespace Train.Battle
     public sealed class BattleTurnReport
     {
         public BattleHeroineSkill heroineSkill;
-        // Null when the heroine defeats the monster before it can respond.
+        // Planned response; cleared when the heroine defeats the monster before it can respond.
         public BattleSkill monsterSkill;
+        public bool heroineActionResolved;
+        public bool monsterActionResolved;
         public int energyBefore;
         public int energyAfter;
         public int energyRecovered;

@@ -10,6 +10,9 @@ namespace Train.Battle
         private readonly BattleSetup setup;
         private readonly HashSet<int> reachedStageIndexes = new HashSet<int>();
         private BattleResult result;
+        private BattleTurnReport pendingTurn;
+        private BattleSkill pendingMonsterSkill;
+        private bool heroineActionApplied;
 
         public BattleSetup Setup => setup;
         public int EnergyRemaining { get; private set; }
@@ -22,6 +25,7 @@ namespace Train.Battle
         public Sprite HeroinePortrait { get; private set; }
         public BattleOutcome Outcome { get; private set; } = BattleOutcome.InProgress;
         public BattleResult Result => result;
+        public bool IsResolvingTurn => pendingTurn != null;
 
         public BattleSession(BattleSetup source)
         {
@@ -35,11 +39,11 @@ namespace Train.Battle
         }
 
         public BattleSkill NextMonsterSkill => Outcome == BattleOutcome.InProgress
-            ? setup.monsterSkills[TurnsUsed % setup.monsterSkills.Count] : null;
+            ? pendingMonsterSkill ?? setup.monsterSkills[TurnsUsed % setup.monsterSkills.Count] : null;
 
         public bool CanUseHeroineSkill(int skillIndex)
         {
-            return Outcome == BattleOutcome.InProgress && skillIndex >= 0 &&
+            return !IsResolvingTurn && Outcome == BattleOutcome.InProgress && skillIndex >= 0 &&
                 skillIndex < setup.heroineSkills.Count &&
                 setup.heroineSkills[skillIndex].energyCost < EnergyRemaining;
         }
@@ -47,8 +51,18 @@ namespace Train.Battle
         // One chosen heroine action and one automatic monster response form one turn.
         public BattleTurnReport UseHeroineSkill(int skillIndex)
         {
+            BattleTurnReport report = BeginHeroineSkill(skillIndex);
+            CompleteTurn(report);
+            return report;
+        }
+
+        // Reserve an action without changing HP, Energy, time, or damage totals.
+        public BattleTurnReport BeginHeroineSkill(int skillIndex)
+        {
             if (Outcome != BattleOutcome.InProgress)
                 throw new InvalidOperationException("This battle has already ended.");
+            if (IsResolvingTurn)
+                throw new InvalidOperationException("Finish the current turn before choosing another action.");
             if (skillIndex < 0 || skillIndex >= setup.heroineSkills.Count)
                 throw new ArgumentOutOfRangeException(nameof(skillIndex));
             if (!CanUseHeroineSkill(skillIndex))
@@ -59,10 +73,27 @@ namespace Train.Battle
             var report = new BattleTurnReport
             {
                 heroineSkill = skill,
+                monsterSkill = response,
                 energyBefore = EnergyRemaining,
+                energyAfter = EnergyRemaining,
                 monsterHealthBefore = MonsterHealthRemaining,
+                monsterHealthAfter = MonsterHealthRemaining,
+                turnsRemaining = TurnsRemaining,
+                outcome = Outcome,
                 reachedStages = new List<BattlePortraitStage>()
             };
+            pendingTurn = report;
+            pendingMonsterSkill = response;
+            heroineActionApplied = false;
+            return report;
+        }
+
+        public void ApplyHeroineAction(BattleTurnReport report)
+        {
+            ValidatePendingTurn(report);
+            if (heroineActionApplied)
+                throw new InvalidOperationException("The heroine action has already been applied.");
+            BattleHeroineSkill skill = report.heroineSkill;
 
             EnergyRemaining -= skill.energyCost;
             report.energyRecovered = Mathf.Min(skill.energyRecovery, setup.startingEnergy - EnergyRemaining);
@@ -70,34 +101,77 @@ namespace Train.Battle
             MonsterHealthRemaining = Mathf.Max(0, MonsterHealthRemaining - skill.monsterDamage);
             TurnsUsed++;
             TurnsRemaining--;
+            heroineActionApplied = true;
+            report.heroineActionResolved = true;
 
             if (MonsterHealthRemaining == 0)
             {
+                report.monsterSkill = null;
                 Finish(BattleOutcome.HeroineVictory);
+                UpdateTurnReport(report);
+                ClearPendingTurn();
+                return;
             }
-            else
-            {
-                report.monsterSkill = response;
-                report.incomingEnergyDamage = Mathf.Min(EnergyRemaining,
-                    ScaleDamage(response.energyDamage, skill.incomingDamageMultiplier));
-                EnergyRemaining -= report.incomingEnergyDamage;
-                PhysicalDamage += ScaleDamage(response.physicalDamage, skill.incomingDamageMultiplier);
-                PleasureDamage += ScaleDamage(response.pleasureDamage, skill.incomingDamageMultiplier);
-                ConfusionDamage += ScaleDamage(response.confusionDamage, skill.incomingDamageMultiplier);
-                ApplyPortraitStages(report);
+            UpdateTurnReport(report);
+        }
 
-                // Energy depletion takes priority if time also expires on this response.
-                if (EnergyRemaining == 0)
-                    Finish(BattleOutcome.MonsterVictory);
-                else if (TurnsRemaining <= 0)
-                    Finish(BattleOutcome.TurnLimitReached);
-            }
+        public void ApplyMonsterResponse(BattleTurnReport report)
+        {
+            ValidatePendingTurn(report);
+            if (!heroineActionApplied)
+                throw new InvalidOperationException("Apply the heroine action before the monster response.");
+            BattleSkill response = pendingMonsterSkill;
+            BattleHeroineSkill skill = report.heroineSkill;
+            report.monsterSkill = response;
+            report.incomingEnergyDamage = Mathf.Min(EnergyRemaining,
+                ScaleDamage(response.energyDamage, skill.incomingDamageMultiplier));
+            EnergyRemaining -= report.incomingEnergyDamage;
+            PhysicalDamage += ScaleDamage(response.physicalDamage, skill.incomingDamageMultiplier);
+            PleasureDamage += ScaleDamage(response.pleasureDamage, skill.incomingDamageMultiplier);
+            ConfusionDamage += ScaleDamage(response.confusionDamage, skill.incomingDamageMultiplier);
+            ApplyPortraitStages(report);
+            report.monsterActionResolved = true;
 
+            // Energy depletion takes priority if time also expires on this response.
+            if (EnergyRemaining == 0)
+                Finish(BattleOutcome.MonsterVictory);
+            else if (TurnsRemaining <= 0)
+                Finish(BattleOutcome.TurnLimitReached);
+
+            UpdateTurnReport(report);
+            ClearPendingTurn();
+        }
+
+        // Retains synchronous simulation support and completes an interrupted presentation once.
+        public void CompleteTurn(BattleTurnReport report)
+        {
+            ValidatePendingTurn(report);
+            if (!heroineActionApplied) ApplyHeroineAction(report);
+            if (ReferenceEquals(pendingTurn, report)) ApplyMonsterResponse(report);
+        }
+
+        private void UpdateTurnReport(BattleTurnReport report)
+        {
             report.energyAfter = EnergyRemaining;
             report.monsterHealthAfter = MonsterHealthRemaining;
             report.turnsRemaining = TurnsRemaining;
             report.outcome = Outcome;
-            return report;
+        }
+
+        private void ValidatePendingTurn(BattleTurnReport report)
+        {
+            if (report == null) throw new ArgumentNullException(nameof(report));
+            if (pendingTurn == null)
+                throw new InvalidOperationException("No turn is awaiting resolution.");
+            if (!ReferenceEquals(pendingTurn, report))
+                throw new ArgumentException("This report does not belong to the pending turn.", nameof(report));
+        }
+
+        private void ClearPendingTurn()
+        {
+            pendingTurn = null;
+            pendingMonsterSkill = null;
+            heroineActionApplied = false;
         }
 
         private static int ScaleDamage(int damage, float multiplier)

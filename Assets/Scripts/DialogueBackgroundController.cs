@@ -109,8 +109,9 @@ public class DialogueBackgroundController : MonoBehaviour
             yield break;
         }
 
-        Sprite nextSprite = FindBackgroundSprite(spriteName);
-        if (nextSprite == null)
+        bool clearBackground = string.Equals(spriteName?.Trim(), "clear", System.StringComparison.OrdinalIgnoreCase);
+        Sprite nextSprite = clearBackground ? null : FindBackgroundSprite(spriteName);
+        if (nextSprite == null && !clearBackground)
         {
             Debug.LogWarning($"Dialogue background sprite '{spriteName}' was not found in {BackgroundFolder}.");
             yield break;
@@ -208,7 +209,7 @@ public class DialogueBackgroundController : MonoBehaviour
     {
         backgroundImage.sprite = sprite;
         backgroundImage.color = Color.white;
-        backgroundImage.enabled = true;
+        backgroundImage.enabled = sprite != null;
     }
 
     private IEnumerator FadeOverlay(float targetAlpha, float duration, Color fadeColor, IEnumerator atTarget = null)

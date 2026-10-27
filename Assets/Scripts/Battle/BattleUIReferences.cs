@@ -25,6 +25,9 @@ namespace Train.Battle
         public TMP_Text monsterHealthText;
         public TMP_Text turnsText;
 
+        [Header("Turn indicator (optional)")]
+        public TMP_Text currentTurnText;
+
         [Header("Additional information (optional)")]
         public TMP_Text monsterIntentText;
         public TMP_Text damageText;

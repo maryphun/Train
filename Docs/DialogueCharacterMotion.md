@@ -15,6 +15,12 @@ The offset scales by `stageHeight / 1080`; negative values place the sprite's bo
 Command scale multiplies the base height while retaining that bottom anchor. Ordinary sprites and
 Toka's layered body/face use the same framing.
 
+Horizontal positions accept `-0.5..1.5` (confirmed 2026-10-20). Existing `0..1` positions,
+the centered `0.5` position and 250-reference-pixel endpoint overscan remain unchanged.
+Positions below `0` extend farther left, and positions above `1` extend farther right by
+extrapolating the existing mapping. Show, move, preview dragging and command forms share this range;
+visible-character movement retains its `0.25`-second easing.
+
 ## First appearance
 
 The converter combines immediate placement commands following `char show` into that show's initial

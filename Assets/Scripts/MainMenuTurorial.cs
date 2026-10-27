@@ -13,6 +13,7 @@ public class MainMenuTurorial : MonoBehaviour
     [SerializeField] private TMP_Text tutorialText;
     [SerializeField] private CanvasGroup canvasGrp;
     [SerializeField] private Image exampleGraphic;
+    [SerializeField] private Image tetora;
 
 
     [Header("References for copy")]
@@ -60,10 +61,11 @@ public class MainMenuTurorial : MonoBehaviour
                 {
                     DOTween.Sequence()
                            .Append(tutorialtextRect.DOAnchorPos(new Vector2(21.2455f, 0.0f), 0.25f))
-                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(1538.019f, 100.0f), 0.25f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(634.78f, 100.0f), 0.25f))
                            .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-1"), 2.0f))
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))
                            .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))
+                           .Append(tetora.DOFade(1.0f, 0.5f))
                            .AppendCallback(() => isCurrentStepSkippable = true);
                 }
                 break;
@@ -73,12 +75,14 @@ public class MainMenuTurorial : MonoBehaviour
                     DOTween.Sequence()
                            .Append(tutorialtextRect.DOAnchorPos(new Vector2(21.2455f, 0.0f), 0.25f))
                            .Join(tutorialtextRect.DOSizeDelta(new Vector2(0.0f, 100.0f), 0.25f))
+                           .Join(tetora.DOFade(0.0f, 0.25f))
                            .JoinCallback(() => copiedObject = CopyObjectWithoutButtons(toka, transform))
                            .JoinCallback(() => canvasGrp = copiedObject.AddComponent<CanvasGroup>())
                            .Append(canvasGrp.DOFade(0.0f, 0.0f))
                            .Append(canvasGrp.DOFade(1.0f, 1.0f))
                            .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-2"), 2.0f))
-                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(1125.0f, 100.0f), 0.25f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(1125.0f, 145.0f), 0.25f))
+                           .Join(tetora.DOFade(1.0f, 0.5f))
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))
                            .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))
                            .AppendCallback(() => isCurrentStepSkippable = true);
@@ -109,7 +113,7 @@ public class MainMenuTurorial : MonoBehaviour
                            .AppendCallback(() => DestroyObjectAfterFade(copiedObject, 1.0f))
                            .AppendCallback(() => copiedObject = CopyObjectWithoutButtons(actionBtn, transform))
                            .AppendInterval(1.0f)
-                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(-489.3f, -234.3f), 0.25f))                         // text box
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(-489.3f, -234.3f), 0.25f))                          // text box
                            .Join(tutorialtextRect.DOSizeDelta(new Vector2(763f, 200.0f), 0.25f))                                // text box
                            .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-4"), 2.0f))              // text
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
@@ -128,18 +132,20 @@ public class MainMenuTurorial : MonoBehaviour
                     DOTween.Sequence()
                            .Append(copiedObject.GetComponent<CanvasGroup>().DOFade(1.0f, 1.0f))
                            .Join(tutorialtextRect.DOSizeDelta(new Vector2(0.0f, 100.0f), 0.25f))
-                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(0.0f, -260.5f), 0.25f))                         // text box
+                           .Join(tetora.DOFade(0.0f, 0.25f))
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(0.0f, -260.5f), 0.25f))                             // text box
                            .Join(tutorialtextRect.DOSizeDelta(new Vector2(763f, 200.0f), 0.25f))                                // text box
                            .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-5"), 2.0f))              // text
+                           .Join(tetora.DOFade(1.0f, 0.5f))
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
                            .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
-                           .AppendCallback(() => isCurrentStepSkippable = true);                                               // is skippable
+                           .AppendCallback(() => isCurrentStepSkippable = true);                                                // is skippable
                 }
                 break;
             case 6:
                 {
                     DOTween.Sequence()
-                           .Append(tutorialtextRect.DOSizeDelta(new Vector2(810f, 200.0f), 0.25f))                                // text box
+                           .Append(tutorialtextRect.DOSizeDelta(new Vector2(810f, 200.0f), 0.25f))                              // text box
                            .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-6"), 2.0f))              // text
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
                            .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
@@ -149,7 +155,7 @@ public class MainMenuTurorial : MonoBehaviour
             case 7:
                 {
                     DOTween.Sequence()
-                           .Append(tutorialtextRect.DOSizeDelta(new Vector2(810f, 200.0f), 0.25f))                                // text box
+                           .Append(tutorialtextRect.DOSizeDelta(new Vector2(810f, 200.0f), 0.25f))                              // text box
                            .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-7"), 2.0f))              // text
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
                            .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
@@ -175,6 +181,7 @@ public class MainMenuTurorial : MonoBehaviour
                     isCurrentStepSkippable = false;
                     DOTween.Sequence()
                            .Append(tutorialText.DOFade(0.0f, 0.5f))
+                           .Append(tetora.DOFade(0.0f, 0.25f))
                            .Append(tutorialtextRect.DOSizeDelta(new Vector2(0.0f, 100.0f), 0.5f))
                            .Append(canvasGrp.DOFade(0.0f, 1.0f))
                            .AppendCallback(() => EndTutorial());

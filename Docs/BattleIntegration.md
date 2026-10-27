@@ -4,6 +4,13 @@ The player controls 桃香. After each chosen heroine action, the monster automa
 
 ## Test in Unity
 
+The scene's preset is available **only in Unity Editor Play Mode**. Open Battle directly and
+press Play; no Title or Dialogue startup is required. Select **Battle Scene Controller > Editor
+debug preset (Unity Editor Play Mode only) > Standalone Setup** to edit it before playing.
+An existing setup supplied through `BattleFlow.Setup` or `Enter` takes priority over this preset.
+The preset field and fallback code are compiled out of player builds, including Development
+Builds. Loading Battle in a player without a supplied setup reports a setup error.
+
 1. Open `Assets/Scenes/Battle.unity` and press Play.
 2. Choose `攻撃`, `防御`, or `回復` in `桃香の行動`. The monster's next action is shown above its HP.
 3. With the unchanged sample, choose `攻撃` four times: monster HP reaches zero, 桃香 wins with 40 Energy, and the defeated monster does not retaliate.
@@ -11,13 +18,14 @@ The player controls 桃香. After each chosen heroine action, the monster automa
 5. To test defeat, stop Play, temporarily set **Starting Energy** to `10`, and Play again. One `攻撃` results in defeat after the monster responds. Restore your original setting afterward.
 6. Choose Return on the result screen to load `MainMenu`.
 
-For automatic logic checks, select **Tests > Battle > Run Combat Checks** from Unity's menu. It reports eight passing cases in the Console or throws the first failing check. It does not change scene or profile data.
+For automatic logic checks, select **Tests > Battle > Run Combat Checks** from Unity's menu. It reports 13 passing cases in the Console or throws the first failing check. These include deferred action effects and response order. It does not change scene or profile data.
 
 Edit settings while Play is stopped. The session copies its setup at entry, so Inspector changes during a running battle do not change that session.
 
 ## Customize the sample
 
-Select **Battle Scene Controller** in the Battle scene and expand **Standalone Setup**.
+Select **Battle Scene Controller** in the Battle scene and expand **Standalone Setup** under
+the **Editor debug preset** header. The existing Attack/Guard/Recover sample remains configured.
 
 | Field | Effect |
 | --- | --- |
@@ -166,8 +174,8 @@ Controller > Gauge Animation**, adjust **Gauge Animation Duration** and **Gauge 
 Out Cubic). A duration of zero applies values instantly. Unchanged UI refreshes do not restart a
 transition, and a new value cancels/replaces the previous tween from its current displayed fill.
 This also supports the generated prototype gauges. Tweens use unscaled time and stop when the
-controller is disabled; re-enabling draws the current values immediately. Battle calculations and
-the timing of gauge updates remain as before.
+controller is disabled; re-enabling draws the current values immediately. Each gauge change now
+begins when the corresponding action's effects are applied, after that action's animation.
 
 For a vertically expanding window, add a **Vertical Layout Group** and **Content Size Fitter**
 to the popup, and set its Vertical Fit to **Preferred Size**. Add another Vertical Layout Group
@@ -205,12 +213,89 @@ The current Japanese text is `残り{0}ターン`; its number refreshes after ea
 including bonus turns, and when the localization language changes. Spell cut-ins and action
 animation events are optional and can remain empty until those assets are ready.
 
-On Battle Scene Controller, **Heroine Action Delay** and **Monster Action Delay** are additional
-waits after each respective cut-in (or after the action event if there is no cut-in). Both default
-to zero until you choose durations. With **Spell Animation** assigned, each wait begins after
-the animation completes. **Cut In Duration** controls only the fallback **Cut In Image**, retaining
+The existing top header now also displays the user-confirmed current-turn labels:
+
+- **あなたのターン** (`Battle.PhasePlayer`): choosing a skill, heroine animation/effects and Heroine Action Delay.
+- **相手のターン** (`Battle.PhaseEnemy`): enemy animation/effects and Monster Action Delay.
+
+The label switches just before the enemy start event, returns to the player when the next choice
+opens, and hides once a battle result exists. It stays visible over the spell overlay during active
+combat. **Battle UI References > Current Turn Text** is connected to the scene's `Current turn text`.
+It is optional for custom Canvases, and the generated prototype displays it in its header too.
+The existing remaining-turn counter has its own text reference and localization key.
+
+Both text objects share the existing header in two equal-width slots, preserving its 45-point
+KiwiMaru font, white text, 50-unit text height and background. The added text does not receive
+raycasts. The two Japanese labels and their English counterparts fit the measured 450.57725-unit
+slots using the source font. The indicator reuses the existing `Battle.PhasePlayer` and
+`Battle.PhaseEnemy` CSV entries and their translations; it refreshes with language changes.
+
+On Battle Scene Controller, the action sequence is:
+
+1. Heroine start event and animation.
+2. Apply heroine damage, Energy cost/recovery, and turn consumption; update the UI and start the attacking heroine scale snap and enemy damage feedback with the HP gauge change.
+3. Run **Heroine Action Delay** alongside feedback; wait for both before the monster acts.
+4. Monster start event and animation, if the monster survived.
+5. Apply enemy Energy/status damage, portrait stages and turn bonuses; update the UI and start the attacking enemy scale snap and heroine damage feedback with the gauge change.
+6. Run **Monster Action Delay** alongside feedback; wait for both, then show the next player choice or results.
+
+The delay fields default to zero; the current scene saves **2 seconds** for each. A missing graphic
+skips its spell animation; damage feedback and the configured delay still run. Feedback overlaps
+the delay instead of adding another wait after it. With no graphic, no damage feedback and a zero
+delay, no timed gap exists. **Cut In Duration** controls only the fallback **Cut In Image**, retaining
 its existing 0.8-second default. Presentation and waits use unscaled time. A defeated enemy skips
 its response and wait.
+
+### Damage feedback
+
+On **Battle Scene Controller > Damage feedback**, adjust:
+
+- **Damage Feedback Duration**: 0.5 seconds; zero disables feedback.
+- **Damage Shake Strength**: 20 Canvas UI units, horizontal only; zero disables movement.
+- **Damage Tint Strength**: 0.5 (50% red); zero disables tint.
+
+The portrait receiving actual damage shakes and turns red on the same frame the damage is
+applied and its gauge starts moving. It snaps immediately to the configured horizontal distance,
+then recoils quickly left/right with decreasing strength, returning to the exact starting position.
+The motion uses evenly spaced reversals across the configured duration, avoiding the previous
+slow settling movement. Tint eases back to the original color over the same duration, preserving
+the portrait's alpha. The enemy reacts
+to HP loss; the heroine reacts to incoming Energy, physical, pleasure or confusion damage.
+Her skill Energy costs, healing and fully blocked/zero damage do not trigger feedback.
+A changed heroine stage sprite is assigned before feedback starts.
+
+This uses the existing Heroine Image and Monster Image references and also works with the
+prototype UI. Missing/inactive portraits skip feedback. Completion, disabled controllers and
+interrupted turns restore the original position and color without leaving active tweens.
+The next action/result waits for both feedback and the action delay. No extra duration is added
+when the action delay already covers the feedback.
+
+### Attacker feedback
+
+On **Battle Scene Controller > Attacker feedback**, adjust:
+
+- **Attack Scale Multiplier**: 1.05, an instant snap to 105% of the original scale; 1 disables it.
+- **Attack Scale Return Duration**: 0.1 seconds; zero disables it.
+
+The attacker snaps larger on the same frame its attack effects are applied, alongside the target's
+shake/tint and gauge movement, after the spell animation. It returns to its original scale using
+OutCubic easing and unscaled time. The return overlaps target feedback and the action delay;
+the next action/result waits until all have finished. It does not add 0.1 seconds after the delay.
+
+Current scope is attacks only: skills with outgoing damage animate even if that damage is blocked.
+Healing and guard-only skills do not trigger the snap. This follows the request for the attacking
+side; the optional question about including other actions remains open.
+
+The existing Heroine Image / Monster Image references are used. Original nonuniform scales and
+negative scales used for facing are retained. Retriggering first restores the original scale, so
+pulses cannot grow cumulatively. Missing/inactive portraits skip the effect; disabling the
+controller or interrupting the turn cancels it and restores the exact original scale.
+
+Verification: runtime/Editor compilation and 138 headless controller/motion/timing checks plus
+13 combat cases pass (151 total). These cover simultaneous attacker/target presentation, spell
+completion timing, scale restoration, blocked and lethal attacks, exclusions and zero-delay turns.
+Scene contents and saved action delays were preserved. Unity MCP is unavailable, so live Play Mode
+playback remains unverified.
 
 ## Ability graphic and spell animation
 
@@ -266,8 +351,27 @@ so live Play Mode playback remains unverified.
 
 Connect future animation methods to **On Heroine Action Started** and **On Monster Action
 Started**. They fire once for the corresponding presentation phase. Animation scripts can read
-`BattleSceneController.CurrentTurnReport` for the selected skills and before/after values.
-The existing combat calculation runs when a skill is selected; the events and waits control
-presentation and input. No animation assets or new combat rules are added by these hooks.
+`BattleSceneController.CurrentTurnReport` for the selected skills and progressively resolved
+before/after values. `heroineActionResolved` and `monsterActionResolved` identify committed phases;
+the planned monster skill is cleared if the heroine defeats it. Enemy damage, projected status
+changes, portrait stages and bonus turns remain pending until the enemy animation finishes.
+
+`BattleSession.BeginHeroineSkill` reserves the turn without applying effects.
+`ApplyHeroineAction` and `ApplyMonsterResponse` commit the two phases separately. Input remains
+locked during the pending turn. The existing `UseHeroineSkill` API still resolves a full turn
+synchronously for simulations and combat checks. Presentation cleanup stops a still-running
+effect and uses `CompleteTurn` to commit remaining effects once if presentation is interrupted,
+preventing a half-resolved turn from leaving input locked. Combat formulas and terminal-condition
+priority are preserved.
+
+Action-timing verification: 37 headless controller checks plus all 13 production combat cases
+pass. They cover delayed effects, no-art waits, recovery, duplicate inputs, portrait/status timing,
+finishing attacks, defeat and interrupted presentation. Editor/runtime and non-Editor runtime
+assemblies compile. Live Play Mode playback remains unverified because Unity MCP is unavailable.
+
+Turn-indicator verification extends these checks to **48 controller timing/indicator checks plus
+13 combat cases (61 total)**. Editor/runtime and non-Editor runtime compile; scene references,
+hierarchy, header draw order, localization rows and source-font text fit pass static checks.
+Live Play Mode appearance remains unverified.
 
 For callers of the earlier prototype: replace `UseMonsterSkill` with `UseHeroineSkill`, provide `heroineSkills`, and use `heroineVictoryStatusMultiplier` / `heroineDefeatStatusMultiplier`. Previously serialized scene multiplier values migrate to the matching heroine outcome automatically.

@@ -13,6 +13,8 @@ using UnityEditor;
 public class DialogueCharacterController : DialoguePresenterBase
 {
     private const float CharacterHorizontalOverscan = 250f;
+    private const float CharacterPositionMin = -0.5f;
+    private const float CharacterPositionMax = 1.5f;
     private const float CharacterReferenceHeight = 1080f;
     private const float ExistingCharacterMoveDuration = 0.25f;
     private const float SpeakerFocusFadeDuration = 0.5f;
@@ -1335,7 +1337,7 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     private void SetCharacterPosition(CharacterView view, float normalizedPosition)
     {
-        normalizedPosition = Mathf.Clamp01(normalizedPosition);
+        normalizedPosition = Mathf.Clamp(normalizedPosition, CharacterPositionMin, CharacterPositionMax);
         view.XPosition = normalizedPosition;
 
         float stageWidth = GetStageWidth();
@@ -1344,8 +1346,8 @@ public class DialogueCharacterController : DialoguePresenterBase
         float right = stageWidth - characterWidth * (1f - view.RectTransform.pivot.x) + CharacterHorizontalOverscan;
 
         float x = left <= right
-            ? Mathf.Lerp(left, right, normalizedPosition)
-            : Mathf.Lerp(-CharacterHorizontalOverscan, stageWidth + CharacterHorizontalOverscan, normalizedPosition);
+            ? Mathf.LerpUnclamped(left, right, normalizedPosition)
+            : Mathf.LerpUnclamped(-CharacterHorizontalOverscan, stageWidth + CharacterHorizontalOverscan, normalizedPosition);
 
         float y = bottomOffset * GetStageHeight() / CharacterReferenceHeight;
         view.RectTransform.anchoredPosition = new Vector2(x + view.ShakeOffset * GetStageHeight() / CharacterReferenceHeight, y);
@@ -1511,7 +1513,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     {
         if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float position))
         {
-            return Mathf.Clamp01(position);
+            return Mathf.Clamp(position, CharacterPositionMin, CharacterPositionMax);
         }
 
         Debug.LogWarning($"Invalid character position '{value}'. Using center.");
