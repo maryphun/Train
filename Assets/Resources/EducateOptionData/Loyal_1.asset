@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ef92b0100554285afdec5cc51b6a8e7, type: 3}
+  m_Name: Loyal_1
+  m_EditorClassIdentifier: Assembly-CSharp::EducateOptionData
+  energyCost: 1
+  icon: {fileID: 21300000, guid: 246c57055d90496c84a8fe1a15c60e42, type: 3}
+  image: {fileID: 3961796891833657731, guid: d347ae9b92be1444a9edf605e634dc14, type: 3}
+  nameID: Educate.Loyal_Name_1
+  descriptionID: Educate.Loyal_Description_1
+  dialogueID: Educate.Loyal_Dialog_1
+  availableDayTime: 00000000010000000200000003000000

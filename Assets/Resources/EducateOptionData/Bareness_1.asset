@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ef92b0100554285afdec5cc51b6a8e7, type: 3}
+  m_Name: Bareness_1
+  m_EditorClassIdentifier: Assembly-CSharp::EducateOptionData
+  energyCost: 1
+  icon: {fileID: 21300000, guid: f8bcce3581134059b60af3f8a2e80080, type: 3}
+  image: {fileID: 8596867102895428834, guid: d43426f55e2deb54889f44cee15887c1, type: 3}
+  nameID: 
+  descriptionID: 
+  dialogueID: 
+  availableDayTime: 00000000010000000200000003000000

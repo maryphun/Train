@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ef92b0100554285afdec5cc51b6a8e7, type: 3}
+  m_Name: Immoral_1
+  m_EditorClassIdentifier: Assembly-CSharp::EducateOptionData
+  energyCost: 1
+  icon: {fileID: 21300000, guid: b7b7adf5d0e342d08f8f419f65666839, type: 3}
+  image: {fileID: -5082875346649269656, guid: 69cc14010bd29284c8a9626ff56c6c48, type: 3}
+  nameID: Educate.Immoral_Name_1
+  descriptionID: Educate.Immoral_Description_1
+  dialogueID: Educate.Immoral_Dialog_1
+  availableDayTime: 00000000010000000200000003000000

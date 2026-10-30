@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ef92b0100554285afdec5cc51b6a8e7, type: 3}
+  m_Name: Pussy_1
+  m_EditorClassIdentifier: Assembly-CSharp::EducateOptionData
+  energyCost: 1
+  icon: {fileID: 21300000, guid: b673231612b64cb18a6a92178484761e, type: 3}
+  image: {fileID: -6446928407192650770, guid: 6c6ef5edc0e5cde40a5697b91c0c56f0, type: 3}
+  nameID: Educate.Pussy_Name_1
+  descriptionID: Educate.Pussy_Description_1
+  dialogueID: Educate.Pussy_Dialog_1
+  availableDayTime: 00000000010000000200000003000000

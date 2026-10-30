@@ -41,7 +41,7 @@ public static class SaveLoadVerification
             SaveLoad.SaveDirectory = testDirectory;
             Verify();
             string result = "PASS: round-trip, slot isolation, metadata, backups, edited JSON, missing-field defaults, "
-                + "copy isolation, available bodies, tutorial compatibility, new-game reset, invalid slot, missing file, malformed JSON, future schema, "
+                + "copy isolation, available bodies, education options, tutorial compatibility, new-game reset, invalid slot, missing file, malformed JSON, future schema, "
                 + "missing body sprite, and failed-write preservation. " + DateTime.UtcNow.ToString("O");
             File.WriteAllText(ResultPath, result);
             Debug.Log(result);
@@ -117,7 +117,7 @@ public static class SaveLoadVerification
         try
         {
             PlayerProfile.Initialization();
-            Check(PlayerProfile.BattlePoint == 0 && PlayerProfile.Energy == 0 && energyNotifications == 1,
+            Check(PlayerProfile.BattlePoint == 0 && PlayerProfile.Energy == 4 && energyNotifications == 1,
                 "New game retained battle points or Energy, or did not notify Energy subscribers.");
             Check(Array.TrueForAll(PlayerProfile.CaptureSaveData().IsTutorialTriggered, flag => !flag),
                 "New game retained tutorial flags.");
@@ -175,6 +175,7 @@ public static class SaveLoadVerification
         CheckAvailableBodies(new System.Collections.Generic.List<int>(), "An explicit empty available-body list was replaced.");
 
         VerifyTutorialCompatibility(slot);
+        VerifyEducationOptions(slot);
 
         ExpectLoadFailure(slot, "{broken json");
         ExpectLoadFailure(slot, "{}");
@@ -193,6 +194,50 @@ public static class SaveLoadVerification
         Check(!SaveLoad.Save(0) && File.ReadAllText(blocker) == "keep this file" && Snapshot() == beforeFailures,
             "Failed write damaged existing data.");
         SaveLoad.SaveDirectory = validDirectory;
+    }
+
+    private static void VerifyEducationOptions(string slot)
+    {
+        const string starters = "Bareness_1,Boobs_1,Chinkobi_1,Evil_1,Excretion_1,Hip_1,Immoral_1,Loyal_1,Mazo_1,Mouth_1,Multiple_1,Pussy_1,Worship_1";
+        PlayerProfile.Initialization();
+        Check(string.Join(",", PlayerProfile.CaptureSaveData().AvailableEducationOption) == starters,
+            "New game did not restore the fixed 13 education options.");
+
+        PlayerProfileSaveData profile = PlayerProfile.CaptureSaveData();
+        profile.AvailableEducationOption = new System.Collections.Generic.List<string> { "Worship_1", "Bareness_1" };
+        PlayerProfile.ApplySaveData(profile);
+        profile.AvailableEducationOption.Clear();
+        PlayerProfileSaveData captured = PlayerProfile.CaptureSaveData();
+        captured.AvailableEducationOption.Clear();
+        Check(string.Join(",", PlayerProfile.CaptureSaveData().AvailableEducationOption) == "Worship_1,Bareness_1",
+            "Education option snapshots share a mutable list with the profile.");
+        Check(SaveLoad.Save(0), SaveLoad.LastError);
+        JToken names = JObject.Parse(File.ReadAllText(slot))["PlayerProfile"]["AvailableEducationOption"];
+        Check(names is JArray array && array.Count == 2
+            && names[0].Type == JTokenType.String && names[0].Value<string>() == "Worship_1"
+            && names[1].Value<string>() == "Bareness_1", "Education options were not saved as ordered asset names.");
+        PlayerProfile.Initialization();
+        Check(SaveLoad.Load(0), SaveLoad.LastError);
+        Check(string.Join(",", PlayerProfile.CaptureSaveData().AvailableEducationOption) == "Worship_1,Bareness_1",
+            "Loading education options appended starters or changed the saved order.");
+
+        foreach (string field in new[] { "", "\"AvailableEducationOption\":null", "\"AvailableEducationOption\":[]" })
+        {
+            File.WriteAllText(slot, "{\"SchemaVersion\":1,\"PlayerProfile\":{" + field + "}}");
+            Check(SaveLoad.Load(0), SaveLoad.LastError);
+            string expected = field.EndsWith("[]") ? "" : starters;
+            Check(string.Join(",", PlayerProfile.CaptureSaveData().AvailableEducationOption) == expected,
+                "Missing/null/empty education list compatibility failed.");
+        }
+        Check(SaveLoad.Save(0) && SaveLoad.Load(0), SaveLoad.LastError);
+        Check(PlayerProfile.CaptureSaveData().AvailableEducationOption.Count == 0,
+            "An explicitly empty education list did not round-trip.");
+
+        foreach (string invalidNames in new[] { "[\"Bareness_1\",\"missing-test-option\"]", "[null]", "[\"\"]" })
+        {
+            ExpectLoadFailure(slot, "{\"SchemaVersion\":1,\"PlayerProfile\":{\"Money\":999,\"AvailableEducationOption\":"
+                + invalidNames + "}}");
+        }
     }
 
     private static void VerifyTutorialCompatibility(string slot)

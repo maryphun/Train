@@ -28,12 +28,19 @@ public static partial class PlayerProfile
     static int energy;
     static Sprite tokaCurrentBody;
     static List<int> tokaAvailableBody = new List<int>();
+    static List<EducateOptionData> availableEducationOption = new List<EducateOptionData>();
     static public List<AvailableBattlerRecord> AvailableBattlerData { get; } = new List<AvailableBattlerRecord>();
     static bool[] isTutorialTriggered = new bool[(int)Tutorials.maxCount];
 
     static TokaBodyList tokabodylist;
 
     public static IReadOnlyList<int> TokaAvailableBody => tokaAvailableBody;
+
+    /// <summary>Checks ownership in the current profile, independently of energy or time of day.</summary>
+    public static bool HasAvailableEducateOption(EducateOptionData option)
+    {
+        return option != null && availableEducationOption.Contains(option);
+    }
 
     public static bool GetTutorialTriggered(Tutorials tutorial)
     {
@@ -172,6 +179,7 @@ public static partial class PlayerProfile
         isTutorialTriggered = new bool[(int)Tutorials.maxCount];
         tokaAvailableBody = CreateDefaultAvailableBodies();
         TokaCurrentBody = tokabodylist != null ? tokabodylist.defaultSprite : null;
+        availableEducationOption = CreateDefaultAvailableEducateOption();
     }
 
     // Shared by new-game initialization and saves that predate available-body tracking.
@@ -184,4 +192,26 @@ public static partial class PlayerProfile
             tokabodylist = Resources.Load<TokaBodyList>("TokaBodyList");
         }
     }
+
+    internal static List<EducateOptionData> CreateDefaultAvailableEducateOption()
+        => ResolveEducationOptions(CreateDefaultAvailableEducateOptionNames());
+
+    // Fixed starter set. New assets are not automatically unlocked.
+    // These names are also stored in saves; keep the corresponding asset names stable.
+    internal static List<string> CreateDefaultAvailableEducateOptionNames() => new List<string>
+    {
+        "Bareness_1",
+        "Boobs_1",
+        "Chinkobi_1",
+        "Evil_1",
+        "Excretion_1",
+        "Hip_1",
+        "Immoral_1",
+        "Loyal_1",
+        "Mazo_1",
+        "Mouth_1",
+        "Multiple_1",
+        "Pussy_1",
+        "Worship_1"
+    };
 }

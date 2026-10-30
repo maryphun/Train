@@ -30,5 +30,7 @@ public sealed class PlayerProfileSaveData
     public string TokaBodySpriteName;
     [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
     public List<int> TokaAvailableBody = PlayerProfile.CreateDefaultAvailableBodies();
+    [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+    public List<string> AvailableEducationOption = PlayerProfile.CreateDefaultAvailableEducateOptionNames();
     public List<AvailableBattlerRecord> AvailableBattlerData = new List<AvailableBattlerRecord>();
 }

@@ -22,6 +22,11 @@ public class MainMenuTurorial : MonoBehaviour
     [SerializeField] private GameObject actionBtn;
     [SerializeField] private GameObject actionPanel;
 
+    [Header("Button hint")]
+    [SerializeField] private Color buttonHintColor = Color.gray;
+    [SerializeField, Min(0.01f)] private float buttonHintFadeDuration = 0.5f;
+    private Tween buttonHintTween;
+
     [Header("For Debug")]
     [SerializeField] private int currentStep = 0;   
     [SerializeField] private bool isCurrentStepSkippable = false;   
@@ -43,6 +48,7 @@ public class MainMenuTurorial : MonoBehaviour
 
     private void GoNextStep()
     {
+        StopButtonHint();
         isCurrentStepSkippable = false;
         tutorialDialogueNextArrow.color = new Color(1, 1, 1, 0);
         tutorialText.text = string.Empty;
@@ -119,11 +125,13 @@ public class MainMenuTurorial : MonoBehaviour
                            .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
                            .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
                            .AppendCallback(() => copiedObject.AddComponent<Button>().onClick.AddListener(OnClickNext))
+                           .AppendCallback(StartButtonHint)
                            .AppendCallback(() => isCurrentStepSkippable = false);                                               // is skippable
                 }
                 break;
             case 5:
                 {
+                    StopButtonHint();
                     Destroy(copiedObject);
                     exampleGraphic.DOFade(0.0f, 1.0f);
                     copiedObject = CopyObjectWithoutButtons(actionPanel, transform);
@@ -191,6 +199,40 @@ public class MainMenuTurorial : MonoBehaviour
 
         currentStep++;
     }
+
+    private void StartButtonHint()
+    {
+        StopButtonHint();
+        if (!isActiveAndEnabled || copiedObject == null)
+            return;
+
+        Image image = copiedObject.GetComponent<Image>();
+        if (image == null)
+            return;
+
+        Color originalColor = image.color;
+        Color hintColor = buttonHintColor;
+        hintColor.a = originalColor.a;
+        buttonHintTween = image.DOColor(hintColor, Mathf.Max(0.01f, buttonHintFadeDuration))
+            .SetEase(Ease.InOutSine)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetUpdate(true)
+            .SetLink(copiedObject, LinkBehaviour.KillOnDisable)
+            .OnKill(() =>
+            {
+                if (image != null)
+                    image.color = originalColor;
+                buttonHintTween = null;
+            });
+    }
+
+    private void StopButtonHint()
+    {
+        buttonHintTween?.Kill();
+        buttonHintTween = null;
+    }
+
+    private void OnDisable() => StopButtonHint();
 
     private void Update()
     {

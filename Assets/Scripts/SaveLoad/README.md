@@ -104,6 +104,16 @@ Keep those names unique and stable. Register any selectable body sprite there be
 A missing body name uses the default sprite; an unknown nonempty name fails loading with a useful error.
 No Unity instance IDs or sprite asset references are written into JSON.
 
+`AvailableEducationOption` stores education option asset names, for example `["Bareness_1", "Loyal_1"]`.
+Loading resolves them from `Resources/EducateOptionData`, preserving the saved list order.
+Keep these asset names stable; renaming or deleting a saved option requires a save migration.
+An unknown, blank or null name fails loading before the live profile changes. Saving also rejects
+null or unregistered option assets instead of writing Unity object references.
+Missing or null lists in older saves receive the fixed 13 starter options from
+`CreateDefaultAvailableEducateOptionNames`; explicitly saved empty lists remain empty.
+New-game initialization uses the same starter set. Adding more assets to the folder does not
+automatically unlock them. This optional field keeps save schema version 1.
+
 Technology unlocks currently follow `TechType` array order: append new enum entries before `maxCount`;
 do not reorder old entries without a migration. Added entries load as `false` from shorter arrays.
 

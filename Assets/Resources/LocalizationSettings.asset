@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TableId: 1R-CXnTzOjhX9G30s7WDNc0rPCPEUIzhKoZeuKKIo5QA
   Sheets:
-  - Name: Menu
+  - Name: System
     Id: 0
-    TextAsset: {fileID: 4900000, guid: cf55c05861a4d264a855e6349bef560e, type: 3}
+    TextAsset: {fileID: 4900000, guid: 9c3bab3ceee4e3f41a63c125e8851f55, type: 3}
+  - Name: DailyConversation
+    Id: 228202345
+    TextAsset: {fileID: 4900000, guid: 74745805462cf4e4c96eec50117dfc24, type: 3}
+  - Name: Educate
+    Id: 1630043510
+    TextAsset: {fileID: 4900000, guid: 2ad62d4da93cff446987d81293d78bfd, type: 3}
   SaveFolder: {fileID: 102900000, guid: c392831e85f928548b8494fefd912562, type: 3}

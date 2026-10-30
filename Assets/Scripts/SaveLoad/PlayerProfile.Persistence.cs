@@ -25,6 +25,7 @@ public static partial class PlayerProfile
             Energy = energy,
             TokaBodySpriteName = bodyName,
             TokaAvailableBody = new List<int>(tokaAvailableBody),
+            AvailableEducationOption = CaptureEducationOptionNames(),
             AvailableBattlerData = CopyBattlers(AvailableBattlerData)
         };
     }
@@ -49,6 +50,7 @@ public static partial class PlayerProfile
         List<int> availableBodies = data.TokaAvailableBody != null
             ? new List<int>(data.TokaAvailableBody)
             : CreateDefaultAvailableBodies();
+        List<EducateOptionData> educationOptions = ResolveEducationOptions(data.AvailableEducationOption);
 
         // No gameplay limits are applied: edited resources and levels are preserved.
         // Use the public setters so UI subscribers see values restored from a save.
@@ -61,9 +63,42 @@ public static partial class PlayerProfile
         BattlePoint = data.BattlePoint;
         Energy = data.Energy;
         tokaAvailableBody = availableBodies;
+        availableEducationOption = educationOptions;
         AvailableBattlerData.Clear();
         AvailableBattlerData.AddRange(battlers);
         TokaCurrentBody = body;
+    }
+
+    private static List<string> CaptureEducationOptionNames()
+    {
+        var names = new List<string>();
+        foreach (EducateOptionData option in availableEducationOption)
+        {
+            if (option == null)
+                throw new InvalidDataException("AvailableEducationOption contains a null asset.");
+            if (ResolveEducationOption(option.name) != option)
+                throw new InvalidDataException($"Education option '{option.name}' must be the asset in Resources/EducateOptionData with that name.");
+            names.Add(option.name);
+        }
+        return names;
+    }
+
+    private static List<EducateOptionData> ResolveEducationOptions(List<string> names)
+    {
+        var options = new List<EducateOptionData>();
+        foreach (string name in names ?? CreateDefaultAvailableEducateOptionNames())
+            options.Add(ResolveEducationOption(name));
+        return options;
+    }
+
+    private static EducateOptionData ResolveEducationOption(string optionName)
+    {
+        if (string.IsNullOrWhiteSpace(optionName))
+            throw new InvalidDataException("AvailableEducationOption contains an empty asset name.");
+        EducateOptionData option = Resources.Load<EducateOptionData>("EducateOptionData/" + optionName);
+        if (option == null || option.name != optionName)
+            throw new InvalidDataException($"Education option '{optionName}' is missing from Resources/EducateOptionData.");
+        return option;
     }
 
     private static List<AvailableBattlerRecord> CopyBattlers(List<AvailableBattlerRecord> source)
