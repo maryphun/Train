@@ -23,7 +23,9 @@ public static class BattleSessionChecks
         CheckPhasedActionGuards();
         CheckDeferredStagesAndOutcome();
         CheckInterruptedTurnCompletion();
-        Debug.Log("Battle checks passed: 13 cases (combat rules, deferred action effects, response order, terminal outcomes and turn isolation).");
+        CheckUnlimitedTurns();
+        CheckUnlimitedTerminalOutcomes();
+        Debug.Log("Battle checks passed: 15 cases (combat rules, deferred action effects, response order, terminal outcomes, unlimited turns and turn isolation).");
     }
 
     private static BattleSetup Setup()
@@ -261,6 +263,46 @@ public static class BattleSessionChecks
                 report.incomingEnergyDamage == expected.incomingEnergyDamage && !session.IsResolvingTurn,
                 "Finishing an interrupted presentation must apply each remaining effect exactly once.");
         }
+    }
+
+    private static void CheckUnlimitedTurns()
+    {
+        BattleSetup setup = Setup();
+        setup.turnLimit = 0;
+        setup.portraitStages.Add(new BattlePortraitStage
+        {
+            label = "Unlimited stage", damageType = BattleDamageType.Physical, threshold = 1, bonusTurns = 3
+        });
+        var session = new BattleSession(setup);
+        for (int i = 0; i < 20; i++)
+        {
+            BattleTurnReport report = session.UseHeroineSkill(2);
+            Require(!session.HasTurnLimit && session.TurnsRemaining == 0 && report.turnsRemaining == 0 &&
+                session.Outcome == BattleOutcome.InProgress && session.Result == null,
+                "Unlimited combat must not consume, add or expire remaining turns, even after portrait bonuses.");
+            Require(report.reachedStages.Count == (i == 0 ? 1 : 0),
+                "Unlimited combat must still apply portrait stages once.");
+        }
+        Require(session.TurnsUsed == 20, "Unlimited combat must still track actions and enemy skill order.");
+        setup.turnLimit = -1;
+        ExpectFailure<ArgumentException>(() => new BattleSession(setup));
+    }
+
+    private static void CheckUnlimitedTerminalOutcomes()
+    {
+        BattleSetup setup = Setup();
+        setup.turnLimit = 0;
+        setup.startingMonsterHealth = 30;
+        var victory = new BattleSession(setup);
+        victory.UseHeroineSkill(0);
+        Require(victory.Result.HeroineWon && victory.Result.outcome == BattleOutcome.HeroineVictory,
+            "Unlimited combat must still finish when enemy HP reaches zero.");
+        setup.startingMonsterHealth = 100;
+        setup.startingEnergy = 10;
+        var defeat = new BattleSession(setup);
+        defeat.UseHeroineSkill(0);
+        Require(defeat.Result.MonsterWon && defeat.Result.outcome == BattleOutcome.MonsterVictory,
+            "Unlimited combat must still finish when heroine Energy reaches zero.");
     }
 
     private static void Require(bool condition, string message)

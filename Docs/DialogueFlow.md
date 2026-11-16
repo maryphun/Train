@@ -47,6 +47,92 @@ the setup is still waiting for scene entry; it does not cancel a scene load or a
 Unrelated scene loads do not consume the setup, and later Dialogue loads do not replay a consumed
 setup. `Start` continues to handle both preparation and entry loading in one call.
 
+## Play another Node after returning
+
+`Start` and `Setup` accept an optional `nextNodeOnReturn`:
+
+```csharp
+if (DialogueFlow.Setup("FirstNode", "MainMenu", nextNodeOnReturn: "SecondNode"))
+    UnityEngine.SceneManagement.SceneManager.LoadScene(DialogueFlow.ScenePath);
+```
+
+This plays FirstNode, returns to MainMenu and waits for its fade, enters Dialogue to play
+SecondNode, then returns to MainMenu again. It uses the same YarnProject and existing fade
+duration. Both Nodes are validated before playback; unrelated scene takeovers are not redirected.
+`IsRunning` stays true throughout both dialogues and returns, so other systems can wait for the
+entire chain. Existing calls without this optional argument retain their original behavior.
+
+### Direct fade between Nodes, without exposing MainMenu
+
+```csharp
+DialogueFlow.Setup("Prologue_2", "MainMenu", nextNodeOnReturn: "Tutorial_Start",
+    returnBetweenNodes: false);
+```
+
+The prologue tutorial battle now uses this **direct mode** automatically on victory:
+**Prologue_2 → fade → Tutorial_Start → MainMenu**. MainMenu is neither loaded nor displayed
+between those Nodes. The existing SceneTransitionManager covers a fresh Dialogue scene load
+with its full-screen black fade and blocks input throughout. Playback waits for that scene's
+startup and entry fade, and uses its newly loaded runner with the same YarnProject.
+
+`returnBetweenNodes` defaults **true**, preserving other callers. In particular, Day 1 still
+returns to MainMenu between Conversation_Day1 and Tutorial_Teach, as separately confirmed.
+MainMenuManager starts its existing on-screen tutorial only after the final dialogue/return
+flow finishes; a completed profile tutorial flag still skips it normally.
+
+Verification: 130 headless checks against production DialogueFlow and the actual MainMenu startup
+gate pass, including existing entry/setup behavior, chained playback, cancellation, missing Nodes,
+full-path return destinations, completion callbacks, direct fades with no intermediate MainMenu,
+and preventing duplicate/early on-screen tutorial starts.
+Runtime/Editor and non-Editor compilation pass. Live Play Mode remains unverified.
+
+## Daily conversation after the day-change overlay
+
+`MainMenuManager.StartNewDay(false)` displays the current day without incrementing it;
+`StartNewDay(true)` increments it first. After the overlay fades in, the player dismisses
+it with a mouse click. Once its fade-out completes, the manager calls
+`DialogueFlow.Start("Conversation_Day" + day, "MainMenu")`, using the same day that was
+shown in `DAY {day}`. Thus day 1 plays **Conversation_Day1**, day 2 plays **Conversation_Day2**, etc.
+
+The existing DialogueFlow/SceneTransitionManager handles smooth scene entry, waiting for
+scene startup before playback, and fading back to MainMenu after the conversation finishes.
+The overlay keeps blocking input until the transition request is accepted (or fails with a
+warning). Existing dialogue/scene transitions are allowed to finish before requesting it;
+disabling the manager cancels an outstanding overlay/handoff, not an already accepted flow.
+Returning to MainMenu does not replay the conversation automatically: this is attached only
+to explicit StartNewDay calls. No other new-day clock/energy/reset rules were added.
+
+### Day 1 forced teaching sequence and editable hook
+
+Only day 1 adds the following sequence:
+
+`Conversation_Day1 → MainMenu → Tutorial_Teach → MainMenu → OnDay1TeachingTutorialCompleted()`
+
+Both MainMenu returns use the existing smooth fades. The hook runs **once after Tutorial_Teach
+finishes successfully and the final MainMenu return fade has completed**. It resolves the newly
+loaded active MainMenuManager, rather than retaining the unloaded manager that opened the day.
+Edit **`OnDay1TeachingTutorialCompleted()` in `Assets/Scripts/MainMenuManager.cs`** to implement
+the next forced-tutorial step. Its initial body only logs completion. No MainMenuEditor.cs is
+created, and no further day-wide action restrictions or save flags are invented.
+
+Other days remain single daily conversations and do not invoke this hook. Both Day 1 Nodes are
+validated before the first playback. Cancellation, interrupted/failed dialogue, failed scene
+returns, and abandoned setup do not invoke the completion hook.
+
+The reusable DialogueFlow.Start/Setup APIs now also accept optional **`Action onCompleted`**.
+For a two-Node `nextNodeOnReturn` chain, it runs after the final return only, with flow ownership
+already released, so your hook can start or prepare the next tutorial. Callback exceptions are
+logged; no callback is saved across a game restart.
+
+The current generated Yarn contains **Conversation_Day1**. Add/import matching exact Nodes
+for later days before using them; no fallback or alternate conversation selection is added.
+The scene's dayChange and todayDate references must be assigned as described in the day-change setup.
+
+Verification: 62 headless checks against the production MainMenuManager and 114
+DialogueFlow/continuation checks pass, including success-only completion and hook lifecycle.
+Both runtime and Editor source assemblies compile;
+live Unity Play Mode playback remains unverified.
+
 ## Import updated creator content manually
 
 1. Save the intended dialogue into the Google Sheet used by the creator/converter. For the

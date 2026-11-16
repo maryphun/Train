@@ -26,6 +26,7 @@ namespace Train.Battle
         public BattleOutcome Outcome { get; private set; } = BattleOutcome.InProgress;
         public BattleResult Result => result;
         public bool IsResolvingTurn => pendingTurn != null;
+        public bool HasTurnLimit => setup.turnLimit > 0;
 
         public BattleSession(BattleSetup source)
         {
@@ -100,7 +101,7 @@ namespace Train.Battle
             EnergyRemaining += report.energyRecovered;
             MonsterHealthRemaining = Mathf.Max(0, MonsterHealthRemaining - skill.monsterDamage);
             TurnsUsed++;
-            TurnsRemaining--;
+            if (HasTurnLimit) TurnsRemaining--;
             heroineActionApplied = true;
             report.heroineActionResolved = true;
 
@@ -135,7 +136,7 @@ namespace Train.Battle
             // Energy depletion takes priority if time also expires on this response.
             if (EnergyRemaining == 0)
                 Finish(BattleOutcome.MonsterVictory);
-            else if (TurnsRemaining <= 0)
+            else if (HasTurnLimit && TurnsRemaining <= 0)
                 Finish(BattleOutcome.TurnLimitReached);
 
             UpdateTurnReport(report);
@@ -190,7 +191,7 @@ namespace Train.Battle
                         continue;
 
                     reachedStageIndexes.Add(i);
-                    TurnsRemaining += stage.bonusTurns;
+                    if (HasTurnLimit) TurnsRemaining += stage.bonusTurns;
                     if (stage.heroinePortrait != null) HeroinePortrait = stage.heroinePortrait;
                     report.reachedStages.Add(stage);
                 }

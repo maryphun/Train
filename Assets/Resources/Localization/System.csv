@@ -14,6 +14,7 @@ Home.Load,ロード,Load,,,
 Home.ChangeDress,更衣室,Change Dress,,,
 Home.Change,更衣,Change,,,
 Home.Educate,教育,Educate,,,
+Home.EndToday,Day{0} を終了,End Day {0},,,
 BattleHire.ReqBattlepoint,必要作戦ポイント:,,,,
 BattleHire.Hire,雇用,Hire,,,
 BattleHire.BattlerHire,怪人雇用,Hire Battler,,,
@@ -46,6 +47,7 @@ Common.Battlepoint,作戦ポイント,,,,
 Common.Exit,戻る,Exit,,,
 Common.MoneyUnit,￥,￥,,,
 Common.End,終了,End,,,
+Common.Execute,開始,Execute,,,
 Battle,,,,,
 Heroine.Peach,ピュアプリピーチ,,,,
 Enemy.Scorpion,サソリ怪人,,,,
@@ -61,12 +63,41 @@ Battle.Energy,エネルギー残量,Energy,,,
 Battle.HP,体力,HP,,,
 Battle.PhasePlayer,あなたのターン,Player phase,,,
 Battle.PhaseEnemy,相手のターン,Enemy phase,,,
+Battle.RetryPrompt,もう一度挑戦しましょう。,,,,
+Battle.Retry,再挑戦,,,,
 Tutorials,,,,,
-Tutorial.MainMenu-1,で、では教育方法の説明を…,,,,ようこそ、<color=yellow>ピュアプリバッドエンド 聖香天使ピュアプリピーチエロ怪人化育成記録</color>へ。
-Tutorial.MainMenu-2,目的は、ピュアプリピーチを幹部様が思う、最強の悪の怪人を目指して育成する事です…,,,,このゲームは、主人公<color=yellow>白崎桃香</color>を育成するゲームになります。
-Tutorial.MainMenu-3,育成方針が決まったら、日数や時間帯、資金を確認しながら、その日の行動を選んでいきましょう。,,,,育成方針を決めたあと、日数や時間帯、所持金を確認しながら、その日の行動を選んでいきましょう。
-Tutorial.MainMenu-4,こちらは<color=yellow>アクションボタン</color>となります。ボタンを押して、表示されるメニューを確認してみましょう。,,,,こちらは<color=yellow>アクションボタン</color>となります。ボタンを押して、表示されるメニューを確認してみましょう。
-Tutorial.MainMenu-5,ここからいろんなアクションを選択できます。タイミングによって特殊イベントが発生する可能性もあります。,,,,ここからいろんなアクションを選択できます。タイミングによって特殊イベントが発生する可能性もあります。
-Tutorial.MainMenu-6,アクションをすると、<color=yellow>時間</color>と<color=yellow>行動力</color>が消耗されます。,,,,アクションをすると、<color=yellow>時間</color>と<color=yellow>行動力</color>が消耗されます。
-Tutorial.MainMenu-7,行動を終えたら、ピーチの様子や画面の表示を確認しましょう。時間帯や所持金などの変化を見ながら、次の行動を考えてください。,,,,行動を終えたら、彼女の様子や画面の表示を確認しましょう。時間帯や所持金などの変化を見ながら、次の行動を考えてください。
-Tutorial.MainMenu-8,まずは「行動を選ぶ → 結果を確認する」を繰り返して、育成の流れを覚えましょう。,,,,まずは「行動を選ぶ → 結果を確認する」を繰り返して、育成の流れを覚えましょう。
+Tutorial.MainMenu-1,で、では軽く説明を…,,,,ようこそ、<color=yellow>ピュアプリバッドエンド 聖香天使ピュアプリピーチエロ怪人化育成記録</color>へ。
+Tutorial.MainMenu-2,私達の目的は、ピュアプリピーチを幹部様が思う、最強の悪の怪人目指して育成する事です…,,,,このゲームは、主人公<color=yellow>白崎桃香</color>を育成するゲームになります。
+Tutorial.MainMenu-3,精神を邪悪にしたり、肉体を開発したり、技術力を上げたり…せ、性癖の開拓なんてのもあるようですね…？,,,,育成方針を決めたあと、日数や時間帯、所持金を確認しながら、その日の行動を選んでいきましょう。
+Tutorial.MainMenu-4,育てたい姿を目指して、ピュアプリピーチのステータスを上げていきましょう,,,,こちらは<color=yellow>アクションボタン</color>となります。ボタンを押して、表示されるメニューを確認してみましょう。
+Tutorial.MainMenu-5,そ、それで、一日の調教の始まりは朝の会話からです！,,,,ここからいろんなアクションを選択できます。タイミングによって特殊イベントが発生する可能性もあります。
+Tutorial.MainMenu-6,朝はピュアプリピーチとコミュニケーションをとって、彼女の思考に影響を与えられます…,,,,アクションをすると、<color=yellow>時間</color>と<color=yellow>行動力</color>が消耗されます。
+Tutorial.MainMenu-7,どんな会話をするかでピーチのステータスが変化しますので、注意して選ぶことをおすすめします,,,,行動を終えたら、彼女の様子や画面の表示を確認しましょう。時間帯や所持金などの変化を見ながら、次の行動を考えてください。
+Tutorial.MainMenu-8,で、では幹部様、早速お願いします！,,,,まずは「行動を選ぶ → 結果を確認する」を繰り返して、育成の流れを覚えましょう。
+,,,,,
+,,,,,
+,,,,,
+Tutorial.Teach-1,で、では教育の説明をします…,,,,
+Tutorial.Teach-2,幹部様にやっていただくのは、カリキュラムを選択してピーチを教育することです,,,,
+Tutorial.Teach-3,育成したいように授業を選択してください,,,,
+Tutorial.Teach-4,4つ溜まったら開始ボタンを押すと授業が開始されます,,,,
+,,,,,
+,,,,,
+,,,,,
+Tutorial.Goingout-1,で、では夕方以降の時間の説明を…,,,,
+Tutorial.Goingout-2,ここでは行動力を使用してピーチを教育していきます,,,,
+Tutorial.Goingout-3,行動は外出、屋内、戦闘から選べます,,,,
+Tutorial.Goingout-4,基本的には、特定のステータス伸ばしたい場合は“外出“を選択して、得意な怪人のいるところへ行きしょう。,,,,
+Tutorial.Goingout-5,ピーチのストレスが溜まり、認識強度が低下している場合は屋内でリフレッシュさせるといいかもしれません。,,,,
+Tutorial.Goingout-6,もっとリスクを取って強力に教育をしたいなら“怪人と戦闘させる”という手もありますね…,,,,
+Tutorial.Goingout-7,ここで説明するよりやった方が早いですね、では、まずは外出を選択してみましょう！,,,,
+,,,,,
+Tutorial.Battle-1,そ、それでは次は戦闘の説明を…,,,,
+Tutorial.Battle-2,戦闘では幹部様はピュアプリピーチに戦闘指示を出してください,,,,
+Tutorial.Battle-3,それによって怪人のHPを削り切る、もしくは怪人の技によってピーチのHPが無くなる、もしくは快楽ゲージが満タンになると戦闘終了です,,,,
+Tutorial.Battle-4,まあ…勝敗はどうでもよくて…バトルの内容によって得られるステータスが変化します,,,,
+Tutorial.Battle-5,育成したい方向にピーチに指示を出して、戦わせていきましょう！,,,,
+,,,,,
+Tutorial.End-1,行動力が無くなったら一日は終わりです。,,,,
+Tutorial.End-2,ただ、行動力が無くてもアイテムは使えるので、使えるものがあれば使ってみてください,,,,
+Tutorial.End-3,で、では右下のボタンを押して一日を終了しましょう,,,,

@@ -103,6 +103,9 @@ public class TitleManager : MonoBehaviour
 
         var setup = new BattleSetup
         {
+            IsTutorialBattle = true,
+            tutorialVictoryDialogueNode = "Prologue_2",
+            tutorialReturnDialogueNode = "Tutorial_Start",
             background = battleBackground,
             heroine = new BattleCharacter
             {
@@ -118,11 +121,11 @@ public class TitleManager : MonoBehaviour
             },
 
             startingEnergy = 100,
-            startingMonsterHealth = 100,
-            turnLimit = 5,
+            startingMonsterHealth = 60,
+            turnLimit = 0,
 
-            // Return to whichever scene called this method.
-            returnSceneName = SceneManager.GetActiveScene().name,
+            // Return here between dialogues and after the tutorial introduction.
+            returnSceneName = "MainMenu",
 
             heroineSkills = new List<BattleHeroineSkill>
             {

@@ -1,0 +1,294 @@
+using UnityEngine;
+using UnityEngine.UI;
+using DG.Tweening;
+using TMPro;
+using Assets.SimpleLocalization.Scripts;
+using Unity.VisualScripting;
+
+public class BattleSceneTutorial : MonoBehaviour
+{
+    [Header("References")]
+    [SerializeField] private RectTransform tutorialtextRect;
+    [SerializeField] private Image tutorialDialogueNextArrow;
+    [SerializeField] private TMP_Text tutorialText;
+    [SerializeField] private CanvasGroup canvasGrp;
+    [SerializeField] private Image exampleGraphic;
+    [SerializeField] private Image tetora;
+
+
+    [Header("References for copy")]
+    [SerializeField] private GameObject toka;
+    [SerializeField] private GameObject playerProfile;
+    [SerializeField] private GameObject actionBtn;
+    [SerializeField] private GameObject actionPanel;
+
+    [Header("Button hint")]
+    [SerializeField] private Color buttonHintColor = Color.gray;
+    [SerializeField, Min(0.01f)] private float buttonHintFadeDuration = 0.5f;
+    private Tween buttonHintTween;
+
+    [Header("For Debug")]
+    [SerializeField] private int currentStep = 0;
+    [SerializeField] private bool isCurrentStepSkippable = false;
+    [SerializeField] private GameObject copiedObject;
+
+    public void StartTutorial()
+    {
+        gameObject.SetActive(true);
+        currentStep = 0;
+
+        GoNextStep();
+    }
+
+    private void EndTutorial()
+    {
+        PlayerProfile.SetTutorialTriggered(Tutorials.MainMenu, true);
+        gameObject.SetActive(false);
+    }
+
+    private void GoNextStep()
+    {
+        StopButtonHint();
+        isCurrentStepSkippable = false;
+        tutorialDialogueNextArrow.color = new Color(1, 1, 1, 0);
+        tutorialText.text = string.Empty;
+
+        switch (currentStep)
+        {
+            case 0:
+            default:
+                {
+                    DOTween.Sequence()
+                           .Append(canvasGrp.DOFade(1.0f, 1.0f))
+                           .AppendCallback(() => GoNextStep());
+                }
+                break;
+            case 1:
+                {
+                    DOTween.Sequence()
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(21.2455f, 0.0f), 0.25f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(634.78f, 100.0f), 0.25f))
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-1"), 2.0f))
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))
+                           .Append(tetora.DOFade(1.0f, 0.5f))
+                           .AppendCallback(() => isCurrentStepSkippable = true);
+                }
+                break;
+            case 2:
+                {
+                    CanvasGroup canvasGrp = null;
+                    DOTween.Sequence()
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(21.2455f, 0.0f), 0.25f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(0.0f, 100.0f), 0.25f))
+                           .Join(tetora.DOFade(0.0f, 0.25f))
+                           .JoinCallback(() => copiedObject = CopyObjectWithoutButtons(toka, transform))
+                           .JoinCallback(() => canvasGrp = copiedObject.AddComponent<CanvasGroup>())
+                           .Append(canvasGrp.DOFade(0.0f, 0.0f))
+                           .Append(canvasGrp.DOFade(1.0f, 1.0f))
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-2"), 2.0f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(1125.0f, 145.0f), 0.25f))
+                           .Join(tetora.DOFade(1.0f, 0.5f))
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))
+                           .AppendCallback(() => isCurrentStepSkippable = true);
+                }
+                break;
+            case 3:
+                {
+                    copiedObject.GetComponent<CanvasGroup>().DOFade(0.0f, 0.50f);
+                    Destroy(copiedObject, 0.51f);
+                    copiedObject = CopyObjectWithoutButtons(playerProfile, transform);
+                    var canvasGroup = copiedObject.AddComponent<CanvasGroup>();
+                    canvasGroup.alpha = 0.0f;
+                    canvasGroup.blocksRaycasts = false;
+
+                    DOTween.Sequence()
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(-530.54f, 189.51f), 0.25f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(763f, 200.0f), 0.25f))
+                           .Append(canvasGroup.DOFade(1.0f, 1.0f))
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-3"), 2.0f))
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))
+                           .AppendCallback(() => isCurrentStepSkippable = true);
+                }
+                break;
+            case 4:
+                {
+                    DOTween.Sequence()
+                           .AppendCallback(() => DestroyObjectAfterFade(copiedObject, 1.0f))
+                           .AppendCallback(() => copiedObject = CopyObjectWithoutButtons(actionBtn, transform))
+                           .AppendInterval(1.0f)
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(-489.3f, -234.3f), 0.25f))                          // text box
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(763f, 200.0f), 0.25f))                                // text box
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-4"), 2.0f))              // text
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
+                           .AppendCallback(() => copiedObject.AddComponent<Button>().onClick.AddListener(OnClickNext))
+                           .AppendCallback(StartButtonHint)
+                           .AppendCallback(() => isCurrentStepSkippable = false);                                               // is skippable
+                }
+                break;
+            case 5:
+                {
+                    StopButtonHint();
+                    Destroy(copiedObject);
+                    exampleGraphic.DOFade(0.0f, 1.0f);
+                    copiedObject = CopyObjectWithoutButtons(actionPanel, transform);
+                    copiedObject.GetComponent<ActionBoard>().enabled = false;
+
+                    DOTween.Sequence()
+                           .Append(copiedObject.GetComponent<CanvasGroup>().DOFade(1.0f, 1.0f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(0.0f, 100.0f), 0.25f))
+                           .Join(tetora.DOFade(0.0f, 0.25f))
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(0.0f, -260.5f), 0.25f))                             // text box
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(763f, 200.0f), 0.25f))                                // text box
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-5"), 2.0f))              // text
+                           .Join(tetora.DOFade(1.0f, 0.5f))
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
+                           .AppendCallback(() => isCurrentStepSkippable = true);                                                // is skippable
+                }
+                break;
+            case 6:
+                {
+                    DOTween.Sequence()
+                           .Append(tutorialtextRect.DOSizeDelta(new Vector2(810f, 200.0f), 0.25f))                              // text box
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-6"), 2.0f))              // text
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
+                           .AppendCallback(() => isCurrentStepSkippable = true);                                                // is skippable
+                }
+                break;
+            case 7:
+                {
+                    DOTween.Sequence()
+                           .Append(tutorialtextRect.DOSizeDelta(new Vector2(810f, 200.0f), 0.25f))                              // text box
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-7"), 2.0f))              // text
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
+                           .AppendCallback(() => isCurrentStepSkippable = true);                                                // is skippable
+                }
+                break;
+            case 8:
+                {
+                    DOTween.Sequence()
+                           .AppendCallback(() => DestroyObjectAfterFade(copiedObject, 1.0f))
+                           .AppendInterval(1.0f)
+                           .Append(tutorialtextRect.DOAnchorPos(new Vector2(21.2455f, 0.0f), 0.25f))
+                           .Join(tutorialtextRect.DOSizeDelta(new Vector2(1538.019f, 100.0f), 0.25f))
+                           .Append(tutorialText.DOText(LocalizationManager.Localize("Tutorial.MainMenu-8"), 2.0f))              // text
+                           .Append(tutorialDialogueNextArrow.rectTransform.DOAnchorPos(new Vector2(-40f, 0.0f), 0.0f))          // arrow animation
+                           .Append(tutorialDialogueNextArrow.DOFade(1.0f, 0.15f))                                               // arrow animation
+                           .AppendCallback(() => isCurrentStepSkippable = true);                                                // is skippable
+                }
+                break;
+            case 9:
+                {
+                    // end of tutorial
+                    isCurrentStepSkippable = false;
+                    DOTween.Sequence()
+                           .Append(tutorialText.DOFade(0.0f, 0.5f))
+                           .Append(tetora.DOFade(0.0f, 0.25f))
+                           .Append(tutorialtextRect.DOSizeDelta(new Vector2(0.0f, 100.0f), 0.5f))
+                           .Append(canvasGrp.DOFade(0.0f, 1.0f))
+                           .AppendCallback(() => EndTutorial());
+                }
+                break;
+        }
+
+        currentStep++;
+    }
+
+    private void StartButtonHint()
+    {
+        StopButtonHint();
+        if (!isActiveAndEnabled || copiedObject == null)
+            return;
+
+        Image image = copiedObject.GetComponent<Image>();
+        if (image == null)
+            return;
+
+        Color originalColor = image.color;
+        Color hintColor = buttonHintColor;
+        hintColor.a = originalColor.a;
+        buttonHintTween = image.DOColor(hintColor, Mathf.Max(0.01f, buttonHintFadeDuration))
+            .SetEase(Ease.InOutSine)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetUpdate(true)
+            .SetLink(copiedObject, LinkBehaviour.KillOnDisable)
+            .OnKill(() =>
+            {
+                if (image != null)
+                    image.color = originalColor;
+                buttonHintTween = null;
+            });
+    }
+
+    private void StopButtonHint()
+    {
+        buttonHintTween?.Kill();
+        buttonHintTween = null;
+    }
+
+    private void OnDisable() => StopButtonHint();
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (isCurrentStepSkippable)
+            {
+                GoNextStep();
+            }
+        }
+    }
+
+    private void CopyImage(Image target, Image source)
+    {
+        target.sprite = source.sprite;
+        CopyRectTransform(exampleGraphic.rectTransform, source.rectTransform);
+    }
+
+    public void CopyRectTransform(RectTransform target, RectTransform source)
+    {
+        target.anchorMin = source.anchorMin;
+        target.anchorMax = source.anchorMax;
+        target.pivot = source.pivot;
+
+        target.offsetMin = source.offsetMin;
+        target.offsetMax = source.offsetMax;
+
+        target.localRotation = source.localRotation;
+        target.localScale = source.localScale;
+    }
+
+    public GameObject CopyObjectWithoutButtons(GameObject source, Transform parent = null)
+    {
+        GameObject copy = Instantiate(source, parent);
+        copy.transform.SetAsFirstSibling();
+
+        Button[] buttons = copy.GetComponentsInChildren<Button>(true);
+
+        foreach (Button button in buttons)
+        {
+            Destroy(button);
+        }
+
+        return copy;
+    }
+
+    public void DestroyObjectAfterFade(GameObject obj, float time)
+    {
+        var canvasGroup = obj.GetComponent<CanvasGroup>();
+        DOTween.Sequence()
+                           .Append(canvasGroup.DOFade(0.0f, time))
+                           .AppendCallback(() => Destroy(obj));
+    }
+
+    public void OnClickNext()
+    {
+        GoNextStep();
+    }
+}

@@ -18,7 +18,7 @@ Builds. Loading Battle in a player without a supplied setup reports a setup erro
 5. To test defeat, stop Play, temporarily set **Starting Energy** to `10`, and Play again. One `攻撃` results in defeat after the monster responds. Restore your original setting afterward.
 6. Choose Return on the result screen to load `MainMenu`.
 
-For automatic logic checks, select **Tests > Battle > Run Combat Checks** from Unity's menu. It reports 13 passing cases in the Console or throws the first failing check. These include deferred action effects and response order. It does not change scene or profile data.
+For automatic logic checks, select **Tests > Battle > Run Combat Checks** from Unity's menu. It reports 15 passing cases in the Console or throws the first failing check. These include deferred action effects, response order and unlimited-turn behavior. It does not change scene or profile data.
 
 Edit settings while Play is stopped. The session copies its setup at entry, so Inspector changes during a running battle do not change that session.
 
@@ -33,7 +33,10 @@ the **Editor debug preset** header. The existing Attack/Guard/Recover sample rem
 | Background | Optional sprite stretched across the battle background Image; empty means black |
 | Starting Energy | 桃香's initial Energy and recovery cap |
 | Starting Monster Health | Initial/max monster `体力` |
-| Turn Limit | Starting `残された時間`, in turns |
+| Is Tutorial Battle | Default false; true requires victory and offers only retry after defeat |
+| Tutorial Victory Dialogue Node | Optional Yarn node played automatically after a tutorial win; no victory result screen |
+| Tutorial Return Dialogue Node | Optional follow-up node faded into directly after the victory dialogue, before the final return |
+| Turn Limit | Positive integer limits completed turns; `0` means unlimited (negative values are invalid) |
 | Heroine Skills | The player's buttons: monster damage, Energy cost, Energy recovery, and damage multiplier for the monster's response that turn |
 | Monster Skills | Automatic enemy sequence; cycles in list order. Each skill reduces Energy and adds its physical/pleasure/confusion damage |
 | Portrait Stages | Each threshold fires once, may change the heroine's sprite, and may add remaining turns |
@@ -127,6 +130,70 @@ An empty battle return scene is resolved when `BattleFlow.Setup` is called.
 Assign the enemy data and heroine portrait on TitleManager in the Inspector.
 Only one pending battle setup is allowed. If the flow is abandoned before Battle loads,
 call `BattleFlow.CancelSetup()` to release it; cancellation returns false after consumption.
+
+## Tutorial battles and unlimited turns
+
+Configure these fields before `BattleFlow.Setup` or `BattleFlow.Enter`:
+
+```csharp
+setup.IsTutorialBattle = true;
+setup.turnLimit = 0; // Unlimited turns. Positive integers enforce a finite limit.
+setup.tutorialVictoryDialogueNode = "Prologue_2";
+setup.tutorialReturnDialogueNode = "Tutorial_Start";
+setup.returnSceneName = "MainMenu";
+BattleFlow.Setup(setup, result =>
+{
+    // Runs once after the accepted final victory and return-scene load.
+});
+```
+
+TitleManager's prologue fight uses **IsTutorialBattle = true** and **turnLimit = 0**. Tutorial
+victory skips the result window after its action presentation has finished and automatically follows:
+
+**Battle victory → Dialogue: Prologue_2 → fade → Dialogue: Tutorial_Start → MainMenu → on-screen tutorial.**
+
+The setup stores **Tutorial Victory Dialogue Node = Prologue_2**, **Tutorial Return Dialogue Node =
+Tutorial_Start**, and **Return Scene Name = MainMenu**. MainMenu's existing on-screen tutorial waits
+for the dialogue flow and scene transition to finish, then starts only if its profile flag is unset.
+BattleFlow requests `returnBetweenNodes: false`: only Dialogue reloads underneath the existing
+black scene-transition fade between the two Nodes, so MainMenu is never loaded/exposed there.
+The two Yarn Nodes already exist in the generated source; no dialogue content was changed.
+The original Prologue-before-Battle entry, skills, combat values and saved Editor preset are retained.
+For a tutorial without a configured victory node, a win skips results and loads its normal return scene.
+
+A tutorial defeat reuses the existing result window and one retry button. The message uses
+**Battle.RetryPrompt** and the button uses **Battle.Retry**, using the existing user-supplied CSV
+entries. The original normal-result caption and its Inspector localization ID are retained.
+Confirming retry creates a fresh session from the original setup without reloading the scene,
+replaying Dialogue, recreating skill buttons, invoking completion or publishing a failed LastResult.
+Energy, enemy HP, damage totals, portrait stages, skill order, turn state, report and gauges reset.
+Failed attempts do not reach the caller's reward/status-save callback. Only the final accepted
+victory uses the configured continuation and completion callback. The callback retains its existing
+return-scene semantics: with this chain it runs once on the only MainMenu entry, after Tutorial_Start.
+Normal battles (`false`) retain the result screen and
+their usual win/loss return behavior. Duplicate exit calls cannot replay the continuation.
+
+With **turnLimit = 0**, no turn countdown or timeout is active. The remaining-turn label is hidden,
+results omit remaining time, and portrait-stage turn bonuses do not activate a limit. Portrait
+changes and other stage effects still occur. TurnsUsed still counts actions and advances the enemy
+skill sequence; TurnsRemaining and reported remaining turns stay zero. HP/Energy victory/defeat
+conditions remain active, so the battle can continue indefinitely until one side is defeated.
+Positive limits retain existing rules, including player victory when the monster retreats at timeout.
+
+Verification: runtime/Editor and non-Editor source compilation, **51 headless tutorial retry/flow/UI
+checks** and **15 production combat cases** pass (66 total). These cover repeated failures then a
+win, original-setup resets, callback/result isolation, presentation waits, normal finite battles,
+localized retry labels and unlimited stages/end conditions. The retry label uses the original
+font/style and button bounds; no scene or artwork was changed. Live Play Mode remains unverified
+because no Unity MCP tools are exposed. Verification files: ignored
+`Library/BattleTutorialRetryVerification`.
+
+Victory-chain verification: runtime/Editor and non-Editor source compilation pass, plus **21 battle
+continuation checks**, **89 dialogue/menu orchestration checks**, and **15 combat cases** (125 total).
+Coverage includes automatic victory, loss/retry preservation, delayed or busy scene handoffs,
+normal results, both dialogue nodes and MainMenu tutorial ordering, duplicate prevention,
+continuation validation, cancellation and unrelated scene takeovers. Scene/artwork/Yarn contents
+are preserved. Live Play Mode remains unverified. Checks: `Library/BattleTutorialVictoryVerification`.
 
 ## Background setup
 

@@ -53,48 +53,68 @@ title: Prologue
 街中にけたたましくサイレンが鳴り響く
 <<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLmsrvlronntq3mjIHpg6jpmorpmorlk6EiLCJDaF9Qb2xpY2UiLCIwLjgzIiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuayu+Wuiee2reaMgemDqOmaiumaiuWToSIsIkNoX1BvbGljZSIsIjAuNSIsIjAuNSIsImZhbHNlIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLmsrvlronntq3mjIHpg6jpmorpmorlk6EiLCJDaF9Qb2xpY2UiLCIwLjUiLCIwLjUiLCJmYWxzZSJdfV19">>
 治安維持部隊隊員: 「中央地区にヴェノマータの戦闘員が襲撃中！至急応援を要請する！」
-<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLmiKbpl5jlk6EiLCJDaF9Bcm15X01hbGUiLCIwLjEyIiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjIxIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJtb3ZlIiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOhIiwiMC45MyIsImluc3RhbnQiXX1dfQ==">>
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLmiKbpl5jlk6EiLCJDaF9Bcm15X01hbGUiLCIwLjEyIiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjIxIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJtb3ZlIiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOhIiwiMC45MSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuayu+Wuiee2reaMgemDqOmaiumaiuWToe+8kyIsIkNoX1BvbGljZV8zIiwiMS4xNCIsIjAuNSIsImZhbHNlIiwia2VlcCIsIjEuMjEiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJIiLCJDaF9Qb2xpY2VfMiIsIjAuNjkiLCIwLjUiLCJmYWxzZSIsImtlZXAiLCIxLjIxIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJvcmRlciIsIuayu+Wuiee2reaMgemDqOmaiumaiuWToe+8kiIsIjEiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsib3JkZXIiLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJMiLCIxIl19XX0=">>
 戦闘員: 「フシュ～！ギギッ！ギギギギッ！！」
-治安維持部隊隊員: 「くそっ、一体一体がつええのに、倒しても倒しても沸いて出てきやがるっ！」
+治安維持部隊隊員２: 「くそっ、一体一体がつええのに、倒しても倒しても沸いて出てきやがるっ！」
 治安維持部隊隊員: 「動揺するな！私たちは訓練を受けた精鋭部隊だ！冷静に戦えば勝てない相手ではない！」
-<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLmiKbpl5jlk6EiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIu+8n++8n++8nyIsIkNoX1J1bmFfVEZfZGVmYXVsdCIsIjAuMTIiLCIwLjUiLCJ0cnVlIiwia2VlcCIsIjEuMjEiLCJpbnN0YW50Il19XX0=">>
+戦闘員: 「ギギギッ！ギチギチッ…！」 #line:1c11e8ba1048413d99ceb276061203fb
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLmiKbpl5jlk6EiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIu+8n++8n++8nyIsIkNoX1J1bmFfVEZfZGVmYXVsdCIsIjAuMTIiLCIwLjUiLCJ0cnVlIiwia2VlcCIsIjEuMjEiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLvvJ/vvJ/vvJ8iLCJibGFjayIsImluc3RhbnQiXX1dfQ==">>
 ？？？: 「あはは～？今日は雑魚が沢山出てきてるねえ～？」
 <<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJDaF9SdW5hX1RGX2RlZmF1bHQiLCIwLjEyIiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjIxIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJoaWRlIiwi77yf77yf77yfIiwiMC41Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImZhY2UiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJDaF9SdW5hX1RGX1ByZWFzdXJlIiwiaW5zdGFudCJdfV19">>
 ミノカサゴ怪人: 「どうも～、みんなの心に激毒注射！ミノカサゴ怪人こと、マジカル・ルナルンでーす！」
-治安維持部隊隊員: 「ひいいっ！か、怪人だっ！ヴェノマータの怪人が出たっ！」
-治安維持部隊隊員: 「退却！一時退却しますっ！」
+治安維持部隊隊員２: 「ひいいっ！か、怪人だっ！ヴェノマータの怪人が出たっ！」
+治安維持部隊隊員３: 「退却！一時退却しますっ！」
 何人かの隊員たちが武器を放棄して逃走し始める
 治安維持部隊隊員: 「お、おいっ！貴様らっ！職務を放棄して逃げるなっ！」
 ミノカサゴ怪人: 「今日もみんなにルナルンの強い所みせちゃうよ～！え～い！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImZsYXNoIiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOhIiwiI2ZmM2QzZCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmbGFzaCIsIuayu+Wuiee2reaMgemDqOmaiumaiuWToe+8kiIsIiNmYzRhNGEiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiZmxhc2giLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJMiLCIjZmY1NzU3Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNoYWtlIiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOhIiwiMiJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaGFrZSIsIuayu+Wuiee2reaMgemDqOmaiumaiuWToe+8kiIsIjIiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hha2UiLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJMiLCIyIl19XX0=">>
 ザンッ！ザンッ！ザザザンッ！！
 治安維持部隊隊員: 「「うわあああっ！？」」
 怪人の姿が見えなくなったと思うと、いたるところで血しぶきが上がる
-ミノカサゴ怪人: 「いぇーい！５キルコンボ！今日もルナルンは大活躍なのでした～！！」
-<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCIwLjI4IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44K144K944Oq5oCq5Lq6IiwiQ2hfU2NvcnBpb24iLCIwIiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjMxIiwiaW5zdGFudCJdfV19">>
+ミノカサゴ怪人: 「いぇーい！５キルコンボ！今日もルナは大活躍なのでした～！！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCIwLjI4IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44K144K944Oq5oCq5Lq6IiwiQ2hfU2NvcnBpb24iLCIwIiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjMxIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJ0aW50Iiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOh77yTIiwiYmxhY2siLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJMiLCJ3aGl0ZSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsidGludCIsIuOCteOCveODquaAquS6uiIsImJsYWNrIiwiaW5zdGFudCJdfV19">>
 ？？？: 「あまりやりすぎるなよ。ボスの命令は素体になりそうな人間を捕獲する事なのだからナ」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm9yZGVyIiwi44Of44OO44Kr44K144K05oCq5Lq6IiwiMCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJvcmRlciIsIuODn+ODjuOCq+OCteOCtOaAquS6uiIsIjAiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsib3JkZXIiLCLjgrXjgr3jg6rmgKrkuroiLCIxIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImZhY2UiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJDaF9SdW5hX1RGX2RlZmF1bHQiLCJpbnN0YW50Il19XX0=">>
 ミノカサゴ怪人: 「わかってるって～。これでもちゃんと死なない様に手加減したんだから～」
-治安維持部隊隊員: 「ひいっ、なんだあのでかいの！？まさか…怪人がもう一体！？」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm9yZGVyIiwi44Of44OO44Kr44K144K05oCq5Lq6IiwiMCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJvcmRlciIsIuOCteOCveODquaAquS6uiIsIjEiXX1dfQ==">>
+治安維持部隊隊員２: 「ひいっ、なんだあのでかいの！？まさか…怪人がもう一体！？」
 治安維持部隊隊員: 「ひるむな！貴様ら、怪人に集中攻撃だ！！」
+<<char "order" "サソリ怪人" 0>>
 ダッ、ダダダダダダダンッ！
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLjgrXjgr3jg6rmgKrkuroiLCJ3aGl0ZSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hha2UiLCLjgrXjgr3jg6rmgKrkuroiLCIxIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNoYWtlIiwi44K144K944Oq5oCq5Lq6IiwiMSJdfV19">>
 ？？？: 「フンッ！きかんワッ！」
-治安維持部隊隊員: 「うわああっ！！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImZsYXNoIiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOh77ySIiwiI2ZmNTI1MiJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaGFrZSIsIuayu+Wuiee2reaMgemDqOmaiumaiuWToe+8kiIsIjIiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiZmxhc2giLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJMiLCIjZmY0NzQ3Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNoYWtlIiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOh77yTIiwiMiJdfV19">>
+治安維持部隊隊員２: 「うわああっ！！」
 サソリ怪人の尻尾の一振りだけで銃弾ははじき返され隊員たちが吹き飛ばされる
 サソリ怪人: 「オレはサソリ怪人、貴様らの貧弱な装備では傷一つ付けられはセン！」
-治安維持部隊隊員: 「ひいっ！だ、ダメです！我々だけでは歯が立ちません！せめて戦車部隊の投入を！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm9yZGVyIiwi44Of44OO44Kr44K144K05oCq5Lq6IiwiMCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJvcmRlciIsIuOCteOCveODquaAquS6uiIsIjEiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsib3JkZXIiLCLjgrXjgr3jg6rmgKrkuroiLCIwIl19XX0=">>
+治安維持部隊隊員２: 「ひいっ！だ、ダメです！我々だけでは歯が立ちません！せめて戦車部隊の投入を！」
 治安維持部隊隊員: 「くそっ…！総員、一時撤退だ！」
-治安維持部隊隊員: 「ま、まってください！戦闘員が周囲に…！囲まれています！」
+治安維持部隊隊員３: 「ま、まってください！戦闘員が周囲に…！囲まれています！」
 戦闘員: 「「「フシューッ！ギチチッ！ギチチッ！」」」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImZhY2UiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJDaF9SdW5hX1RGX1ByZWFzdXJlIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJvcmRlciIsIuOCteOCveODquaAquS6uiIsIjEiXX1dfQ==">>
 ミノカサゴ怪人: 「あははっ！武器持った大の大人達がなさけな～い」
 サソリ怪人: 「フンッ、こいつらも戦闘員に改造すれば少しは役に立つだろう」
+ミノカサゴ怪人: 「アハハッ！じゃあそろそろこの辺ぶっ壊して、こいつら連れ帰っちゃおうか！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIuayu+Wuiee2reaMgemDqOmaiumaiuWToSIsIjAuNSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJoaWRlIiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOh77yTIiwiMC41Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJIiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIuOCteOCveODquaAquS6uiIsIjAuNSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi5rK75a6J57at5oyB6YOo6ZqK6ZqK5ZOh77ySIiwiQ2hfVG9rYV9Cb2R5X1RGIiwiMC41IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44OU44Ol44Ki44OX44Oq44OU44O844OBIiwiQ2hfVG9rYV9Cb2R5X1RGIiwiMC41IiwiMC41IiwiZmFsc2UiXX1dfQ==">>
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLmsrvlronntq3mjIHpg6jpmorpmorlk6HvvJIiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2NhbGUiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCIxLjIxIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmYWNlIiwi44OU44Ol44Ki44OX44Oq44OU44O844OBIiwiQ2hfVG9rYV9GYWNlX2RlZmF1bHQiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLnmb3ltI7moYPpppkiLCJDaF9Ub2thX0JvZHlfQ2FzdWFsIiwiMC41IiwiMC41IiwiZmFsc2UiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfRmFjZV9kZWZhdWx0IiwiMC41IiwiMC41IiwiZmFsc2UiXX1dfQ==">>
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLnmb3ltI7moYPpppkiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuODlOODpeOCouODl+ODquODlOODvOODgSIsIkNoX1Rva2FfQm9keV9URiIsIjAuNSIsIjAuNSIsImZhbHNlIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCJibGFjayIsImluc3RhbnQiXX1dfQ==">>
 ？？？: 「そこまでよ！ヴェノムの怪人！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCIwLjI5IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44OU44Ol44Ki44OX44Oq44Of44Oz44OIIiwiQ2hfS2FlZGVfVEZfZGVmYXVsdCIsIjAuNzYiLCIwLjUiLCJ0cnVlIiwia2VlcCIsIjEuMjEiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCJibGFjayIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsidGludCIsIuODlOODpeOCouODl+ODquODn+ODs+ODiCIsImJsYWNrIiwiaW5zdGFudCJdfV19">>
 ？？？: 「この街で悪事は見逃せません！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5Tjg6XjgqLjg6vjg7MiLCJDaF9QdXJlcnVuX2FuZ3J5IiwiMC41IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJ0aW50Iiwi44OU44Ol44Ki44Or44OzIiwiYmxhY2siLCJpbnN0YW50Il19XX0=">>
 ？？？: 「ルンッ！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCJ3aGl0ZSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiZmFjZSIsIuODlOODpeOCouODl+ODquODlOODvOODgSIsIkNoX1Rva2FfRmFjZV9kZWZhdWx0IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmYWNlIiwi44OU44Ol44Ki44OX44Oq44OU44O844OBIiwiQ2hfVG9rYV9Cb2R5X1RGIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmYWNlIiwi44OU44Ol44Ki44OX44Oq44OU44O844OBIiwiQ2hfVG9rYV9GYWNlX2FuZ3J5IiwiaW5zdGFudCJdfV19">>
 ピュアプリピーチ: 「甘い香りが悪事を裁く…」
 ピュアプリピーチ: 「聖香天使ピュアプリピーチ！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLjg5Tjg6XjgqLjg5fjg6rjg5/jg7Pjg4giLCJ3aGl0ZSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsidGludCIsIuODlOODpeOCouODl+ODquODlOODvOODgSIsImdyYXkiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInRpbnQiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCIjOGQ3YzdjIiwiaW5zdGFudCJdfV19">>
 ピュアプリミント: 「アロマな香りが世界を癒す…」
 ピュアプリミント: 「聖香天使ピュアプリミント！」
+<<char "tint" "ピュアルン" "white" "instant">>
 ピュアルン: 「果実の妖精ピュアルンだルン！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCIwLjc0IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmbGlwIiwi44OU44Ol44Ki44OX44Oq44Of44Oz44OIIiwiZmFsc2UiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsibW92ZSIsIuODlOODpeOCouODl+ODquODn+ODs+ODiCIsIjEuMTUiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLjg5Tjg6XjgqLjg6vjg7MiLCIwLjk0IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJvcmRlciIsIuODlOODpeOCouODl+ODquODlOODvOODgSIsIjEiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsib3JkZXIiLCLjg5Tjg6XjgqLjg5fjg6rjg5/jg7Pjg4giLCIyIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJDaF9SdW5hX1RGX2RlZmF1bHQiLCIwLjUiLCIwLjUiLCJmYWxzZSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44Of44OO44Kr44K144K05oCq5Lq6IiwiQ2hfUnVuYV9URl9hbmdyeSIsIjAuMjIiLCIwLjUiLCJ0cnVlIiwia2VlcCIsIjEuMjEiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjgrXjgr3jg6rmgKrkuroiLCJDaF9TY29ycGlvbiIsIi0wLjA0IiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjMxIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJvcmRlciIsIuOCteOCveODquaAquS6uiIsIjMiXX1dfQ==">>
 ミノカサゴ怪人: 「あ゛ああ！また出てきたぁ！！」
+<<char "tint" "ピュアプリピーチ" "white" "instant">>
 ピュアプリピーチ: 「まったく…、この前あんなにやられたっていうのに…懲りないのね」
 サソリ怪人: 「フンッ！今日はこの前とは鍛え方が違うぞッ！」
 ミノカサゴ怪人: 「いつも邪魔ばっかりして！今日は前みたいにはいかないからぁ！」
@@ -103,6 +123,7 @@ title: Prologue
 
 title: Prologue_2
 ---
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImNsZWFyIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJCR19DaXR5X05pZ2h0X0RhbmdlciIsImluc3RhbnQiLCJibGFjayJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44OU44Ol44Ki44OX44Oq44OU44O844OBIiwiQ2hfVG9rYV9GYWNlX2FuZ3J5IiwiMC43NCIsImluc3RhbnQiLCJmYWxzZSIsIjEiLCIxLjIxIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5Tjg6XjgqLjg5fjg6rjg5/jg7Pjg4giLCJDaF9LYWVkZV9URl9kZWZhdWx0IiwiMS4xNSIsImluc3RhbnQiLCJmYWxzZSIsIjIiLCIxLjIxIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5Tjg6XjgqLjg6vjg7MiLCJDaF9QdXJlcnVuX2FuZ3J5IiwiMC45NCIsImluc3RhbnQiLCJmYWxzZSIsIjAiLCIxLjIxIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJDaF9SdW5hX1RGX2FuZ3J5IiwiMC4yMiIsImluc3RhbnQiLCJ0cnVlIiwiMCIsIjEuMjEiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuOCteOCveODquaAquS6uiIsIkNoX1Njb3JwaW9uIiwiLTAuMDQiLCJpbnN0YW50IiwidHJ1ZSIsIjMiLCIxLjMxIl19LHsia2luZCI6ImJnbSIsImFyZ3MiOlsidm9sdW1lIiwiMSJdfSx7ImtpbmQiOiJiZ20iLCJhcmdzIjpbInN0b3AiLCJpbnN0YW50Il19XX0=">>
 ミノカサゴ怪人: 「あううっ…！サソリも戦闘員も何やってるのっ！もうっ！役に立たないんだからぁ！」
 ミノカサゴ怪人: 「っ！、あれっ？、体っ、うごかな…っ？」
 サソリ怪人: 「クソッ！俺もダッ！体から力が抜ける…！」
@@ -110,50 +131,73 @@ title: Prologue_2
 ピュアプリミント: 「今ですピーチちゃん！」
 ピュアルン: 「ピーチ、決めるルン！」
 ピュアプリピーチ: 「ありがとっ！任せてミント、ピュアルン！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjg5Tjg6XjgqLjg6vjg7MiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIuODn+ODjuOCq+OCteOCtOaAquS6uiIsIjAuNSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJoaWRlIiwi44OU44Ol44Ki44OX44Oq44OU44O844OBIiwiMC41Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjgrXjgr3jg6rmgKrkuroiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIuODlOODpeOCouODl+ODquODn+ODs+ODiCIsIjAuNSJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJDR19UdXRvcmlhbF8zIiwiaW5zdGFudCIsImJsYWNrIl19XX0=">>
 ピュアプリピーチ: 「甘き天空の果実よ…私に力を！桃の香りに包まれて、おうちに帰って反省しなさい！」
 ピュアプリピーチ: 「ピュアプリ・アロマティックメテオストーム！！」
 ドゴオオオオオオオッッッ！！
 街中がピンク色の光に包まれたと思うと、夜空から降り注ぐ桃色の光の柱が怪人達へと降り注ぐ
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkJHX0NpdHlfTmlnaHRfRGFuZ2VyIiwiaW5zdGFudCIsImJsYWNrIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjgrXjgr3jg6rmgKrkuroiLCJDaF9TY29ycGlvbiIsIjAuNSIsIjAuNSIsInRydWUiLCJrZWVwIiwiMS4zMSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmbGFzaCIsIuOCteOCveODquaAquS6uiIsIiNmZTdjZWMiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hha2UiLCLjgrXjgr3jg6rmgKrkuroiLCIzIl19XX0=">>
 サソリ怪人: 「グウウウッ！グオオッ！？」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjgrXjgr3jg6rmgKrkuroiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuODn+ODjuOCq+OCteOCtOaAquS6uiIsIkNoX1J1bmFfVEZfZGVmYXVsdCIsIjAuNSIsIjAuNSIsInRydWUiLCJrZWVwIiwiMS4yMSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmYWNlIiwi44Of44OO44Kr44K144K05oCq5Lq6IiwiQ2hfUnVuYV9URl9zaG9ja2VkIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJ0aW50Iiwi44Of44OO44Kr44K144K05oCq5Lq6IiwiI2Y0NjJmZSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsidGludCIsIuODn+ODjuOCq+OCteOCtOaAquS6uiIsIiNmZmZmZmYiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImZsYXNoIiwi44Of44OO44Kr44K144K05oCq5Lq6IiwiI2ZiNThmZSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmbGFzaCIsIuODn+ODjuOCq+OCteOCtOaAquS6uiIsIiNmZTdjZWMiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hha2UiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCIzIl19XX0=">>
 ミノカサゴ怪人: 「きゃあっ！？ちょ、なにっ？！」
 ピュアプリピーチの攻撃により、戦闘員たちは次々と吹き飛ばされていく
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuODlOODpeOCouODl+ODquODlOODvOODgSIsIkNoX1Rva2FfQm9keV9URiIsIjAuNSIsIjAuNSIsImZhbHNlIiwia2VlcCIsIjEuMjEiXX1dfQ==">>
 ピュアプリピーチ: 「……ふうっ、まだやる気かしら？」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuOCteOCveODquaAquS6uiIsIkNoX1Njb3JwaW9uIiwiMC41IiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjMxIl19XX0=">>
 サソリ怪人: 「クソッ！今日は撤退だ！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJDaF9SdW5hX1RGX2FuZ3J5IiwiMC41IiwiMC41IiwiZmFsc2UiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIuOCteOCveODquaAquS6uiIsIjAuNSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzY2FsZSIsIuODn+ODjuOCq+OCteOCtOaAquS6uiIsIjEuMjEiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImZsaXAiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCJ0cnVlIl19XX0=">>
 ミノカサゴ怪人: 「ああっ！…もうっ！今日はこのくらいにしておいてやるんだから！」
 ヴェノムの怪人と戦闘員は散り散りになって逃げていくのだった
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkJHX0FybXlyb29tIiwiaW5zdGFudCIsImJsYWNrIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjg5/jg47jgqvjgrXjgrTmgKrkuroiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuWlpeauv+ODhuODiOODqSIsIkNoX1RldG9yYV9jb2F0X2RlZmF1bHQiLCIwLjk0IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuaCquOBruWkp+mmlumgmCIsIkNoX0Jvc3MiLCIwLjA0IiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjIxIiwiaW5zdGFudCJdfV19">>
 奥殿テトラ: 「ご、御覧の通りです…」
 奥殿テトラ: 「奴らは３か月ほど前から現れた“聖香天使ピュアプリハーツ”です！」
 奥殿テトラ: 「我々の計画が順調だったのもつかの間…」
 奥殿テトラ: 「私たちの野望のためにはあの邪魔な女二人をどうにかしないといけません…」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLmgqrjga7lpKfpppbpoJgiLCIwIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJtb3ZlIiwi5aWl5q6/44OG44OI44OpIiwiMSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuODlOODpeOCouODl+ODquODlOODvOODgSIsIkNoX1Rva2FfaG9sb2dyYW1fYW5ncnkiLCIwLjUiLCIwLjUiLCJmYWxzZSIsImtlZXAiLCIxLjIxIl19LHsia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkJHX0FybXlyb29tX0hvbG9ncmFtX1Rva2EiLCJpbnN0YW50IiwiYmxhY2siXX1dfQ==">>
+<<char "hide" "ピュアプリピーチ" 0.5>>
 奥殿テトラ: 「特に…問題はピンク色の方！ピュアプリピーチです！」
 奥殿テトラ: 「あの異常な戦闘力の前には最上位怪人が束でかかってもまるで相手にならず…」
 奥殿テトラ: 「そ、そこで！我らが大首領様が偉大なる計画を建てられたのです！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImZhY2UiLCLlpaXmrr/jg4bjg4jjg6kiLCJDaF9UZXRvcmFfY29hdF9hc2hhbWVkIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmYWNlIiwi5aWl5q6/44OG44OI44OpIiwiQ2hfVGV0b3JhX2NvYXRfZGVmYXVsdCIsImluc3RhbnQiXX1dfQ==">>
 奥殿テトラ: 「題して……“ピュアプリピーチ催眠怪人化計画”です！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLlpaXmrr/jg4bjg4jjg6kiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIuaCquOBruWkp+mmlumgmCIsIjAuNSJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJCR19TdGF0aW9uIiwiaW5zdGFudCIsImJsYWNrIl19XX0=">>
 数日後、駅にて―――
+<<char "show" "白崎桃香" "Ch_Toka_Body_Casual" 0.5 0.5 false>>
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLnmb3ltI7moYPpppkiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfQm9keV9DYXN1YWwiLCIwLjUiLCIwLjUiLCJmYWxzZSJdfV19">>
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLnmb3ltI7moYPpppkiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfQm9keV9DYXN1YWwiLCIwLjUiLCIwLjUiLCJmYWxzZSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmYWNlIiwi55m95bSO5qGD6aaZIiwiQ2hfVG9rYV9GYWNlX2RlZmF1bHQiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLnmb3ltI7moYPpppkiLCIwLjg4IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzY2FsZSIsIueZveW0juahg+mmmSIsIjEuMjEiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLlrq7mo67mpZMiLCJDaF9LYWVkZV9URl9kZWZhdWx0IiwiMC41IiwiMC41IiwiZmFsc2UiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuWuruajrualkyIsIkNoX0thZWRlX0Nhc3VhbF9EZWZhdWx0IiwiMC4xNCIsIjAuNSIsInRydWUiLCJrZWVwIiwiMS4yMSIsImluc3RhbnQiXX1dfQ==">>
 宮森楓: 「ごめんなさい…長期休暇中にどうしても外せない海外の予定ができてしまって…」
 宮森楓: 「私がいない間…この街は桃香ちゃん一人に任せる事になりますが…」
 宮森楓: 「…うん、桃香ちゃんなら心配いらないですね」
-白崎桃香: 「ええ、任せといて。私一人でもこの町の平和は守ってみせるから、それにピュアルンもいるしね」
+白崎桃香: 「ええ、任せといて。私一人でもこの町の平和は守ってみせるから…
+それに、ピュアルンもいるしね」
 「…そうですね…桃香ちゃんはとても強いですから。すこし寂しがり屋さんですけど」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImZhY2UiLCLnmb3ltI7moYPpppkiLCJDaF9Ub2thX0ZhY2VfZmxhdHRlciIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiZmFjZSIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfRmFjZV9hbmdyeSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiZmFjZSIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfRmFjZV9kZWZhdWx0IiwiaW5zdGFudCJdfV19">>
 白崎桃香: 「うっ、寂しがり屋っていうのは一言余計だけど…でもありがとう」
 白崎桃香: 「楓も…安心して行ってきて！」
 宮森楓: 「ええ、今度会ったときはまた二人で沢山お話しましょうね！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLlrq7mo67mpZMiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsibW92ZSIsIueZveW0juahg+mmmSIsIjAuNSIsImluc3RhbnQiXX1dfQ==">>
 白崎桃香: 「……行っちゃった」
 白崎桃香: 「正直…やっぱり一人だと少し心細いけど…」
 白崎桃香: 「私はヴェノムの怪人からこの街を守る…！楓と約束したんだから」
-白崎桃香: 「それが廻生天使ピュアプリピーチの使命…頑張らないと！」
+白崎桃香: 「それがピュアプリピーチの使命なんだから…頑張らないと！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5Tjg6XjgqLjg6vjg7MiLCJDaF9QdXJlcnVuX2RlZmF1bHQiLCIwLjE4IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsibW92ZSIsIueZveW0juahg+mmmSIsIjAuNzQiLCJpbnN0YW50Il19XX0=">>
 ピュアルン: 「大変だプリ！中央地区に怪人が出たプリ！」
 白崎桃香: 「はあ、噂をすれば…」
 白崎桃香: 「いくよ！ピュアルン！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjg5Tjg6XjgqLjg6vjg7MiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIueZveW0juahg+mmmSIsIjAuNSJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJDR19UdXRvcmlhbF8zIiwiaW5zdGFudCIsImJsYWNrIl19XX0=">>
 白崎桃香: 「ピュアプリ・アロマティックエクスプロージョン！」
 ドゴオオオオンッ！
+桃香の攻撃により、いつものように怪人と戦闘員達は撃退される #line:744d2918e9c44ed4a6e6924f22649e5b
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkJHX0NpdHlfTmlnaHQiLCJpbnN0YW50IiwiYmxhY2siXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfQm9keV9URiIsIjAuNSIsIjAuNSIsImZhbHNlIiwia2VlcCIsIjEuMjEiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiZmFjZSIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfRmFjZV9kZWZhdWx0IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi55m95bSO5qGD6aaZIiwiQ2hfVG9rYV9Cb2R5X1RGIiwiMC41IiwiMC41IiwiZmFsc2UiXX1dfQ==">>
 白崎桃香: 「ふう…何回来たって同じなんだから…」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLnmb3ltI7moYPpppkiLCIwLjg4IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi77yf77yf77yfIiwiQ2hfTWFuIiwiMC4xIiwiMC41IiwidHJ1ZSIsImtlZXAiLCIxLjIxIiwiaW5zdGFudCJdfV19">>
 白崎桃香: 「あっ、大丈夫でしたか？」
 ？？？: 「…すみません、助かりました」
 白崎桃香: 「よかった…、どこにも怪我はないみたいですね」
-？？？: 「お礼がしたい、よかったらこれを見てくれないでしょうか」
-白崎桃香: 「ごめんなさい、私急いでるのでッ――――」
+？？？: 「お礼がしたい、よければこれを見てくれないか？」
+白崎桃香: 「ごめんなさい、私急いでるので――――」
 -> 「……“直立姿勢で待機しろ”」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLvvJ/vvJ/vvJ8iLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIueZveW0juahg+mmmSIsIjAuNSJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJDR19UdXRvcmlhbF80IiwiaW5zdGFudCIsImJsYWNrIl19XX0=">>
 ピカッ！！
 その瞬間、男の持っていた電子機器が発行し、不気味なピンク色の光が一面を照らす
 白崎桃香: 「――――ッ！！？！？」
@@ -161,13 +205,17 @@ title: Prologue_2
 ピュアプリピーチの体が石のように硬直し、地面に堕ちたステッキが無機質な音を響かせる
 ピュアプリピーチ: 「――――あうっ…、え、あえっ…？」
 ピュアプリピーチ: 「―――ほっ、おっ、え…？な……？」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkJHX0NpdHlfTmlnaHQiLCJpbnN0YW50IiwiYmxhY2siXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIu+8n++8n++8nyIsIkNoX01hbiIsIjAiLCIwLjUiLCJ0cnVlIiwia2VlcCIsIjEuMjEiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5Tjg6XjgqLjg5fjg6rjg5Tjg7zjg4EiLCJDaF9Ub2thX0JvZHlfVEYiLCIwLjk0IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuODlOODpeOCouODq+ODsyIsIkNoX1B1cmVydW5fZGVmYXVsdCIsIjAuNSIsIjAuNSIsImZhbHNlIiwia2VlcCIsIjEuMjEiXX1dfQ==">>
 ピュアルン: 「どうしたんだルン！？しっかりするルン！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLvvJ/vvJ/vvJ8iLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuWlpeauv+ODhuODiOODqSIsIkNoX1RldG9yYV9jb2F0X2RlZmF1bHQiLCIwIiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSIsImluc3RhbnQiXX1dfQ==">>
 奥殿テトラ: 「うへへっ！今ですっ！」
+<<char "face" "ピュアルン" "Ch_Purerun_ball" "instant">>
 ピュアプリピーチの混乱の隙に、物陰に隠れていたテトラが透明な球体の檻にピュアルンを閉じ込める
 ピュアルン: 「なにするルンッ！？」
 ピュアルン: (出れないルン！？ピーチ！気を付けるルン！)
 奥殿テトラ: 「えへへぇ、無駄ですよぉ…、ピーチの必殺技でも壊れない素材でつくってますからねぇ…」
 奥殿テトラ: 「えへっ、幹部様、やっちゃってください！」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLjg5Tjg6XjgqLjg6vjg7MiLCIwLjUiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiaGlkZSIsIuODlOODpeOCouODl+ODquODlOODvOODgSIsIjAuNSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJoaWRlIiwi5aWl5q6/44OG44OI44OpIiwiMC41Il19LHsia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkNHX1R1dG9yaWFsXzQiLCJpbnN0YW50IiwiYmxhY2siXX1dfQ==">>
 -> 「……お前がピュアプリピーチだな？」
 ピュアプリピーチ: 「……はい、…そう…です。私が……ピュアプリピーチです。」
 -> 「……“個人情報を話せ”」
@@ -175,7 +223,8 @@ title: Prologue_2
 ピュアプリピーチ: 「……身長は163㎝……。体重は……54㎏……バストサイズは……Gカップで…」
 ピュアプリピーチ: 「半年前から…ピュアルンと契約して…ピュアプリピーチとして戦っています…」
 大幹部: 「……よし、いいだろう」
-そして機械で作られた偽物のピュアルンをピーチへと見せる。
+<<char "show" "？？？" "Ch_Purerun_meka" 0.5 0.5 false "keep" 1.21>>
+男は機械で作られた偽物のピュアルンをピーチへと見せる。
 大幹部: 「これがお前がいつも連れているピュアルンとやらだな？」
 ピュアプリピーチ: 「……いえ……ちがいます。…これは……ピュアルンじゃ…」
 大幹部: 「そうか…だが“お前はこれからこれをピュアルンだと認識する”」
@@ -184,25 +233,38 @@ title: Prologue_2
 ピュアプリピーチ: 「……はい、私は今起きたことをすべて忘れました」
 ピュアプリピーチ: 「…ピュアルンがすり替えられたことにも…気が付いていません」
 大幹部: 「……よし、いいだろう」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLvvJ/vvJ/vvJ8iLCIwLjUiXX0seyJraW5kIjoiYmFja2dyb3VuZCIsImFyZ3MiOlsiQkdfQ2l0eV9OaWdodCIsImluc3RhbnQiLCJibGFjayJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi5aWl5q6/44OG44OI44OpIiwiQ2hfVGV0b3JhX2NvYXRfZGVmYXVsdCIsIjAuNSIsIjAuNSIsImZhbHNlIiwia2VlcCIsIjEuMjEiXX1dfQ==">>
 奥殿テトラ: 「きひひっ、流石です大幹部様っ…！う、うまくいきましたっ！」
 奥殿テトラ: 「これでピュアプリピーチは我々の手のひらの上です！」
-<<background "BG_Room_Initial_Night">>
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkJHX1Jvb21fSW5pdGlhbF9OaWdodCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJoaWRlIiwi5aWl5q6/44OG44OI44OpIiwiMC41Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLnmb3ltI7moYPpppkiLCJDaF9Ub2thX0JvZHlfQ2FzdWFsIiwiMC41IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJmYWNlIiwi55m95bSO5qGD6aaZIiwiQ2hfVG9rYV9GYWNlX2RlZmF1bHQiLCJpbnN0YW50Il19XX0=">>
 白崎桃香: 「………んう？」
-桃香は自室で目が覚める
 白崎桃香: 「あれ…私…ぼーっとしちゃってた？」
 白崎桃香: 「頭がくらくらするし…なんか変な感じ…」
-白崎桃香: 「…もう夜…寝なくちゃ…おやすみ、ピュアルン」
+白崎桃香: 「…あれもうこんな時間…寝なくちゃ…」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLnmb3ltI7moYPpppkiLCIwLjg4IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44OU44Ol44Ki44Or44OzIiwiQ2hfUHVyZXJ1bl9tZWthIiwiMC4xNyIsIjAuNSIsImZhbHNlIiwiMCIsIjEuMjEiLCJpbnN0YW50Il19XX0=">>
+白崎桃香: 「……おやすみ、ピュアルン…」 #line:369383f557ba4126abf371ecb5845c2d
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbIm1vdmUiLCLjg5Tjg6XjgqLjg6vjg7MiLCIwLjUiLCJpbnN0YW50Il19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbImhpZGUiLCLnmb3ltI7moYPpppkiLCIwLjUiXX1dfQ==">>
+ピュアルン: 「……………………」 #line:1dd6686e4c4141c884e5e86ff7fa784f
 ===
 
 title: Tutorial_Start
 ---
-<<background "BG_Room_Initial_Day">>
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImJhY2tncm91bmQiLCJhcmdzIjpbIkJHX1Jvb21fSW5pdGlhbF9EYXkiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuWlpeauv+ODhuODiOODqSIsIkNoX1RldG9yYV9ob2xvZ3JhbV9kZWZhdWx0IiwiMC41IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSJdfV19">>
 奥殿テトラ: 「お、おはようございます、大幹部様」
 奥殿テトラ: 「今日から作戦第二段階…ピュアプリピーチを教育していくフェーズですが…」
-奥殿テトラ: 「あ、対象が起きはじめたようです！ここはひとまず私が作戦を説明しますので…」
-白崎桃香: 「んう…おはようピュアルン」
-奥殿テトラ: 「お、おはようだルン！」
-白崎桃香: 「ん…？ピュアルン今日なんか調子わるい……？」
+奥殿テトラ: 「ピーチが起きる前に育成システムの説明をさせていただきます」
+===
+
+title: Tutorial_Teach
+---
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImNsZWFyIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJCR19Sb29tX0luaXRpYWxfRGF5IiwiaW5zdGFudCIsImJsYWNrIl19LHsia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLlpaXmrr/jg4bjg4jjg6kiLCJDaF9UZXRvcmFfaG9sb2dyYW1fZGVmYXVsdCIsIjAuOTYiLCJpbnN0YW50IiwiZmFsc2UiLCIwIiwiMS4yMSIsImluc3RhbnQiXX0seyJraW5kIjoiYmdtIiwiYXJncyI6WyJ2b2x1bWUiLCIxIl19LHsia2luZCI6ImJnbSIsImFyZ3MiOlsic3RvcCIsImluc3RhbnQiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIueZveW0juahg+mmmSIsIkNoX1RldG9yYV9ob2xvZ3JhbV9kZWZhdWx0IiwiMC41IiwiMC41IiwiZmFsc2UiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfQm9keV9DYXN1YWwiLCIwLjUiLCIwLjUiLCJ0cnVlIiwia2VlcCIsIjEuMjEiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsiZmFjZSIsIueZveW0juahg+mmmSIsIkNoX1Rva2FfRmFjZV9kZWZhdWx0IiwiaW5zdGFudCJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJtb3ZlIiwi55m95bSO5qGD6aaZIiwiMC4xMyIsImluc3RhbnQiXX1dfQ==">>
+奥殿テトラ: お、お疲れ様です、ひとまず会話は上手くいったようですね
+奥殿テトラ: 「で、では次の作戦です…」
+奥殿テトラ: 「ピーチを怪人に育てるために、幹部様に彼女の教育を行っていただきます」
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbInNob3ciLCLjg5Tjg6XjgqLjg6vjg7MiLCJDaF9QdXJlcnVuX21la2EiLCIwLjUiLCIwLjUiLCJmYWxzZSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44OU44Ol44Ki44Or44OzIiwiQ2hfUHVyZXJ1bl9tZWthIiwiMC41IiwiMC41IiwiZmFsc2UiLCJrZWVwIiwiMS4yMSJdfSx7ImtpbmQiOiJjaGFyIiwiYXJncyI6WyJzaG93Iiwi44OU44Ol44Ki44Or44OzIiwiQ2hfQXJteV9NYWxlIiwiMC41IiwiMC41IiwiZmFsc2UiXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuODlOODpeOCouODq+ODsyIsIkNoX1B1cmVydW5fbWVrYSIsIjAuNjciLCIwLjUiLCJmYWxzZSIsImtlZXAiLCJrZWVwIiwiaW5zdGFudCJdfV19">>
+奥殿テトラ: 「ひとまず私がピュアルンを操縦してピーチに説明しますので、少々お待ちを」
+奥殿テトラ: 「あ、と、桃香、ちょっと、話が…ある…ルンッ…！」
+白崎桃香: 「ん…？どうしたのピュアルン……やっぱり今日調子わるい……？」
 奥殿テトラ: 「そ、そんなことないルン！、そ、それより！」
 奥殿テトラ: 「桃香はとっても強いとはいえ、やっぱり桃香一人だと不安ルン？」
 白崎桃香: 「うん…確かにそうね…」
@@ -213,9 +275,22 @@ title: Tutorial_Start
 奥殿テトラ: 「新しくヴェノムと戦う技を身に着けたりするんだルン！」
 白崎桃香: 「う、うん！…どれも大事そうね…！」
 奥殿テトラ: そうと決まれば実際にやってみるルン！
-大幹部: 「この街にはヴェノムとつながりを持つ組織が増えているらしいルン…」
-「だから、桃香には僕が目星をつけた場所や施設に潜入して、悪いことが起きていないか調査してほしいルン！」
-「…そうね、ちょっと怖いけど、この街を守るためなら！」
+===
+
+title: Tutorial_Goingout
+---
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImNsZWFyIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJCR19Sb29tX0luaXRpYWxfTmlnaHQiLCJpbnN0YW50IiwiYmxhY2siXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuWlpeauv+ODhuODiOODqSIsIkNoX1RldG9yYV9ob2xvZ3JhbV9kZWZhdWx0IiwiMC41IiwiaW5zdGFudCIsImZhbHNlIiwiMCIsIjEuMjEiXX0seyJraW5kIjoiYmdtIiwiYXJncyI6WyJ2b2x1bWUiLCIxIl19LHsia2luZCI6ImJnbSIsImFyZ3MiOlsic3RvcCIsImluc3RhbnQiXX1dfQ==">>
+奥殿テトラ: 「お疲れさまでした…見事ピーチを教育することが出来ました」
+奥殿テトラ: 「…それでは、次は夜の予定です」
+===
+
+title: Tutorial_End
+---
+<<dialogue_stage "eyJjb21tYW5kcyI6W3sia2luZCI6ImNoYXIiLCJhcmdzIjpbImNsZWFyIiwiaW5zdGFudCJdfSx7ImtpbmQiOiJiYWNrZ3JvdW5kIiwiYXJncyI6WyJCR19Sb29tX0luaXRpYWxfTmlnaHQiLCJpbnN0YW50IiwiYmxhY2siXX0seyJraW5kIjoiY2hhciIsImFyZ3MiOlsic2hvdyIsIuWlpeauv+ODhuODiOODqSIsIkNoX1RldG9yYV9ob2xvZ3JhbV9kZWZhdWx0IiwiMC41IiwiaW5zdGFudCIsImZhbHNlIiwiMCIsIjEuMjEiXX0seyJraW5kIjoiYmdtIiwiYXJncyI6WyJ2b2x1bWUiLCIxIl19LHsia2luZCI6ImJnbSIsImFyZ3MiOlsic3RvcCIsImluc3RhbnQiXX1dfQ==">>
+奥殿テトラ: 「お疲れ様でした、これで今日の作戦は終了となります」
+奥殿テトラ: 「情報によると…ピュアプリミントが返ってくるのが“25日後”との事なので…それまでに怪人化を達成する必要があります」
+奥殿テトラ: 「あまり時間はないですが…優秀なる幹部様の腕前を信頼しておりますので…」
+奥殿テトラ: 「そ、それでは、私は研究に戻りますので…後はよろしくお願いします」
 ===
 
 
@@ -223,6 +298,43 @@ title: Tutorial_Start
 
 
 // Sheet: 朝会話
+
+title: Conversation_Day1
+---
+白崎桃香: 「んう…おはようピュアルン」
+白崎桃香: 「う～ん…なんか頭痛い…ちょっと変な夢を見た気がするわね……」
+白崎桃香: 「まあいいか…ピュアルン、今日もよろしくね！」
+===
+
+title: Conversation_Day1_A
+---
+ピュアルン: 「おはようルン！ピーチ！」
+白崎桃香: 「うんっ、おはよう…って…」
+白崎桃香: 「ピュアルン、今私の事ピーチって呼んだ…？」
+白崎桃香: 「今は戦闘中じゃないんだから…普通に桃香で大丈夫よ」
+白崎桃香: 「ピュアルンも疲れてるのかしら？まあ、最近ヴェノマータと戦う事も多かったし…」
+白崎桃香: 「ピュアルンも休めるときはゆっくり休まないとだめよ？」
+===
+
+title: Conversation_Day1_B
+---
+ピュアルン: 「……寝癖がついてるルン！」
+白崎桃香: 「んっ…ほんとだ…ありがとうピュアルン」
+白崎桃香: 「うっ…結構酷い寝癖…そんなに寝相悪かったかしら…？」
+白崎桃香: 「ちょっと洗面所で治してくるね！」
+白崎桃香: 「…ふうっ…これで治ったかしら」
+白崎桃香: 「それじゃあ、今日も元気に一日頑張ろう！」
+===
+
+title: Conversation_Day1_C
+---
+ピュアルン: 「………………。」
+白崎桃香: 「あ、あれ…ピュアルン…まだ眠い……？」
+ピュアルン: 「………………。」
+白崎桃香: 「うーん…なんか反応がないわね…」
+白崎桃香: 「最近忙しかったし、ピュアルンも疲れてるのかも…」
+白崎桃香: 「とりあえず今はそっとしておこうかな…」
+===
 
 
 // Sheet: 外出アクション
@@ -234,143 +346,72 @@ title: Onsen_1
 ピュアルン: 「桃香にはここにバイトとして潜入して、噂が本当か確かめてほしいんだルン！」 #line:d05810f2f69c4b7797245a7e75cdc390
 白崎桃香: 「そうね…それなら裏でヴェノマータがどう暗躍してるかわかるかもしれないし…」
 白崎桃香: 「バイトとして潜入してみよう！」
-女将: 「はい、それでは研修はここまで、さっそく接客に移ってもらうのですが…」
-女将: 「特に新入りの桃香さん！」
+女将: 「はい！それでは研修はここまで、さっそく接客に移ってもらうのですが…」
+女将: 「新入りの桃香さん！」
 白崎桃香: 「は、はいっ！」
-女将: 「本日接客してもらう先生方はこの旅館をとても贔屓にしてくださるお得意様です」
-女将: 「先生達のご機嫌をそこねたらどれだけ旅館が損失を被るか…」
-女将: 「“くれぐれも”先生方のご機嫌をそこねる事が無いように、お願いしますよ？」
+女将: 「本日接客してもらう先生方はこの旅館をとっても贔屓にしてくださるお得意様ですからね！」
+女将: 「先生方のご機嫌をそこねたらこの旅館がどれだけ損失を被るか…」
+女将: 「“くれぐれも！”先生方のご機嫌をそこねる事が無いように、お願いしますよ？」
 白崎桃香: 「は、はい！お客様にご満足していただけるよう、一生懸命接客します！」
-「いやー、今日のお酌をしてくれる娘は大当たりのべっぴんさんだなあ」
-「ムヒヒッ！そうですなあ、この宿にこんなめんこい娘が残っているとは」
-「あはは…ありがとうございます…」
-「お嬢ちゃん、お名前はなんていうのかな？」
-「あ、と、桃香って言います…」
+男: 「いやー、今日のお酌をしてくれる娘はこれまたずいぶんべっぴんさんですなあ」
+男: 「ムヒヒッ！そうですなあ、この宿にまだこんなかわいらしい娘が残っているとは」
+白崎桃香: 「あはは…ありがとうございます…」
+白崎桃香: (ううっ…男の人のお酌をするのは…覚悟はしてたけど)
+白崎桃香: (右の人……肩に手置いてきてるし…思ったより距離が近いわね…)
 さわさわ…
-「ひうっ…！ちょ…」
+白崎桃香: 「ひうっ…！やっ…」
 やめてくださいと言おうとしたところで、桃香は思いとどまる
-(私が潜入した目的は、この人達がヴェノマータとつながってるか調べる事なんだから…機嫌を損ねないようにしないと…)
-(このおじさん、お尻…触ってきてる…)
-(うっ…これ…完全にセクハラだけど…我慢しなくちゃ…)
+白崎桃香: (……私が潜入した目的は、この人達がヴェノマータとつながってるか調べる事なんだから…機嫌を損ねないようにしないと…)
+白崎桃香: (うっ…これ…完全にセクハラだけど…我慢…我慢…)
 「ほーれっ、ツンツン！」
-(こいつらがヴェノマータとつながっているという確信が得られるまで…耐えないと…)
-「や、やーんっ！くすぐったいですぅ！」
-()
-「ふうっ…やっとおわった…」
+白崎桃香: 「あ、あははっ…！くすぐったいですぅ…！」
+白崎桃香: 「あ、あははっ、や、やめっ…くすぐった…♥」
 ===
 
 title: Onsen_2
 ---
-桃香は政治家たちを接待するが、自身もお酒を飲まされ、酔った政治家たちによっておっぱいをボロンされてしまう。そのまま逆らえずおっぱいをつつかれたりセクハラをされてしまう #line:9499080ae7ba46b1b1abbedff4432bc1
-「そうじゃ！それでのう、ワシが若い頃はあのアイドルのカヨコちゃんと付き合っておってのう！」
-白崎桃香: 「へ、へえ～！凄いですね！」
-白崎桃香: (…ううっ、酒臭い…この人達、今日はいつにもましてご機嫌なような…)
-白崎桃香: 「あ、お椀が空いているようですので、お酒をお注ぎしますね…」
-「おお、気が利くのう！ホレ、桃香ちゃんももっと飲まんか！」
-白崎桃香: 「あはは、うれしいです、いただきます～！」
-白崎桃香: (うっ…私も酔ってきたのかも…普段お酒なんか飲まないし…)
-「ふうっ、桃香ちゃんがお酒を注いでくれるから熱くなってきてしまったわい」
-「ムヒヒッ！そうですなあ、いっそのこと脱いでしまいますかな」
-そういうと男たちは浴衣をはだけさせ、上裸となる
-白崎桃香: (……っ！この人達、脱ぎだして…悪ノリしすぎ！)
-「ほれ、桃香ちゃんも暑くなってきたじゃろう、どうじゃ？パーッと脱いでみては」
-白崎桃香: 「え…ええと…私はちょっと遠慮しておこうかな…」
-「そう遠慮しなさんな！ほれっ！」
-「ムヒヒッ！桃香ちゃんも涼しくなってしまおうではありませんか！」
-白崎桃香: 「ちょっ、や、や～ん！はだけてしまいますぅ」
-白崎桃香: (ちょ、ちょっと！この人達、本当に脱がそうとして来てる…！)
-バサッ！スポンッ！
-男たちによって桃香は着物を一気に剥かれ、中から豊満な胸があらわになる
-白崎桃香: 「っ～～～～～！？！！」
-「おひょ～～～！お宝発見！こりゃあ立派なおっぱいじゃあ！！」
-「ムヒヒッ！いやはや立派な桃、いや立派なダブルメロンですなあ」
-(こ、この人達っ！さすがに悪ノリがひどすぎっ！、で、でもっ…)
-白崎桃香: 「や、や～んっ！恥ずかしいですよおっ…」
-それでも桃香は男たちの機嫌をそこねない様に、動揺しながらも男たちに媚びへつらう
-「まあまあ、これも裸の付き合い、これで桃香ちゃんとわしらはもっと仲良くなれるんじゃから」
-「ムヒヒッ！しかしスケベな乳ですなあ、大きな乳房にぷっくりとした乳首」
-「桃香ちゃんのおっぱい見てるとちゅーちゅーしたくなるわい」
-「あ、あははっ…」
-「ムヒヒッ、ほりゃっ、つんつんっ、つんつんっ！」
-「ひああっっ！？」
-(ちょっ、このひとっ、乳首っ…つついてきたっ…！)
-「そんなに重い物をぶら下げてると肩がこるじゃろうて、ワシが支えてあげよう！」
-タプタプッ
-「おっほ～、なんて重量感、桃香ちゃんはこんな重いのをぶら下げながら生活しとるんじゃなあ」
-「あ、あははっ…お気遣いありがとうございます～」
-(こ、このっ！好き勝手に触って…！)
-「ホレホレッ！ホレホレッ！」
-「ツンツンッ！ツンツンッ！」
-「や、や～ん、おじ様たちのえっち～♥」
-プルンッ！プルンッ！プルルンッ！
-「あ、あははっ、や、やめっ…くすぐった…♥」
-「あっ…♥んあっ…っ♥」
-男たちがおっぱいをいじっていると、桃香の体が軽く痙攣する
-「ムヒヒッ、おや桃香ちゃん、ハレンチな声が出てますぞ！」
-「スケベな娘じゃのう～！普段からいじってるんじゃないかね？」
-「も、もう～！わたしはそんなえっちな女の子じゃないです～♥」
-「ムホホッ、本当かのう～？これはもっと触って確かめなければ！」
-「ムヒヒッ！そうですな、これは桃香ちゃんが嘘をついてないか調査が必要ですぞ～♥」
-いつの間にか桃香の席の周りには男たちが集まり、桃香の胸が弄ばれる様子を見物している
-(こ、こんな大勢の人におっぱいみられて…うう～っ！は、早く終わって…！)
-プルンッ！プルンッ！プルルンッ！
-その後も桃香は男たちにセクハラをされながらも、何とか宴会を切り抜けるのであった
-「はあっ…はあっ……疲れた…………！」
-「あのおじさんたち…好き放題セクハラして…！」
-「しかも結局ヴェノマータとつながってる噂は聞き出せなかった…」
-「ううっ……悔しいけど操作続行ね……」
+白崎桃香: 「しかも結局ヴェノマータとつながってる噂は聞き出せなかったし…」
 ===
 
 title: Onsen_3
 ---
-桃香は政治家たちを接待するため女体盛りをする #line:6fd6883e2e854b20866c56bf1d8dedc1
-「なにこれ…下品すぎる…」
-あり得ない状況に桃香は
-「そ、そうだ…別のこと考えて気を紛らわそう…！」
-「え、ええと…ブヒたろうの新しいぬいぐるみが…」
-「ムホホッ！刺身の下から何か出てきましたぞ！」
-「これは何て種類でしょうなあ？イチゴですかな？」
-「ありゃ？！アワビを食べたと思ったらまた下からアワビが出てきましたぞ！」
-男たちは桃香の敏感な部分を箸でつっつく
-男たちは桃香の敏感な部分を箸でひっぱり持ち上げようとする
-「ありゃー！このイチゴを食べたいのですが、なかなか取れませんなあ！」
-「おや？このお皿不良品ですかな？なぜかピクピクと…」
+白崎桃香: 「………はあ、今日もこの旅館に潜入か…」 #line:6fd6883e2e854b20866c56bf1d8dedc1
+男: 「では皆さん、このスケベな夕食に乾杯！」
+白崎桃香: (そ、そうだ…別のこと考えて気を紛らわそう…！)
+白崎桃香: (え、ええと…ブヒたろうの新しいぬいぐるみが…)
+男: 「ムホホッ！刺身の下から何か出てきましたぞ！」
+男: 「これは何て種類でしょうなあ？イチゴですかな？」
+男: 「ありゃりゃ？！アワビを食べたと思ったらまた下からアワビが出てきましたぞ！」
+ムニムニムニッ！グニッ！グニッ！
+白崎桃香: 「ひうっ！？そ、そこはっ…や、やめっ♥！？」
 ===
 
 title: Onsen_4
 ---
-ニュルンッ♥ニュルンッ♥ #line:36c0f2c28d684350ad6983bc6f41322b
-桃香はソーププレイで政治家たちを接待する #line:3a6e56304cdc426b80c0d86d921b146f
-「は、はいっ…！」
-(ううっ…絶対やりたくないけど…)
-(しょうがない…やるしかないっ…！)
-「は、はーい、今日は桃香が皆様をお風呂できれいにさせていただきまーす♥」
-「一生懸命スリスリするので、スッキリしちゃってくださいね～♥」
-桃香はソープを泡立て、体に塗っていく
-(ううっ…正直気持ち悪いけど…やるしかないっ…！)
-にゅるるんっ、ぎゅう～～～♥
-桃香は体を倒し、泡だらけの体を目の前の男に添い寝をするように纏わせる
-「おほーっ♥桃香ちゃんのムチムチのドスケベボディが纏わりついてくるぞ」
-(う、ううっ…私…おじさんに裸で抱き着いてる…)
-少し前なら考えられなかった状況に、桃香は頭の中が真っ白になる
-(そ、それでも！やらないと！ヴェノマータの情報を引き出すためなんだから！)
-「そ、それではお体綺麗にしていきますね～♥」
-「あ、あはは…具合はどうですか～♥」
+白崎桃香: 「は～い、それでは今日もおじさま達のおチンポ、ヌキヌキしていきますね～♥」
+白崎桃香: (……ううっ、もうおじさんたちのおチンポシコるの慣れてきちゃった…こんな事になれるの良くないのに…)
+白崎桃香: (で、でもっ！やらないとっ…！それが私の仕事なんだからっ……♥！)
+白崎桃香: 「ほ、ほえであっ、おひんほヌキヌキひま～す♥」
+ちゅるるっ…♥、ズルルッ♥、ズルッ♥
+桃香は探るように、それでいていやらしい音を口から響かせる
+ジュルルッ！ジュポッ…！チュゾゾッ♥
+男: 「おほほっ♥こりゃあ凄い！最近ソープ嬢やり始めたとは思えない上達っぷりですなあ♥」
+男: 「ムホホっ♥、いやあ4人同時奉仕なんてなかなかできませんぞ、こりゃあ凄い」
+男: 「いやいやワシは分かっていましたぞ、桃香ちゃんは物凄いスケベの才能がある娘だとね」
 ===
 
 title: Esthe_1
 ---
-桃香は
-「ここが怪しいマッサージ店…」
-「怪しいマッサージ店があるらしいルン」
-「なんでも…すごく大きい人がいるとか…」
-「う～ん、どうなんだろう…大きいっていう見た目だけで怪人っていうのは…」
-「………どうされましたか？」
+桃香とピュアルンは廃ビルの一室にあるらしいマッサージ店の前へとやってきた
+白崎桃香: 「ここがピュアルンの言っていた怪しいマッサージ店…」
+白崎桃香: 「なんでも…すごく大きい人がいるとか…」
+白崎桃香: 「う～ん、どうなんだろう…大きいっていう見た目だけで怪人っていうのは…」
+？？？: 「………どうされましたか？」
 桃香たちの上から女性の声が下りてくる
-「……ご挨拶を…私は“テレジア”と申します」
-「あっ…、そ、その、マッサージに」
-(ほ、本当に大きい…)
-「ええ…ではこちらへ」
+テレジア女史: 「……ご挨拶を…私は“テレジア”と申します」
+白崎桃香: 「あっ…、そ、その、私…マッサージに…」
+白崎桃香: (ほ、本当に大きい…2m以上ある…！？)
+テレジア女史: 「おや……そうでしたか…ではこちらへどうぞ………」
 ===
 
 title: Esthe_2
@@ -386,17 +427,11 @@ title: Esthe_3
 title: Esthe_4
 ---
 桃香は女史から粘液でどろどろにされながら全身をマッサージされ、マゾ絶頂してしまう #line:0f3dcb9c93a244b79f2a2472e0b93a7f
-あらすじ　桃香は闇バイトの広告が戦闘員募集に繋がっていることを知り、潜入することにする
-桃香が待ち合わせの向上に入ると、他の女の子もいるが、予想通り戦闘員が待ち構えており、桃香は洗脳装置による洗脳を受ける
-桃香は洗脳にかかったふりをして、戦闘員の服を着てアジト内部へと
-「なにこれ…下品すぎる…」
-あり得ない状況に桃香は
-「そ、そうだ…別のこと考えて気を紛らわそう…！」
-「え、ええと…ブヒたろうの新しいぬいぐるみが…」
-「ムホホッ！刺身の下から何か出てきましたぞ！」
-「これは何て種類でしょうなあ？イチゴですかな？」
-「ありゃ？！アワビを食べたと思ったらまた下からアワビが出てきましたぞ！」
-男たちは桃香の敏感な部分を箸でつっつく
+===
+
+title: Sentouin_1
+---
+桃香は女性をさらい、戦闘員に改造すると噂されるヴェノマータのアジトへと潜入する事になる
 ===
 
 

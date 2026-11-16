@@ -54,6 +54,7 @@ namespace Train.Battle
         public BattleTurnReport CurrentTurnReport { get; private set; }
 
         private BattleSession session;
+        private BattleSetup initialSetup;
         private TMP_FontAsset font;
         private Image backgroundImage;
         private Image heroineImage;
@@ -76,9 +77,12 @@ namespace Train.Battle
         private TMP_Text resultTitle;
         private TMP_Text resultStatusText;
         private Button returnButton;
+        private TMP_Text originalReturnButtonText;
+        private TMP_Text retryButtonText;
         private GameObject actionPopup;
         private Button[] skillButtons;
         private bool resolvingTurn;
+        private bool leavingBattle;
         private bool isMonsterTurn;
         private Tween energyGaugeTween;
         private Tween monsterHealthGaugeTween;
@@ -108,7 +112,8 @@ namespace Train.Battle
 
             try
             {
-                session = new BattleSession(ResolveSetup());
+                initialSetup = ResolveSetup().Copy();
+                session = new BattleSession(initialSetup);
                 if (sceneUI != null)
                     BindSceneInterface();
                 else
@@ -327,7 +332,8 @@ namespace Train.Battle
             foreach (BattlePortraitStage stage in report.reachedStages)
             {
                 message.Append('\n').Append(stage.label);
-                if (stage.bonusTurns > 0) message.Append("  残された時間 +").Append(stage.bonusTurns);
+                if (session.HasTurnLimit && stage.bonusTurns > 0)
+                    message.Append("  残された時間 +").Append(stage.bonusTurns);
             }
 
             return message.ToString();
@@ -603,7 +609,11 @@ namespace Train.Battle
         private void UpdateTurnText()
         {
             if (session != null && turnsText != null)
-                turnsText.text = LocalizationManager.Localize("Battle.TurnLeft", session.TurnsRemaining);
+            {
+                turnsText.gameObject.SetActive(session.HasTurnLimit);
+                if (session.HasTurnLimit)
+                    turnsText.text = LocalizationManager.Localize("Battle.TurnLeft", session.TurnsRemaining);
+            }
             if (session != null && currentTurnText != null)
             {
                 bool visible = session.Outcome == BattleOutcome.InProgress;
@@ -611,6 +621,11 @@ namespace Train.Battle
                 if (visible)
                     currentTurnText.text = LocalizationManager.Localize(
                         isMonsterTurn ? "Battle.PhaseEnemy" : "Battle.PhasePlayer");
+            }
+            if (NeedsTutorialRetry && !resolvingTurn && resultOverlay != null && resultOverlay.activeSelf)
+            {
+                SetText(resultStatusText, LocalizationManager.Localize("Battle.RetryPrompt"));
+                SetTutorialRetryButton(true);
             }
         }
 
@@ -629,8 +644,76 @@ namespace Train.Battle
 
         public void ReturnFromBattle()
         {
-            if (session?.Result != null)
-                BattleFlow.Complete(session.Result, session.Setup.returnSceneName);
+            if (session?.Result == null || resolvingTurn || leavingBattle) return;
+            if (NeedsTutorialRetry)
+            {
+                RestartTutorialBattle();
+                return;
+            }
+            leavingBattle = true;
+            try
+            {
+                BattleFlow.Complete(session.Result, session.Setup.returnSceneName,
+                    session.Setup.IsTutorialBattle ? session.Setup.tutorialVictoryDialogueNode : null,
+                    session.Setup.IsTutorialBattle ? session.Setup.tutorialReturnDialogueNode : null);
+            }
+            catch
+            {
+                leavingBattle = false;
+                throw;
+            }
+        }
+
+        private bool NeedsTutorialRetry => session?.Result != null &&
+            session.Setup.IsTutorialBattle && !session.Result.HeroineWon;
+
+        private void RestartTutorialBattle()
+        {
+            CancelGaugeAnimations();
+            CancelDamageFeedback();
+            CancelAttackerFeedback();
+            if (spellAnimation != null) spellAnimation.EndAnimation();
+            if (cutInImage != null) cutInImage.gameObject.SetActive(false);
+
+            session = new BattleSession(initialSetup);
+            CurrentTurnReport = null;
+            resolvingTurn = false;
+            leavingBattle = false;
+            isMonsterTurn = false;
+            SetPopupVisible(resultOverlay, false);
+            SetTutorialRetryButton(false);
+            SetText(resultTitle, "");
+            SetText(resultStatusText, "");
+            RefreshInterface($"{session.Setup.heroine.displayName}の行動を選んでください。\n行動後、怪人が自動で反撃します。");
+        }
+
+        private void SetTutorialRetryButton(bool retry)
+        {
+            if (returnButton == null) return;
+            if (originalReturnButtonText == null && retryButtonText == null)
+                originalReturnButtonText = returnButton.GetComponentInChildren<TMP_Text>(true);
+            if (retry && retryButtonText == null)
+            {
+                // Keep the original label's Inspector localization ID intact for normal results.
+                TMP_Text original = originalReturnButtonText;
+                retryButtonText = MakeText((RectTransform)returnButton.transform, "Tutorial Retry Label", "",
+                    original != null ? original.fontSize : 26f,
+                    original != null ? original.color : Background,
+                    original != null ? original.alignment : TextAlignmentOptions.Center,
+                    Vector2.zero, Vector2.one);
+                if (original != null)
+                {
+                    retryButtonText.font = original.font;
+                    retryButtonText.fontStyle = original.fontStyle;
+                }
+                retryButtonText.raycastTarget = false;
+            }
+            if (originalReturnButtonText != null) originalReturnButtonText.gameObject.SetActive(!retry);
+            if (retryButtonText != null)
+            {
+                if (retry) retryButtonText.text = LocalizationManager.Localize("Battle.Retry");
+                retryButtonText.gameObject.SetActive(retry);
+            }
         }
 
         private void OnDestroy()
@@ -664,8 +747,21 @@ namespace Train.Battle
         private void ShowResult()
         {
             foreach (Button button in skillButtons) button.interactable = false;
+            if (session.Setup.IsTutorialBattle && session.Result.HeroineWon)
+            {
+                SetPopupVisible(resultOverlay, false);
+                StartCoroutine(CompleteTutorialVictory());
+                return;
+            }
+            SetTutorialRetryButton(NeedsTutorialRetry);
             SetText(resultTitle, session.Setup.heroine.displayName +
                 (session.Result.HeroineWon ? "の勝利" : "の敗北"));
+            if (NeedsTutorialRetry)
+            {
+                SetText(resultStatusText, LocalizationManager.Localize("Battle.RetryPrompt"));
+                SetPopupVisible(resultOverlay, true);
+                return;
+            }
             var text = new StringBuilder();
             text.Append(session.Result.outcome == BattleOutcome.HeroineVictory ? "怪人の体力が0になりました。" :
                 session.Result.outcome == BattleOutcome.TurnLimitReached ? "時間切れで怪人が撤退しました。" :
@@ -679,10 +775,17 @@ namespace Train.Battle
             }
             if (text.Length == 0) text.Append("No status rules configured");
             text.Append("\nエナジー ").Append(session.Result.energyRemaining)
-                .Append("  怪人の体力 ").Append(session.Result.monsterHealthRemaining)
-                .Append("\n残された時間 ").Append(session.Result.turnsRemaining).Append(" ターン");
+                .Append("  怪人の体力 ").Append(session.Result.monsterHealthRemaining);
+            if (session.HasTurnLimit)
+                text.Append("\n残された時間 ").Append(session.Result.turnsRemaining).Append(" ターン");
             SetText(resultStatusText, text.ToString());
             SetPopupVisible(resultOverlay, true);
+        }
+
+        private IEnumerator CompleteTutorialVictory()
+        {
+            while (DialogueFlow.IsRunning || SceneTransitionManager.IsTransitioning) yield return null;
+            ReturnFromBattle();
         }
 
         private void BuildErrorInterface(string error)

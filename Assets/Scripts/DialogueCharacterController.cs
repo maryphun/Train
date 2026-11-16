@@ -25,6 +25,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     private const string TokaBodyResource = "TokaBodyList";
     private const string TokaBodyPrefix = "Ch_Toka_Body_";
     private const string TokaFacePrefix = "Ch_Toka_Face_";
+    private const string PeachBodyAsset = "Ch_Toka_Body_TF";
 
     [SerializeField] private RectTransform characterRoot;
     [SerializeField] private List<Sprite> characterSprites = new();
@@ -1101,7 +1102,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     {
         if (ShouldUseTokaLayers(characterId, sprite))
         {
-            SetTokaCharacterLayers(view, GetCurrentTokaBody(), sprite);
+            SetTokaCharacterLayers(view, GetPresetBody(characterId), sprite);
             return;
         }
 
@@ -1115,7 +1116,7 @@ public class DialogueCharacterController : DialoguePresenterBase
             return !view.UsesTokaLayers && view.Image.sprite == sprite;
         }
 
-        Sprite body = GetCurrentTokaBody();
+        Sprite body = GetPresetBody(characterId);
         return view.UsesTokaLayers
             && view.TokaBodyImage.texture == GetSpriteTexture(body)
             && view.TokaFaceImage.texture == GetSpriteTexture(sprite);
@@ -1196,7 +1197,7 @@ public class DialogueCharacterController : DialoguePresenterBase
 
     private bool ShouldUseTokaLayers(string characterId, Sprite sprite)
     {
-        return IsTokaCharacterId(characterId) && IsTokaFaceSprite(sprite);
+        return (IsTokaCharacterId(characterId) || IsPeachCharacterId(characterId)) && IsTokaFaceSprite(sprite);
     }
 
     private bool IsTokaFaceSprite(Sprite sprite)
@@ -1233,6 +1234,35 @@ public class DialogueCharacterController : DialoguePresenterBase
         }
 
         return false;
+    }
+
+    private Sprite GetPresetBody(string characterId)
+    {
+        if (!IsPeachCharacterId(characterId))
+        {
+            return GetCurrentTokaBody();
+        }
+
+        // Peach shares Toka's face canvas, but always uses the transformed body
+        // rather than Toka's current profile outfit.
+        TokaBodyList list = GetTokaBodyList();
+        if (list != null)
+        {
+            if (string.Equals(GetSpriteTexture(list.defaultSprite)?.name, PeachBodyAsset, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return list.defaultSprite;
+            }
+
+            foreach (Sprite body in list.spriteList)
+            {
+                if (string.Equals(GetSpriteTexture(body)?.name, PeachBodyAsset, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return body;
+                }
+            }
+        }
+
+        return FindCharacterSprite(PeachBodyAsset);
     }
 
     private Sprite GetCurrentTokaBody()
@@ -1320,6 +1350,11 @@ public class DialogueCharacterController : DialoguePresenterBase
     private static bool UsesSameTexture(Sprite first, Sprite second)
     {
         return first != null && second != null && GetSpriteTexture(first) == GetSpriteTexture(second);
+    }
+
+    private static bool IsPeachCharacterId(string characterId)
+    {
+        return string.Equals(characterId?.Trim(), "ピュアプリピーチ", System.StringComparison.Ordinal);
     }
 
     private static bool IsTokaCharacterId(string characterId)

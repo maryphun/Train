@@ -21,6 +21,9 @@ public sealed class DialogueFlow : MonoBehaviour
         public string ReturnScene;
         public float ReturnFadeTime;
         public YarnProject Project;
+        public string NextNodeOnReturn;
+        public Action OnCompleted;
+        public bool ReturnBetweenNodes;
     }
 
     /// <summary>True while setup is waiting for entry, loading, playing or returning.</summary>
@@ -30,11 +33,14 @@ public sealed class DialogueFlow : MonoBehaviour
     /// Call on Unity's main thread in Play Mode. Returns whether the request was accepted.
     /// If project is omitted, uses the Dialogue scene runner's assigned Yarn Project.
     /// The scene runner must have Auto Start disabled and its presenters configured.
+    /// onCompleted runs once after all Nodes succeed and the final return fade finishes.
+    /// Set returnBetweenNodes false to fade directly to the follow-up without exposing the return scene.
     /// </summary>
     public static bool Start(string nodeName, string returnScene,
-        float fadeTime = SceneTransitionManager.DefaultFadeTime, YarnProject project = null)
+        float fadeTime = SceneTransitionManager.DefaultFadeTime, YarnProject project = null,
+        string nextNodeOnReturn = null, Action onCompleted = null, bool returnBetweenNodes = true)
     {
-        if (!TryReserveRequest(nodeName, returnScene, fadeTime, project))
+        if (!TryReserveRequest(nodeName, returnScene, fadeTime, project, nextNodeOnReturn))
             return false;
 
         if (!SceneTransitionManager.Load(ScenePath, fadeTime))
@@ -43,7 +49,9 @@ public sealed class DialogueFlow : MonoBehaviour
             return false;
         }
 
-        instance.StartCoroutine(instance.Run(nodeName, returnScene, fadeTime, project));
+        instance.StartCoroutine(instance.Run(nodeName, returnScene, fadeTime, project,
+            nextNodeOnReturn: nextNodeOnReturn, onCompleted: onCompleted,
+            returnBetweenNodes: returnBetweenNodes));
         return true;
     }
 
@@ -51,11 +59,14 @@ public sealed class DialogueFlow : MonoBehaviour
     /// Prepares the next entry to Dialogue without loading it. Call before your own transition.
     /// Playback begins after scene startup and any SceneTransitionManager fade have finished.
     /// returnFadeTime applies only to the automatic return, not the caller's entry transition.
+    /// onCompleted runs only after successful playback and the final return, not on cancellation/failure.
+    /// returnBetweenNodes defaults true; false reloads only Dialogue between the two Nodes.
     /// </summary>
     public static bool Setup(string nodeName, string returnScene,
-        float returnFadeTime = SceneTransitionManager.DefaultFadeTime, YarnProject project = null)
+        float returnFadeTime = SceneTransitionManager.DefaultFadeTime, YarnProject project = null,
+        string nextNodeOnReturn = null, Action onCompleted = null, bool returnBetweenNodes = true)
     {
-        if (!TryReserveRequest(nodeName, returnScene, returnFadeTime, project))
+        if (!TryReserveRequest(nodeName, returnScene, returnFadeTime, project, nextNodeOnReturn))
             return false;
 
         instance.preparedDialogue = new PreparedDialogue
@@ -63,7 +74,10 @@ public sealed class DialogueFlow : MonoBehaviour
             NodeName = nodeName,
             ReturnScene = returnScene,
             ReturnFadeTime = returnFadeTime,
-            Project = project
+            Project = project,
+            NextNodeOnReturn = nextNodeOnReturn,
+            OnCompleted = onCompleted,
+            ReturnBetweenNodes = returnBetweenNodes
         };
         SceneManager.sceneLoaded += instance.OnSceneLoaded;
         return true;
@@ -78,7 +92,8 @@ public sealed class DialogueFlow : MonoBehaviour
         return true;
     }
 
-    private static bool TryReserveRequest(string nodeName, string returnScene, float fadeTime, YarnProject project)
+    private static bool TryReserveRequest(string nodeName, string returnScene, float fadeTime, YarnProject project,
+        string nextNodeOnReturn)
     {
         if (!Application.isPlaying || IsRunning || SceneTransitionManager.IsTransitioning)
             return false;
@@ -104,7 +119,8 @@ public sealed class DialogueFlow : MonoBehaviour
         }
 
         // An explicitly supplied project can be checked before leaving the caller's scene.
-        if (project != null && !ValidateNode(project, nodeName))
+        if (project != null && (!ValidateNode(project, nodeName) ||
+            !string.IsNullOrWhiteSpace(nextNodeOnReturn) && !ValidateNode(project, nextNodeOnReturn)))
             return false;
 
         if (instance == null)
@@ -130,11 +146,13 @@ public sealed class DialogueFlow : MonoBehaviour
         preparedDialogue = null;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         StartCoroutine(Run(prepared.NodeName, prepared.ReturnScene, prepared.ReturnFadeTime,
-            prepared.Project, waitForStart: true));
+            prepared.Project, waitForStart: true, nextNodeOnReturn: prepared.NextNodeOnReturn,
+            onCompleted: prepared.OnCompleted, returnBetweenNodes: prepared.ReturnBetweenNodes));
     }
 
     private IEnumerator Run(string nodeName, string returnScene, float fadeTime, YarnProject project,
-        bool waitForStart = false)
+        bool waitForStart = false, string nextNodeOnReturn = null, Action onCompleted = null,
+        bool releaseRequest = true, bool returnBetweenNodes = true)
     {
         try
         {
@@ -166,7 +184,8 @@ public sealed class DialogueFlow : MonoBehaviour
             }
 
             YarnProject selectedProject = project != null ? project : runner.YarnProject;
-            if (!ValidateNode(selectedProject, nodeName))
+            if (!ValidateNode(selectedProject, nodeName) ||
+                !string.IsNullOrWhiteSpace(nextNodeOnReturn) && !ValidateNode(selectedProject, nextNodeOnReturn))
                 yield break;
 
             Task playback = activePlayback = Play(runner, selectedProject, nodeName);
@@ -191,20 +210,52 @@ public sealed class DialogueFlow : MonoBehaviour
             // Do not redirect an unrelated scene if another system took over during playback.
             while (SceneTransitionManager.IsTransitioning)
                 yield return null;
+
             if (!IsDialogueSceneActive())
                 yield break;
 
-            if (!SceneTransitionManager.Load(returnScene, fadeTime))
+            bool hasFollowUp = !string.IsNullOrWhiteSpace(nextNodeOnReturn);
+            if (returnBetweenNodes || !hasFollowUp)
             {
-                Debug.LogWarning($"DialogueFlow could not return to '{returnScene}'.");
-                yield break;
+                if (!SceneTransitionManager.Load(returnScene, fadeTime))
+                {
+                    Debug.LogWarning($"DialogueFlow could not return to '{returnScene}'.");
+                    yield break;
+                }
+                while (SceneTransitionManager.IsTransitioning)
+                    yield return null;
+
+                if (SceneManager.GetActiveScene().name != returnScene && SceneManager.GetActiveScene().path != returnScene)
+                    yield break;
             }
-            while (SceneTransitionManager.IsTransitioning)
-                yield return null;
+
+            if (hasFollowUp)
+            {
+                // Direct mode reloads only Dialogue beneath the transition's full-screen black fade.
+                // MainMenu is not loaded or rendered until the final Node has finished.
+                if (!SceneTransitionManager.Load(ScenePath, fadeTime))
+                {
+                    Debug.LogWarning($"DialogueFlow could not enter follow-up Node '{nextNodeOnReturn}'.");
+                    yield break;
+                }
+                bool followUpCompleted = false;
+                yield return Run(nextNodeOnReturn, returnScene, fadeTime, selectedProject,
+                    onCompleted: () => followUpCompleted = true, releaseRequest: false);
+                if (!followUpCompleted)
+                    yield break;
+            }
         }
         finally
         {
-            ReleaseRequest();
+            if (releaseRequest)
+                ReleaseRequest();
+        }
+
+        // Only a successful final return reaches here. Release ownership before user code runs.
+        if (onCompleted != null)
+        {
+            try { onCompleted(); }
+            catch (Exception exception) { Debug.LogException(exception); }
         }
     }
 

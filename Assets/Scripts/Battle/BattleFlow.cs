@@ -12,6 +12,7 @@ namespace Train.Battle
         private static BattleSetup pendingSetup;
         private static Action<BattleResult> completionCallback;
         private static string returnSceneName;
+        private static bool requiresVictory;
 
         public static BattleResult LastResult { get; private set; }
 
@@ -25,6 +26,9 @@ namespace Train.Battle
                 throw new InvalidOperationException("Add Battle.unity to the build scene list before entering combat.");
 
             setup.Validate();
+            if (setup.IsTutorialBattle && !string.IsNullOrWhiteSpace(setup.tutorialVictoryDialogueNode) &&
+                !Application.CanStreamedLevelBeLoaded(DialogueFlow.ScenePath))
+                throw new InvalidOperationException("Add Dialogue.unity to the build scene list before configuring tutorial victory dialogue.");
             string destination = string.IsNullOrWhiteSpace(setup.returnSceneName)
                 ? SceneManager.GetActiveScene().name
                 : setup.returnSceneName;
@@ -34,6 +38,7 @@ namespace Train.Battle
             pendingSetup = setup.Copy();
             returnSceneName = destination;
             completionCallback = onCompleted;
+            requiresVictory = setup.IsTutorialBattle;
             LastResult = null;
         }
 
@@ -51,6 +56,7 @@ namespace Train.Battle
             pendingSetup = null;
             returnSceneName = null;
             completionCallback = null;
+            requiresVictory = false;
             return true;
         }
 
@@ -61,16 +67,24 @@ namespace Train.Battle
             return setup != null;
         }
 
-        internal static void Complete(BattleResult result, string fallbackReturnScene)
+        internal static void Complete(BattleResult result, string fallbackReturnScene,
+            string tutorialVictoryDialogueNode = null, string tutorialReturnDialogueNode = null)
         {
             if (result == null) throw new ArgumentNullException(nameof(result));
-            LastResult = result;
+            if (requiresVictory && !result.HeroineWon)
+                throw new InvalidOperationException("A tutorial battle must be won before completing its flow. Retry the battle instead.");
             string destination = !string.IsNullOrWhiteSpace(returnSceneName)
                 ? returnSceneName
                 : fallbackReturnScene;
+            bool startDialogue = result.HeroineWon && !string.IsNullOrWhiteSpace(tutorialVictoryDialogueNode);
+            if (startDialogue && !DialogueFlow.Setup(tutorialVictoryDialogueNode, destination,
+                nextNodeOnReturn: tutorialReturnDialogueNode, returnBetweenNodes: false))
+                throw new InvalidOperationException("Could not prepare the tutorial victory dialogue. Battle completion has not been consumed.");
+            LastResult = result;
             Action<BattleResult> callback = completionCallback;
             returnSceneName = null;
             completionCallback = null;
+            requiresVictory = false;
 
             if (string.IsNullOrWhiteSpace(destination) ||
                 destination == SceneName || !Application.CanStreamedLevelBeLoaded(destination))
@@ -92,7 +106,7 @@ namespace Train.Battle
                 SceneManager.sceneLoaded += OnSceneLoaded;
             }
 
-            SceneManager.LoadScene(destination);
+            SceneManager.LoadScene(startDialogue ? DialogueFlow.ScenePath : destination);
         }
     }
 }

@@ -26,6 +26,9 @@ public enum Tutorials
 {
     MainMenu,
     Battle,
+    Educate,
+    GoingOut,
+    EndDay,
 
     maxCount
 }

@@ -116,14 +116,20 @@ namespace Train.Battle
     [Serializable]
     public sealed class BattleSetup
     {
+        [Tooltip("Require a tutorial battle victory before proceeding; defeat prompts a retry of the original setup.")]
+        public bool IsTutorialBattle;
+        [Tooltip("Optional Yarn node to start immediately after tutorial victory, instead of showing results.")]
+        public string tutorialVictoryDialogueNode;
+        [Tooltip("Optional Yarn node to fade directly into after the victory dialogue, before finally returning to Return Scene Name.")]
+        public string tutorialReturnDialogueNode;
         public BattleCharacter heroine = new BattleCharacter();
         public BattleCharacter monster = new BattleCharacter();
         [Tooltip("Optional battle background sprite. Leave empty for a black background.")]
         public Sprite background;
         [Min(1)] public int startingEnergy;
         [Min(1)] public int startingMonsterHealth = 100;
-        [Tooltip("Remaining time, measured in completed turns (not real-time seconds).")]
-        [Min(1)] public int turnLimit;
+        [Tooltip("Maximum completed turns. Zero means unlimited turns; positive values enforce the limit.")]
+        [Min(0)] public int turnLimit;
         public string returnSceneName;
         [FormerlySerializedAs("defeatStatusMultiplier")]
         [Min(0)] public float heroineVictoryStatusMultiplier = 0.25f;
@@ -157,12 +163,15 @@ namespace Train.Battle
 
         public void Validate()
         {
+            if (IsTutorialBattle && !string.IsNullOrWhiteSpace(tutorialReturnDialogueNode) &&
+                string.IsNullOrWhiteSpace(tutorialVictoryDialogueNode))
+                throw new ArgumentException("Set the tutorial victory dialogue node before configuring a return dialogue node.");
             if (heroine == null || string.IsNullOrWhiteSpace(heroine.displayName))
                 throw new ArgumentException("BattleSetup requires one magical girl with a display name.");
             if (monster == null || string.IsNullOrWhiteSpace(monster.displayName))
                 throw new ArgumentException("BattleSetup requires one monster with a display name.");
-            if (startingEnergy <= 0 || startingMonsterHealth <= 0 || turnLimit <= 0)
-                throw new ArgumentException("Starting Energy, monster health, and turn limit must be positive.");
+            if (startingEnergy <= 0 || startingMonsterHealth <= 0 || turnLimit < 0)
+                throw new ArgumentException("Starting Energy and monster health must be positive. Turn limit must be zero (unlimited) or positive.");
             if (heroineVictoryStatusMultiplier < 0 || heroineDefeatStatusMultiplier < 0 ||
                 float.IsNaN(heroineVictoryStatusMultiplier) || float.IsInfinity(heroineVictoryStatusMultiplier) ||
                 float.IsNaN(heroineDefeatStatusMultiplier) || float.IsInfinity(heroineDefeatStatusMultiplier))
