@@ -116,11 +116,14 @@ ID が `ピュアプリピーチ` の場合も `Ch_Toka_Face_*` を顔として�
 
 `表示順` は省略可能な 0 以上の整数です。`0` が最前面で、`1` は `0` の後ろです。数字が大きいほど後ろに表示されます。省略した既存コマンドは従来どおり、後から表示した立ち絵が前になります。
 
+表示する前に色を設定するには、末尾に `tint=色` を追加します。色名、`#RRGGBB`、`#RRGGBBAA` を使えます。`tint=black` ならフェードの最初のフレームから黒いシルエットで表示されます。立ち絵を追加する際の「表示の詳細設定」、または「立ち絵を表示」コマンドの「初期色」から指定できます。
+
 例:
 
 ```text
 [char:show:momoka:Ch_Momoka_TF_default:0.25:0.3:false:0]
 [char:show:kaede:Ch_Kaede_TF_default:0.75:0.3:false:1]
+[char:show:ピュアプリピーチ:Ch_Toka_TF_default:0.5:0.5:false:tint=black]
 ```
 
 ### Order / Display Order

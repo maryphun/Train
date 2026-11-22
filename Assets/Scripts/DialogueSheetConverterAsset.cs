@@ -401,6 +401,14 @@ public class DialogueSheetConverterAsset : ScriptableObject
                 if (shows.TryGetValue(id, out int showIndex))
                 {
                     List<string> show = outputTokens[showIndex];
+                    // The named tint stays last as placement arguments are folded into show.
+                    string initialTint = null;
+                    if (show.Count > 7 && ReadCharacterTokenValue(show[^1]).StartsWith(
+                        DialogueCharacterController.InitialTintPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        initialTint = show[^1];
+                        show.RemoveAt(show.Count - 1);
+                    }
                     string[] defaults = { "0.5", "\"instant\"", "false", "\"keep\"", "\"keep\"" };
                     while (show.Count < 9)
                     {
@@ -414,6 +422,8 @@ public class DialogueSheetConverterAsset : ScriptableObject
                         else
                             show[9] = "\"instant\"";
                     }
+                    if (initialTint != null)
+                        show.Add(initialTint);
                     output[showIndex] = "<<" + string.Join(" ", show) + ">>";
                 }
                 else

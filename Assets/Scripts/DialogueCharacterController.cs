@@ -22,6 +22,7 @@ public class DialogueCharacterController : DialoguePresenterBase
     private const float CharacterShakeDuration = 0.7f;
     private const float CharacterShakePixelsPerStrength = 5f;
     private const string CharacterFolder = "Assets/Graphic/Characters";
+    internal const string InitialTintPrefix = "tint=";
     private const string TokaBodyResource = "TokaBodyList";
     private const string TokaBodyPrefix = "Ch_Toka_Body_";
     private const string TokaFacePrefix = "Ch_Toka_Face_";
@@ -421,6 +422,13 @@ public class DialogueCharacterController : DialoguePresenterBase
             yield break;
         }
 
+        string initialTint = null;
+        if (args.Length > 6 && args[^1]?.StartsWith(InitialTintPrefix, System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            initialTint = args[^1][InitialTintPrefix.Length..];
+            args = args[..^1];
+        }
+
         float xPosition = ParseNormalizedPosition(GetArg(args, 3, "0.5"));
         float fadeTime = ParseFadeTime(GetArg(args, 4, "instant"));
         bool flipped = ParseFlip(GetArg(args, 5, "false"));
@@ -459,6 +467,11 @@ public class DialogueCharacterController : DialoguePresenterBase
         view.XPosition = wasVisible ? startXPosition : xPosition;
         view.Flipped = flipped;
         ApplyCharacterScale(view);
+        if (!string.IsNullOrWhiteSpace(initialTint))
+        {
+            // The sprite and both layered images read this tint before their first visible frame.
+            view.TintColor = ParseColor(initialTint);
+        }
         SetCharacterVisual(view, characterId, sprite);
         view.GameObject.SetActive(true);
         startPendingCharacterEffects?.Invoke(view);
