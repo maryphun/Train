@@ -114,9 +114,11 @@ shown in the same command group, its pending effects start after its visual setu
 first reveal. Missing targets are reported rather than delaying the group indefinitely.
 
 Selecting or editing a line silently replays these temporary effects in the web preview without
-changing the reconstructed scene state or adding a transport play button. Reduced-motion preference
-suppresses the preview's spatial shaking while retaining the color transition. The existing browser
-speaker shading remains separate from the game's speaker-focus behavior.
+changing the reconstructed scene state. The preview's 「再生」 button replays the selected line's
+transitions and registered audio from the state before that line, keeping the dialogue selection fixed.
+Reduced-motion preference suppresses the preview's spatial shaking while retaining the color
+transition. The existing browser speaker shading remains separate from the game's speaker-focus
+behavior.
 
 ## Coordinated presentation
 

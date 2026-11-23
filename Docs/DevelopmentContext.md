@@ -4,6 +4,10 @@ Recorded 2026-09-08. This is a source index and onboarding snapshot, not an appr
 
 ## User decisions
 
+- On 2026-11-23 the user authorized committing and deploying selected-line preview playback. Both GitHub Pages jobs succeeded for editor commit `db0327d` in workflow `45089638769`. The public editor served the Play and Stop controls, and all 88 tests passed.
+
+- On 2026-11-23 the user requested a preview Play control and confirmed the final behavior: place 「再生」 below the preview, aligned with its right edge, and replay the selected line in place with registered BGM and SE. Playback starts from the state before that line and keeps the dialogue selection fixed. 「停止」 or manual navigation cancels animation and audio. The preview follows the character removal, movement, and appearance phases, starts BGM at a background transition's midpoint and SE and shakes at the start, and plays screen fades and dialogue UI transitions afterward. All 88 editor tests and the production build passed. A local browser fixture verified real audio playback, stopping, no dialogue advance, and right alignment with centered navigation at desktop and narrow compact widths. The scenario-editor Trello card was inaccessible.
+
 - On 2026-11-23 the user authorized publishing the last-location and expression-thumbnail changes together. GitHub Pages build and deployment both succeeded for editor commit `691041f` in workflow `45087910213`. The public editor served both features, and all 87 tests passed.
 
 - On 2026-11-23 the user requested thumbnail selection in 「表情を変更」 and confirmed that filename-prefix filtering applies only when the current sprite is `Ch_Toka_TF_*`. The picker opens with the loaded `Ch_Toka_TF_` variants in that case. Other sprites can use the full thumbnail list. The filename remains editable and thumbnail selection fills the existing expression command. All 87 editor tests and the production build passed. A local browser fixture verified matching thumbnails, changing the sprite on a line, the full list for another character, the add-character picker, and a narrow layout. The scenario-editor Trello card was inaccessible.
